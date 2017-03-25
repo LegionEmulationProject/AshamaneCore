@@ -100,9 +100,6 @@ struct JumpArrivalCastArgs
 
 class TC_GAME_API MotionMaster
 {
-    private:
-        typedef std::vector<MovementGenerator*> ExpireList;
-
     public:
         explicit MotionMaster(Unit* unit) : _expireList(nullptr), _top(-1), _owner(unit), _cleanFlag(MMCF_NONE)
         {
@@ -185,6 +182,8 @@ class TC_GAME_API MotionMaster
         void MoveBackward(uint32 id, float x, float y, float z, float speed = 0.0f);
 
     private:
+        typedef std::vector<MovementGenerator*> MovementList;
+
         void pop();
 
         bool NeedInitTop() const;
@@ -200,11 +199,11 @@ class TC_GAME_API MotionMaster
         void DelayedDelete(MovementGenerator* curr);
         void ClearExpireList();
 
-        ExpireList* _expireList;
         MovementGenerator* _slot[MAX_MOTION_SLOT];
-        int _top;
-        Unit* _owner;
         bool _initialize[MAX_MOTION_SLOT];
+        MovementList _expireList;
+        Unit* _owner;
+        int _top;
         uint8 _cleanFlag;
 };
 
