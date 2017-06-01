@@ -866,7 +866,7 @@ bool Creature::AIM_Create(CreatureAI* ai /*= nullptr*/)
 
     Motion_Initialize();
 
-    i_AI = ai ? ai : FactorySelector::selectAI(this);
+    i_AI = ai ? ai : FactorySelector::SelectAI(this);
     return true;
 }
 
@@ -2637,7 +2637,7 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
     return Unit::GetLevelForTarget(target);
 }
 
-std::string Creature::GetAIName() const
+std::string const& Creature::GetAIName() const
 {
     return sObjectMgr->GetCreatureTemplate(GetEntry())->AIName;
 }

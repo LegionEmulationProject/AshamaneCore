@@ -45,7 +45,7 @@ class TC_GAME_API GameObjectAI
         virtual void SetGUID(ObjectGuid /*guid*/, int32 /*id = 0 */) { }
         virtual ObjectGuid GetGUID(int32 /*id = 0 */) const { return ObjectGuid::Empty; }
 
-        static int Permissible(GameObject const* go);
+        static int32 Permissible(GameObject const* /*go*/);
 
         virtual bool GossipHello(Player* /*player*/, bool /*reportUse*/) { return false; }
         virtual bool GossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
@@ -71,6 +71,6 @@ class TC_GAME_API NullGameObjectAI : public GameObjectAI
 
         void UpdateAI(uint32 /*diff*/) override { }
 
-        static int Permissible(GameObject const* /*go*/);
+        static int32 Permissible(GameObject const* /*go*/);
 };
 #endif

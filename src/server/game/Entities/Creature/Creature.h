@@ -183,7 +183,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         float GetSparringHealthLimit() const;
 
-        std::string GetAIName() const;
+        std::string const& GetAIName() const;
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
         ScriptParam GetScriptParam(uint8 index) const;

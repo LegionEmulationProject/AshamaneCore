@@ -36,9 +36,14 @@
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
 
+inline MovementGenerator* GetIdleMovementGenerator()
+{
+    return sMovementGeneratorRegistry->GetRegistryItem(IDLE_MOTION_TYPE)->Create();
+}
+
 inline bool IsStatic(MovementGenerator* movement)
 {
-    return (movement == &si_idleMovement);
+    return (movement == GetIdleMovementGenerator());
 }
 
 MotionMaster::~MotionMaster()
@@ -76,15 +81,7 @@ void MotionMaster::Initialize()
 // set new default movement generator
 void MotionMaster::InitDefault()
 {
-    if (_owner->GetTypeId() == TYPEID_UNIT)
-    {
-        MovementGenerator* movement = FactorySelector::selectMovementGenerator(_owner->ToCreature());
-        Mutate(movement == nullptr ? &si_idleMovement : movement, MOTION_SLOT_IDLE);
-    }
-    else
-    {
-        Mutate(&si_idleMovement, MOTION_SLOT_IDLE);
-    }
+    Mutate(FactorySelector::SelectMovementGenerator(_owner), MOTION_SLOT_IDLE);
 }
 
 void MotionMaster::UpdateMotion(uint32 diff)
@@ -199,7 +196,7 @@ void MotionMaster::MoveIdle()
 {
     //! Should be preceded by MovementExpired or Clear if there's an overlying movementgenerator active
     if (empty() || !IsStatic(top()))
-        Mutate(&si_idleMovement, MOTION_SLOT_IDLE);
+        Mutate(GetIdleMovementGenerator(), MOTION_SLOT_IDLE);
 }
 
 void MotionMaster::MoveTargetedHome()
