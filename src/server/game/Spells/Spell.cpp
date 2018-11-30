@@ -1437,6 +1437,13 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
             dest = SpellDestination(x, y, liquidLevel, m_caster->GetOrientation());
             break;
         }
+        case TARGET_DEST_LAST_QUEST_GIVER:
+        {
+            if (Player* casterPlayer = m_caster->ToPlayer())
+                if (WorldObject* target = casterPlayer->GetLastQuestGiver())
+                    dest = SpellDestination(*target);
+            break;
+        }
         default:
         {
             if (SpellEffectInfo const* effect = GetEffect(effIndex))
