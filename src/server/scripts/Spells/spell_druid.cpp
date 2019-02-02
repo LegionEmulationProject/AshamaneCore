@@ -2629,6 +2629,33 @@ class aura_dru_guardian_affinity_dps : public AuraScript
     }
 };
 
+// 774 - Rejuvenation
+class spell_dru_rejuvenation : public SpellScriptLoader
+{
+public:
+    spell_dru_rejuvenation() : SpellScriptLoader("spell_dru_rejuvenation") { }
+
+    class spell_dru_rejuvenation_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_rejuvenation_AuraScript);
+
+        void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit* caster = GetCaster())
+                amount = caster->GetUInt32Value(UNIT_FIELD_ATTACK_POWER) * 0.18f;
+        }
+        void Register() override
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rejuvenation_AuraScript::CalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dru_rejuvenation_AuraScript();
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     // Spells Scripts
@@ -2689,7 +2716,7 @@ void AddSC_druid_spell_scripts()
     RegisterAuraScript(aura_dru_feral_affinity_resto);
     RegisterAuraScript(aura_dru_feral_affinity_tank);
     RegisterAuraScript(aura_dru_frenzied_regeneration);
-
+    new spell_dru_rejuvenation();
     // AreaTrigger Scripts
     new at_dru_solar_beam();
     RegisterAreaTriggerAI(at_dru_starfall);
