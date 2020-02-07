@@ -1127,6 +1127,7 @@ class TC_GAME_API WorldSession
         void DoLootReleaseAll();
 
         // Account mute time
+        bool CanSpeak() const;
         time_t m_muteTime;
 
         // Locales
