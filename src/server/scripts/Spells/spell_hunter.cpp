@@ -1526,7 +1526,7 @@ public:
                 {
                     if (spec == TALENT_SPEC_HUNTER_MARKSMAN || spec == TALENT_SPEC_HUNTER_BEASTMASTER)
                     {
-                        player->RemoveMovementImpairingAuras();
+                        player->RemoveMovementImpairingAuras(true);
                         player->CastSpell(player, SPELL_HUNTER_POSTHAST_SPEED, true);
                     }
                 }

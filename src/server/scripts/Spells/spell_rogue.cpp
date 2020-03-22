@@ -1029,7 +1029,7 @@ class spell_rog_vanish : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
 
-                caster->RemoveMovementImpairingAuras();
+                caster->RemoveMovementImpairingAuras(true);
                 caster->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
 
                 caster->CastSpell(caster, SPELL_ROGUE_VANISH_AURA, true);

@@ -1257,7 +1257,7 @@ public:
             if (!caster)
                 return;
 
-            caster->RemoveMovementImpairingAuras();
+            caster->RemoveMovementImpairingAuras(true);
         }
 
         void Register() override
