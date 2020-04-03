@@ -32,6 +32,7 @@ EndScriptData */
 #include "RBAC.h"
 #include "SpellAuraEffects.h"
 #include "WorldSession.h"
+#include <sstream>
 
 class list_commandscript : public CommandScript
 {
