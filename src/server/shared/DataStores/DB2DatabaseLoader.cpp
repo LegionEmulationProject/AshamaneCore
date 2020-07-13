@@ -68,7 +68,7 @@ char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& string
 
     // Resize index table
     uint32 indexTableSize = records;
-    if (PreparedQueryResult maxIdResult = HotfixDatabase.Query(HotfixDatabase.GetPreparedStatement(HotfixDatabaseStatements(_loadInfo->Statement + 1))))
+    if (PreparedQueryResult maxIdResult = HotfixDatabase.Query(HotfixDatabase.GetPreparedStatement(HotfixDatabaseStatements(_loadInfo->Statement + HOTFIX_MAX_ID_STMT_OFFSET))))
         if (uint32((*maxIdResult)[0].GetUInt64()) > records)
             indexTableSize = uint32((*maxIdResult)[0].GetUInt64());
 
@@ -201,7 +201,7 @@ char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& string
 
 void DB2DatabaseLoader::LoadStrings(uint32 locale, uint32 records, char** indexTable, std::vector<char*>& stringPool)
 {
-    HotfixDatabasePreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(HotfixDatabaseStatements(_loadInfo->Statement + 2));
+    HotfixDatabasePreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(HotfixDatabaseStatements(_loadInfo->Statement + HOTFIX_LOCALE_STMT_OFFSET));
     stmt->setString(0, localeNames[locale]);
     PreparedQueryResult result = HotfixDatabase.Query(stmt);
     if (!result)
