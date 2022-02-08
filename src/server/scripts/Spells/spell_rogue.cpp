@@ -76,6 +76,7 @@ enum RogueSpells
     SPELL_ROGUE_HONOR_AMONG_THIEVES                 = 51698,
     SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC            = 51699,
     SPELL_ROGUE_KIDNEY_SHOT                         = 408,
+	SPELL_ROGUE_CHEAP_SHOT                          = 1833,
     SPELL_ROGUE_KILLING_SPREE                       = 51690,
     SPELL_ROGUE_KILLING_SPREE_DMG_BUFF              = 61851,
     SPELL_ROGUE_KILLING_SPREE_TELEPORT              = 57840,
@@ -153,6 +154,8 @@ enum RogueSpells
     SPELL_ROGUE_VENOM_RUSH                          = 152152,
     SPELL_ROGUE_WEAKENED_ARMOR                      = 113746,
     SPELL_ROGUE_WOUND_POISON                        = 8679,
+	SPELL_ROGUE_COLD_BLOOD                          = 213981,
+    SPELL_ROGUE_COLD_BLOOD_DAMAGE                   = 213983
 };
 
 enum RollTheBones
@@ -2685,6 +2688,49 @@ public:
     }
 };
 
+// 213981 - Cold Blood
+/// Last update: 7.3.5 26972
+class spell_rog_cold_blood : public AuraScript
+{
+    PrepareAuraScript(spell_rog_cold_blood);
+
+    bool Validate(SpellInfo const*) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_COLD_BLOOD_DAMAGE });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (eventInfo.GetSpellInfo()->Id == SPELL_ROGUE_CHEAP_SHOT || eventInfo.GetSpellInfo()->Id == SPELL_ROGUE_SHADOWSTRIKE)
+            return true;
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        if (Unit* caster = eventInfo.GetActor())
+        {
+            if (Unit* target = eventInfo.GetActionTarget())
+            {
+                int32 bp = GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints;
+                int32 damage = target->CountPctFromMaxHealth(bp);
+
+                caster->CastCustomSpell(SPELL_ROGUE_COLD_BLOOD_DAMAGE, SPELLVALUE_BASE_POINT0, damage, target);
+
+                if (Aura* aura = caster->GetAura(SPELL_ROGUE_COLD_BLOOD))
+                    aura->Remove();
+            }
+        }
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_rog_cold_blood::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_rog_cold_blood::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     ///AreaTriggerScript
@@ -2739,4 +2785,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rogue_blade_flurry();
     new spell_rogue_combat_potency();
     new spell_rog_weaponmaster();
+	
+	//MardumCore
+	RegisterAuraScript(spell_rog_cold_blood);
 }
