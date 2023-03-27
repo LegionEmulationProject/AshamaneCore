@@ -2629,6 +2629,26 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
+        case SMART_ACTION_START_CONVERSATION:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (WorldObject* target : *targets)
+            {
+                if (Player* playerTarget = target->ToPlayer())
+                {
+                    Conversation* conversation = Conversation::CreateConversation(e.action.conversation.id, playerTarget,
+                        *playerTarget, { playerTarget->GetGUID() }, nullptr);
+                    if (!conversation)
+                        TC_LOG_WARN("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CREATE_CONVERSATION: id %u, target %s - failed to create",
+                            e.action.conversation.id, playerTarget->GetName().c_str());
+                }
+            }
+
+            break;
+        }
         case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
         {
             ObjectList* targets = GetTargets(e, unit);
@@ -2746,19 +2766,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             if (me)
                 me->GetMap()->SetZoneOverrideLight(e.action.setOverrideZoneLight.zoneId, e.action.setOverrideZoneLight.lightId, e.action.setOverrideZoneLight.fadeTime);
-            break;
-        }
-        case SMART_ACTION_START_CONVERSATION:
-        {
-            ObjectList* targets = GetTargets(e, unit);
-            if (!targets)
-                break;
-
-            for (WorldObject* target : *targets)
-                if (Player* playerTarget = target->ToPlayer())
-                    Conversation::CreateConversation(e.action.startConversation.conversationId, playerTarget, *playerTarget, { playerTarget->GetGUID() });
-
-            delete targets;
             break;
         }
         case SMART_ACTION_MODIFY_THREAT:

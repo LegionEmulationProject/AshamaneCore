@@ -1418,9 +1418,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         }
         case SMART_ACTION_START_CONVERSATION:
         {
-            if (!sConversationDataStore->GetConversationTemplate(e.action.startConversation.conversationId))
+            if (!sConversationDataStore->GetConversationTemplate(e.action.conversation.id))
             {
-                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_START_CONVERSATION uses conversationId %u but conversation don't exist, skipped", e.action.startConversation.conversationId);
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: SMART_ACTION_CREATE_CONVERSATION Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.conversation.id);
                 return false;
             }
 
