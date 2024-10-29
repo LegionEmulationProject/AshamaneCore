@@ -1,6 +1,6 @@
 /*Table structure for table `questv2clitask` */
 
-DROP TABLE IF EXISTS `questv2clitask`;
+DROP TABLE IF EXISTS `QuestV2CliTask`;
 
 CREATE TABLE `QuestV2CliTask` (
   `Unk1` INT(10) NOT NULL,
