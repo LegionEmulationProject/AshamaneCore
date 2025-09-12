@@ -94,7 +94,7 @@ class CASC_MAP
         Free();
     }
 
-    int Create(size_t MaxItems, size_t KeyLength, size_t KeyOffset, KEY_TYPE KeyType = KeyIsHash)
+    DWORD Create(size_t MaxItems, size_t KeyLength, size_t KeyOffset, KEY_TYPE KeyType = KeyIsHash)
     {
         // Set the class variables
         m_KeyLength = CASCLIB_MAX(KeyLength, 8);
@@ -331,7 +331,7 @@ class CASC_MAP
         size_t PowerOfTwo;
         
         // Round the hash table size up to the nearest power of two
-        for(PowerOfTwo = MIN_HASH_TABLE_SIZE; PowerOfTwo < MAX_HASH_TABLE_SIZE; PowerOfTwo <<= 1)
+        for(PowerOfTwo = MIN_HASH_TABLE_SIZE; PowerOfTwo <= MAX_HASH_TABLE_SIZE; PowerOfTwo <<= 1)
         {
             if(PowerOfTwo > MaxItems)
             {
@@ -352,6 +352,29 @@ class CASC_MAP
     size_t m_KeyLength;                         // Length of the hash key, in bytes
     bool m_bKeyIsHash;                          // If set, then it means that the key is a hash of some sort.
                                                 // Will improve performance, as we will not hash a hash :-)
+};
+
+//-----------------------------------------------------------------------------
+// Key map interface
+
+// Maximum length of encryption key
+#define CASC_KEY_LENGTH         0x10
+#define CASC_KEY_TABLE_SIZE     0x100
+#define CASC_KEY_TABLE_MASK     (CASC_KEY_TABLE_SIZE - 1)
+
+class CASC_KEY_MAP
+{
+    public:
+
+    CASC_KEY_MAP();
+    ~CASC_KEY_MAP();
+
+    LPBYTE FindKey(ULONGLONG KeyName);
+    bool AddKey(ULONGLONG KeyName, LPBYTE Key);
+
+    protected:
+
+    void * HashTable[CASC_KEY_TABLE_SIZE];
 };
 
 #endif // __CASC_MAP_H__

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -241,17 +241,17 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 continue;
             }
 
-            AreaTriggerCircularMovementInfo& circularMovementInfo = atSpellMiscItr->second.CircularMovementInfo;
+            AreaTriggerOrbitInfo& orbitInfo = atSpellMiscItr->second.OrbitInfo;
 
-            circularMovementInfo.StartDelay         = circularMovementInfoFields[1].GetUInt32();
+            orbitInfo.StartDelay                    = circularMovementInfoFields[1].GetUInt32();
 
 #define VALIDATE_AND_SET_FLOAT(Float, Value) \
-            circularMovementInfo.Float = Value; \
-            if (!std::isfinite(circularMovementInfo.Float)) \
+            orbitInfo.Float = Value; \
+            if (!std::isfinite(orbitInfo.Float)) \
             { \
                 TC_LOG_ERROR("sql.sql", "Table `spell_areatrigger_circular` has listed areatrigger (MiscId: %u) with invalid " #Float " (%f), set to 0!", \
-                    spellMiscId, circularMovementInfo.Float); \
-                circularMovementInfo.Float = 0.0f; \
+                    spellMiscId, orbitInfo.Float); \
+                orbitInfo.Float = 0.0f; \
             }
 
             VALIDATE_AND_SET_FLOAT(Radius,          circularMovementInfoFields[2].GetFloat());
@@ -261,8 +261,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
 #undef VALIDATE_AND_SET_FLOAT
 
-            circularMovementInfo.CounterClockwise   = circularMovementInfoFields[6].GetBool();
-            circularMovementInfo.CanLoop            = circularMovementInfoFields[7].GetBool();
+            orbitInfo.CounterClockwise              = circularMovementInfoFields[6].GetBool();
+            orbitInfo.CanLoop                       = circularMovementInfoFields[7].GetBool();
         }
         while (circularMovementInfos->NextRow());
     }

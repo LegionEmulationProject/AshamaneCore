@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "ConditionMgr.h"
+#include "DBCEnums.h"
 #include "ItemEnchantmentMgr.h"
 #include "ObjectGuid.h"
 #include "RefManager.h"
@@ -82,12 +83,6 @@ enum PermissionTypes
     RESTRICTED_PERMISSION       = 3,
     OWNER_PERMISSION            = 5,
     NONE_PERMISSION             = 6
-};
-
-enum LootItemType
-{
-    LOOT_ITEM_TYPE_CURRENCY = 0,
-    LOOT_ITEM_TYPE_ITEM     = 2,
 };
 
 enum LootType : uint8
@@ -163,9 +158,8 @@ struct TC_GAME_API LootItem
     uint32  itemid;
     uint8   type;
     ItemRandomBonusListId randomBonusListId;
-    int32   upgradeId;
     std::vector<int32> BonusListIDs;
-    uint8   context;
+    ItemContext context;
     ConditionContainer conditions;                               // additional loot condition
     GuidSet allowedGUIDs;
     uint8   count             : 8;
@@ -177,16 +171,14 @@ struct TC_GAME_API LootItem
     bool    is_counted        : 1;
     bool    needs_quest       : 1;                          // quest drop
     bool    follow_loot_rules : 1;
-    bool    canSave;
 
     // Constructor, copies most fields from LootStoreItem, generates random count and random suffixes/properties
     // Should be called for non-reference LootStoreItem entries only (reference = 0)
     explicit LootItem(LootStoreItem const& li);
 
     // Empty constructor for creating an empty LootItem to be filled in with DB data
-    LootItem() : itemid(0), type(LOOT_ITEM_TYPE_ITEM), randomBonusListId(0), upgradeId(0), context(0), count(0), is_looted(false), is_blocked(false),
-                 freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false),
-                 canSave(true){ };
+    LootItem() : itemid(0), randomBonusListId(0), context(ItemContext::NONE), count(0), is_looted(false), is_blocked(false),
+                 freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false) { };
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
     bool AllowedForPlayer(Player const* player) const;
@@ -252,10 +244,6 @@ struct TC_GAME_API Loot
     ObjectGuid const& GetGUID() const { return _GUID; }
     void SetGUID(ObjectGuid const& guid) { _GUID = guid; }
 
-    // For deleting items at loot removal since there is no backward interface to the Item()
-    void DeleteLootItemFromContainerItemDB(Player* player, uint32 itemID);
-    void DeleteLootMoneyFromContainerItemDB();
-
     // if loot becomes invalid this reference is used to inform the listener
     void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)
     {
@@ -275,7 +263,7 @@ struct TC_GAME_API Loot
 
     void GenerateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     void GenerateJournalEncounterLoot(Player* looter, uint32 journalEncounterId);
-    bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT, bool specOnly = false);
+    bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT, ItemContext context = ItemContext::NONE, bool specOnly = false);
 
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const & item, Player const* player = nullptr, bool specOnly = false);
@@ -283,7 +271,7 @@ struct TC_GAME_API Loot
     LootItem const* GetItemInSlot(uint32 lootSlot, Player const* player) const;
     LootItem* LootItemInSlot(uint32 lootslot, Player* player);
     uint32 GetMaxSlotInLootFor(Player* player) const;
-    uint8 GetItemContext() const { return _itemContext; }
+    ItemContext GetItemContext() const { return _itemContext; }
     bool hasItemForAll() const;
     bool hasItemFor(Player const* player) const;
 
@@ -301,7 +289,7 @@ private:
 
     // Loot GUID
     ObjectGuid _GUID;
-    uint8 _itemContext;
+    ItemContext _itemContext;
 };
 
 class TC_GAME_API AELootResult

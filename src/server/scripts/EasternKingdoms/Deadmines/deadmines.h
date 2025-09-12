@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -140,5 +141,11 @@ const Position CookieSpawn =
 {
     -88.1319f, -819.33f, 39.23453f, 0.0f
 };
+
+template <class AI, class T>
+inline AI* GetDeadminesAI(T* obj)
+{
+    return GetInstanceAI<AI, T>(obj, DMScriptName);
+}
 
 #endif

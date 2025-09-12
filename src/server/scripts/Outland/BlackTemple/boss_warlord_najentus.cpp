@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "black_temple.h"
+#include "GameObjectAI.h"
+#include "GridNotifiers.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
@@ -24,7 +26,6 @@
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "GridNotifiers.h"
 
 enum Texts
 {
@@ -90,7 +91,7 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_HURL_SPINE && me->HasAura(SPELL_TIDAL_SHIELD))
             {

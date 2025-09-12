@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,8 +19,8 @@
 #include "black_temple.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -138,11 +138,11 @@ public:
                         {
                             for (ObjectGuid guid : _bloodmageList)
                                 if (Creature* bloodmage = ObjectAccessor::GetCreature(*me, guid))
-                                    bloodmage->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
+                                    bloodmage->CastSpell(nullptr, SPELL_SUMMON_CHANNEL);
 
                             for (ObjectGuid guid : _deathshaperList)
                                 if (Creature* deathshaper = ObjectAccessor::GetCreature(*me, guid))
-                                    deathshaper->CastSpell((Unit*)NULL, SPELL_SUMMON_CHANNEL);
+                                    deathshaper->CastSpell(nullptr, SPELL_SUMMON_CHANNEL);
 
                             _events.ScheduleEvent(EVENT_SET_CHANNELERS, 12000);
 

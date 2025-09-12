@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,9 +29,8 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
 
 /*######
 ## npc_oox09hl
@@ -57,9 +55,9 @@ class npc_oox09hl : public CreatureScript
 public:
     npc_oox09hl() : CreatureScript("npc_oox09hl") { }
 
-    struct npc_oox09hlAI : public npc_escortAI
+    struct npc_oox09hlAI : public EscortAI
     {
-        npc_oox09hlAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_oox09hlAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override { }
 
@@ -76,18 +74,18 @@ public:
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_RESQUE_OOX_09)
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
-                me->setFaction(player->GetTeam() == ALLIANCE ? FACTION_ESCORTEE_A : FACTION_ESCORTEE_H);
+                me->SetFaction(player->GetTeam() == ALLIANCE ? FACTION_ESCORTEE_A : FACTION_ESCORTEE_H);
                 Talk(SAY_OOX_START, player);
-                npc_escortAI::Start(false, false, player->GetGUID(), quest);
+                EscortAI::Start(false, false, player->GetGUID(), quest);
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -105,7 +103,7 @@ public:
             }
         }
 
-        void WaypointStart(uint32 pointId) override
+        void WaypointStarted(uint32 pointId, uint32 /*pathId*/) override
         {
             switch (pointId)
             {

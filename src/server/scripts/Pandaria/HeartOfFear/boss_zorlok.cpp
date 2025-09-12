@@ -225,7 +225,7 @@ class boss_zorlok : public CreatureScript
             bool isAttEcho;
             bool isFaVEcho;
             bool hasSummonedLastEcho;
-            
+
             void Reset() override
             {
                 events.Reset();
@@ -320,8 +320,8 @@ class boss_zorlok : public CreatureScript
             {
                 isFlying = true;
                 me->AttackStop();
-                me->DeleteThreatList();
-                me->getThreatManager().clearReferences();
+                ResetThreatList();
+                me->GetThreatManager().clearReferences();
                 me->SetCanFly(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
@@ -510,7 +510,7 @@ class boss_zorlok : public CreatureScript
                     me->RemoveAura(SPELL_SONG_OF_THE_EMPRESS);
 
                 // Start attacking player
-                me->AddThreat(attacker, 0.0f);
+                AddThreat(attacker, 0.0f);
             }
 
             void KilledUnit(Unit* victim) override
@@ -906,7 +906,7 @@ class boss_zorlok : public CreatureScript
 
                 if (!isFlying && (!target || me->GetDistance(target) > 5.0f) && !me->HasUnitState(UNIT_STATE_CASTING))
                     me->CastSpell(me, SPELL_SONG_OF_THE_EMPRESS, true);
-                
+
                 switch (events.ExecuteEvent())
                 {
                     // All-time events

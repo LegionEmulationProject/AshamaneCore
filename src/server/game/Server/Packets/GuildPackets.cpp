@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -188,6 +188,16 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberD
     return data;
 }
 
+WorldPacket const* WorldPackets::Guild::GuildEventStatusChange::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket.WriteBit(AFK);
+    _worldPacket.WriteBit(DND);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Guild::GuildEventPresenceChange::Write()
 {
     _worldPacket << Guid;
@@ -262,12 +272,10 @@ WorldPacket const* WorldPackets::Guild::GuildEventPlayerLeft::Write()
 {
     _worldPacket.WriteBit(Removed);
     _worldPacket.WriteBits(LeaverName.length(), 6);
-    _worldPacket.FlushBits();
 
     if (Removed)
     {
         _worldPacket.WriteBits(RemoverName.length(), 6);
-        _worldPacket.FlushBits();
 
         _worldPacket << RemoverGUID;
         _worldPacket << uint32(RemoverVirtualRealmAddress);
@@ -303,7 +311,6 @@ void WorldPackets::Guild::GuildSetRankPermissions::Read()
     _worldPacket >> RankID;
     _worldPacket >> RankOrder;
     _worldPacket >> Flags;
-    _worldPacket >> OldFlags;
     _worldPacket >> WithdrawGoldLimit;
 
     for (uint8 i = 0; i < GUILD_BANK_MAX_TABS; i++)
@@ -316,6 +323,8 @@ void WorldPackets::Guild::GuildSetRankPermissions::Read()
     uint32 rankNameLen = _worldPacket.ReadBits(7);
 
     RankName = _worldPacket.ReadString(rankNameLen);
+
+    _worldPacket >> OldFlags;
 }
 
 WorldPacket const* WorldPackets::Guild::GuildEventNewLeader::Write()
@@ -359,8 +368,8 @@ WorldPacket const* WorldPackets::Guild::GuildEventTabTextChanged::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRankData const& rankData)
 {
-    data << uint32(rankData.RankID);
-    data << uint32(rankData.RankOrder);
+    data << uint8(rankData.RankID);
+    data << int32(rankData.RankOrder);
     data << uint32(rankData.Flags);
     data << uint32(rankData.WithdrawGoldLimit);
 
@@ -512,7 +521,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRewardItem co
     data << uint32(rewardItem.ItemID);
     data << uint32(rewardItem.Unk4);
     data << uint32(rewardItem.AchievementsRequired.size());
-    data << uint64(rewardItem.RaceMask);
+    data << uint64(rewardItem.RaceMask.RawValue);
     data << int32(rewardItem.MinGuildLevel);
     data << int32(rewardItem.MinGuildRep);
     data << uint64(rewardItem.Cost);

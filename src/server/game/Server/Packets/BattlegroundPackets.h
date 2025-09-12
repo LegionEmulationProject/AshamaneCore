@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,10 +31,10 @@ namespace WorldPackets
 {
     namespace Battleground
     {
-        class PVPSeason final : public ServerPacket
+        class SeasonInfo final : public ServerPacket
         {
         public:
-            PVPSeason() : ServerPacket(SMSG_PVP_SEASON, 4 + 4 + 4 + 4) { }
+            SeasonInfo() : ServerPacket(SMSG_SEASON_INFO, 4 + 4 + 4 + 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -42,6 +42,8 @@ namespace WorldPackets
             int32 PreviousSeason = 0;
             int32 CurrentSeason = 0;
             int32 PvpSeasonID = 0;
+            int32 ConquestWeeklyProgressCurrencyID = 0;
+            bool WeeklyRewardChestsEnabled = false;
         };
 
         class AreaSpiritHealerQuery final : public ClientPacket
@@ -91,13 +93,8 @@ namespace WorldPackets
             void Read() override { }
         };
 
-        class PVPLogData final : public ServerPacket
+        struct PVPMatchStatistics
         {
-        public:
-            PVPLogData() : ServerPacket(SMSG_PVP_LOG_DATA, 0) { }
-
-            WorldPacket const* Write() override;
-
             struct RatingData
             {
                 int32 Prematch[2] = { };
@@ -110,6 +107,15 @@ namespace WorldPackets
                 uint32 HonorKills = 0;
                 uint32 Deaths = 0;
                 uint32 ContributionPoints = 0;
+            };
+
+            struct PVPMatchPlayerPVPStat
+            {
+                PVPMatchPlayerPVPStat() : PvpStatID(0), PvpStatValue(0) { }
+                PVPMatchPlayerPVPStat(int32 pvpStatID, int32 pvpStatValue) : PvpStatID(pvpStatID), PvpStatValue(pvpStatValue) { }
+
+                int32 PvpStatID;
+                int32 PvpStatValue;
             };
 
             struct PVPMatchPlayerStatistics
@@ -125,7 +131,7 @@ namespace WorldPackets
                 Optional<int32> RatingChange;
                 Optional<uint32> PreMatchMMR;
                 Optional<int32> MmrChange;
-                std::vector<int32> Stats;
+                std::vector<PVPMatchPlayerPVPStat> Stats;
                 int32 PrimaryTalentTree = 0;
                 int32 Sex = 0;
                 int32 Race = 0;
@@ -139,10 +145,20 @@ namespace WorldPackets
             std::array<int8, 2> PlayerCount = { };
         };
 
+        class PVPMatchStatisticsMessage final : public ServerPacket
+        {
+        public:
+            PVPMatchStatisticsMessage() : ServerPacket(SMSG_PVP_MATCH_STATISTICS, 0) { }
+
+            WorldPacket const* Write() override;
+
+            PVPMatchStatistics Data;
+        };
+
         struct BattlefieldStatusHeader
         {
             WorldPackets::LFG::RideTicket Ticket;
-            uint64 QueueID = 0;
+            std::vector<uint64> QueueID;
             uint8 RangeMin = 0;
             uint8 RangeMax = 0;
             uint8 TeamSize = 0;
@@ -411,37 +427,78 @@ namespace WorldPackets
             void Read() override { }
         };
 
-        class RequestRatedBattlefieldInfo final : public ClientPacket
+        class RequestRatedPvpInfo final : public ClientPacket
         {
         public:
-            RequestRatedBattlefieldInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_RATED_BATTLEFIELD_INFO, std::move(packet)) { }
+            RequestRatedPvpInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_RATED_PVP_INFO, std::move(packet)) { }
 
             void Read() override { }
         };
 
-        struct RatedInfo
-        {
-            uint32 ArenaPersonalRating;
-            uint32 BestRatingOfWeek;
-            uint32 BestRatingOfSeason;
-            uint32 ArenaMatchMakerRating;
-            uint32 WeekWins;
-            uint32 WeekGames;
-            uint32 PrevWeekWins;
-            uint32 PrevWeekGames;
-            uint32 SeasonWins;
-            uint32 SeasonGames;
-            uint32 ProjectedConquestCap;
-        };
-
-        class RatedBattleFieldInfo final : public ServerPacket
+        class RatedPvpInfo final : public ServerPacket
         {
         public:
-            RatedBattleFieldInfo() : ServerPacket(SMSG_RATED_BATTLEFIELD_INFO, MAX_PVP_SLOT * sizeof(RatedInfo)) { }
+            RatedPvpInfo() : ServerPacket(SMSG_RATED_PVP_INFO, 6 * sizeof(BracketInfo)) { }
 
             WorldPacket const* Write() override;
 
-            std::array<RatedInfo, MAX_PVP_SLOT> Infos;
+            struct BracketInfo
+            {
+                int32 PersonalRating = 0;
+                int32 Ranking = 0;
+                int32 SeasonPlayed = 0;
+                int32 SeasonWon = 0;
+                int32 Unused1 = 0;
+                int32 Unused2 = 0;
+                int32 WeeklyPlayed = 0;
+                int32 WeeklyWon = 0;
+                int32 BestWeeklyRating = 0;
+                int32 LastWeeksBestRating = 0;
+                int32 BestSeasonRating = 0;
+                int32 PvpTierID = 0;
+                int32 Unused3 = 0;
+                bool Unused4 = false;
+
+                int32 LastWeekWon = 0;
+                int32 LastWeekPlayed = 0;
+                int32 MatchMakerRating = 0;
+            } Bracket[6];
+        };
+
+        class PVPMatchInitialize final : public ServerPacket
+        {
+        public:
+            PVPMatchInitialize() : ServerPacket(SMSG_PVP_MATCH_INITIALIZE, 4 + 1 + 4 + 4 + 1 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            enum MatchState : uint8
+            {
+                InProgress = 1,
+                Complete = 3,
+                Inactive = 4
+            };
+
+            uint32 MapID = 0;
+            MatchState State = Inactive;
+            time_t StartTime = time_t(0);
+            int32 Duration = 0;
+            uint8 ArenaFaction = 0;
+            uint32 BattlemasterListID = 0;
+            bool Registered = false;
+            bool AffectsRating = false;
+        };
+
+        class PVPMatchComplete final : public ServerPacket
+        {
+        public:
+            PVPMatchComplete() : ServerPacket(SMSG_PVP_MATCH_COMPLETE) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Winner = 0;
+            int32 Duration = 0;
+            Optional<PVPMatchStatistics> LogData;
         };
     }
 }

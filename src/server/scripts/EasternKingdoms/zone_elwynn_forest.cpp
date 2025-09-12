@@ -102,8 +102,8 @@ public:
                     {
                         if (me->GetVictim() != wolf)
                         {
-                            me->getThreatManager().addThreat(wolf, 1000000.0f);
-                            wolf->getThreatManager().addThreat(me, 1000000.0f);
+                            me->GetThreatManager().addThreat(wolf, 1000000.0f);
+                            wolf->GetThreatManager().addThreat(me, 1000000.0f);
                             me->Attack(wolf, true);
                         }
                     }
@@ -124,8 +124,8 @@ public:
 
                 if (Creature* wolf = me->SummonCreature(NPC_WOLF, wolfPos))
                 {
-                    me->getThreatManager().addThreat(wolf, 1000000.0f);
-                    wolf->getThreatManager().addThreat(me, 1000000.0f);
+                    me->GetThreatManager().addThreat(wolf, 1000000.0f);
+                    wolf->GetThreatManager().addThreat(me, 1000000.0f);
                     AttackStart(wolf);
                     wolf->SetFacingToObject(me);
                     wolfTarget = wolf->GetGUID();
@@ -152,9 +152,9 @@ public:
         return new npc_stormwind_injured_soldierAI(creature);
     }
 
-    struct npc_stormwind_injured_soldierAI : public npc_escortAI
+    struct npc_stormwind_injured_soldierAI : public EscortAI
     {
-        npc_stormwind_injured_soldierAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_stormwind_injured_soldierAI(Creature* creature) : EscortAI(creature) {}
 
         void Reset() override
         {
@@ -188,7 +188,7 @@ public:
             });
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId == 5)
             {
@@ -609,7 +609,7 @@ struct npc_hogger : public ScriptedAI
 
     void RewardPlayers()
     {
-        for (auto itr : me->getThreatManager().getThreatList())
+        for (auto itr : me->GetThreatManager().getThreatList())
             if (Player* player = ObjectAccessor::GetPlayer(*me, itr->getUnitGuid()))
                 player->RewardPlayerAndGroupAtEvent(NPC_HOGGER, me);
     }

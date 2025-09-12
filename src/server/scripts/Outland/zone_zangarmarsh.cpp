@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -169,7 +168,7 @@ public:
     {
         npc_cooshcooshAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_uiNormFaction = creature->getFaction();
+            m_uiNormFaction = creature->GetFaction();
             Initialize();
         }
 
@@ -184,8 +183,8 @@ public:
         void Reset() override
         {
             Initialize();
-            if (me->getFaction() != m_uiNormFaction)
-                me->setFaction(m_uiNormFaction);
+            if (me->GetFaction() != m_uiNormFaction)
+                me->SetFaction(m_uiNormFaction);
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -225,7 +224,7 @@ public:
         if (action == GOSSIP_ACTION_INFO_DEF)
         {
             CloseGossipMenuFor(player);
-            creature->setFaction(FACTION_HOSTILE_CO);
+            creature->SetFaction(FACTION_HOSTILE_CO);
             creature->AI()->AttackStart(player);
         }
         return true;
@@ -311,13 +310,13 @@ class npc_kayra_longmane : public CreatureScript
 public:
     npc_kayra_longmane() : CreatureScript("npc_kayra_longmane") { }
 
-    struct npc_kayra_longmaneAI : public npc_escortAI
+    struct npc_kayra_longmaneAI : public EscortAI
     {
-        npc_kayra_longmaneAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_kayra_longmaneAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -356,7 +355,7 @@ public:
         {
             creature->AI()->Talk(SAY_START, player);
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_kayra_longmane::npc_kayra_longmaneAI, creature->AI()))
+            if (EscortAI* pEscortAI = CAST_AI(npc_kayra_longmane::npc_kayra_longmaneAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID());
         }
         return true;

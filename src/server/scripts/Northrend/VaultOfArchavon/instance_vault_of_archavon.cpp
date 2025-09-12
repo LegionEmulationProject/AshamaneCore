@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -85,13 +85,13 @@ class instance_vault_of_archavon : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_ARCHAVON:
-                        ArchavonDeath = time(NULL);
+                        ArchavonDeath = time(nullptr);
                         break;
                     case DATA_EMALON:
-                        EmalonDeath = time(NULL);
+                        EmalonDeath = time(nullptr);
                         break;
                     case DATA_KORALON:
-                        KoralonDeath = time(NULL);
+                        KoralonDeath = time(nullptr);
                         break;
                     default:
                         return true;

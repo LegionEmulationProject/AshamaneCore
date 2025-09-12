@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,9 +29,9 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "Player.h"
-#include "QuestDef.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
@@ -80,7 +79,7 @@ public:
             if (npc_maghar_captiveAI* EscortAI = dynamic_cast<npc_maghar_captiveAI*>(creature->AI()))
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
-                creature->setFaction(232);
+                creature->SetFaction(232);
                 EscortAI->Start(true, false, player->GetGUID(), quest);
                 creature->AI()->Talk(SAY_MAG_START);
 
@@ -97,9 +96,9 @@ public:
         return new npc_maghar_captiveAI(creature);
     }
 
-    struct npc_maghar_captiveAI : public npc_escortAI
+    struct npc_maghar_captiveAI : public EscortAI
     {
-        npc_maghar_captiveAI(Creature* creature) : npc_escortAI(creature) { Reset(); }
+        npc_maghar_captiveAI(Creature* creature) : EscortAI(creature) { Reset(); }
 
         uint32 ChainLightningTimer;
         uint32 HealTimer;
@@ -129,7 +128,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -168,7 +167,7 @@ public:
 
         }
 
-        void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_CHAIN_LIGHTNING)
             {
@@ -181,7 +180,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;
@@ -434,7 +433,7 @@ public:
             if (npc_kurenai_captiveAI* EscortAI = dynamic_cast<npc_kurenai_captiveAI*>(creature->AI()))
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
-                creature->setFaction(231);
+                creature->SetFaction(231);
                 EscortAI->Start(true, false, player->GetGUID(), quest);
                 creature->AI()->Talk(SAY_KUR_START);
 
@@ -451,9 +450,9 @@ public:
         return new npc_kurenai_captiveAI(creature);
     }
 
-    struct npc_kurenai_captiveAI : public npc_escortAI
+    struct npc_kurenai_captiveAI : public EscortAI
     {
-        npc_kurenai_captiveAI(Creature* creature) : npc_escortAI(creature)
+        npc_kurenai_captiveAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -491,7 +490,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -534,7 +533,7 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_KUR_CHAIN_LIGHTNING)
             {
@@ -555,7 +554,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;

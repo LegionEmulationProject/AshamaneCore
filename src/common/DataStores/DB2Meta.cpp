@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,14 +16,15 @@
  */
 
 #include "DB2Meta.h"
+#include "Common.h"
 #include "Errors.h"
 
 DB2MetaField::DB2MetaField(DBCFormer type, uint8 arraySize, bool isSigned) : Type(type), ArraySize(arraySize), IsSigned(isSigned)
 {
 }
 
-DB2Meta::DB2Meta(uint32 fileDataId, int32 indexField, uint32 fieldCount, uint32 layoutHash, DB2MetaField const* fields, int32 parentIndexField)
-    : FileDataId(fileDataId),IndexField(indexField), ParentIndexField(parentIndexField), FieldCount(fieldCount), LayoutHash(layoutHash), Fields(fields)
+DB2Meta::DB2Meta(uint32 fileDataId, int32 indexField, uint32 fieldCount, uint32 fileFieldCount, uint32 layoutHash, DB2MetaField const* fields, int32 parentIndexField)
+    : FileDataId(fileDataId),IndexField(indexField), ParentIndexField(parentIndexField), FieldCount(fieldCount), FileFieldCount(fileFieldCount), LayoutHash(layoutHash), Fields(fields)
 {
 }
 
@@ -44,6 +45,12 @@ uint32 DB2Meta::GetRecordSize() const
     {
         for (uint8 j = 0; j < Fields[i].ArraySize; ++j)
         {
+            if (i >= FileFieldCount && int32(i) == ParentIndexField)
+            {
+                size += 4;
+                continue;
+            }
+
             switch (Fields[i].Type)
             {
                 case FT_BYTE:
@@ -60,6 +67,8 @@ uint32 DB2Meta::GetRecordSize() const
                     size += 8;
                     break;
                 case FT_STRING:
+                    size += sizeof(LocalizedString);
+                    break;
                 case FT_STRING_NOT_LOCALIZED:
                     size += sizeof(char*);
                     break;
@@ -87,6 +96,12 @@ uint32 DB2Meta::GetIndexFieldOffset() const
     {
         for (uint8 j = 0; j < Fields[i].ArraySize; ++j)
         {
+            if (i >= int32(FileFieldCount) && i == ParentIndexField)
+            {
+                offset += 4;
+                continue;
+            }
+
             switch (Fields[i].Type)
             {
                 case FT_BYTE:
@@ -103,6 +118,8 @@ uint32 DB2Meta::GetIndexFieldOffset() const
                     offset += 8;
                     break;
                 case FT_STRING:
+                    offset += sizeof(LocalizedString);
+                    break;
                 case FT_STRING_NOT_LOCALIZED:
                     offset += sizeof(char*);
                     break;
@@ -145,6 +162,8 @@ int32 DB2Meta::GetParentIndexFieldOffset() const
                     offset += 8;
                     break;
                 case FT_STRING:
+                    offset += sizeof(LocalizedString);
+                    break;
                 case FT_STRING_NOT_LOCALIZED:
                     offset += sizeof(char*);
                     break;
@@ -197,7 +216,7 @@ bool DB2Meta::IsSignedField(uint32 field) const
         default:
             break;
     }
-    if (field == uint32(IndexField))
+    if (field == uint32(IndexField) || field == uint32(ParentIndexField))
         return false;
 
     return Fields[field].IsSigned;

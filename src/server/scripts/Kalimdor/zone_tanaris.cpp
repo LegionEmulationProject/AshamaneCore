@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -91,7 +90,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->setFaction(35);
+            me->SetFaction(35);
         }
 
         void SendItem(Unit* receiver)
@@ -104,7 +103,7 @@ public:
                 !player->HasItemCount(ITEM_SILVER_TOTEM, 1, true))
             {
                 ItemPosCountVec dest;
-                uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, NULL);
+                uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, nullptr);
                 if (msg == EQUIP_ERR_OK)
                     player->StoreNewItem(dest, ITEM_SILVER_TOTEM, true);
             }
@@ -121,7 +120,7 @@ public:
             {
                 if (SwitchFactionTimer <= diff)
                 {
-                    me->setFaction(91);
+                    me->SetFaction(91);
                     isFriendly = false;
                 } else SwitchFactionTimer -= diff;
             }
@@ -192,11 +191,11 @@ public:
         return new npc_custodian_of_timeAI(creature);
     }
 
-    struct npc_custodian_of_timeAI : public npc_escortAI
+    struct npc_custodian_of_timeAI : public EscortAI
     {
-        npc_custodian_of_timeAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_custodian_of_timeAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -286,7 +285,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 
@@ -315,32 +314,16 @@ class npc_OOX17 : public CreatureScript
 public:
     npc_OOX17() : CreatureScript("npc_OOX17") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == Q_OOX17)
-        {
-            creature->setFaction(113);
-            creature->SetFullHealth();
-            creature->SetStandState(UNIT_STAND_STATE_STAND);
-            creature->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-            creature->AI()->Talk(SAY_OOX_START);
-
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_OOX17::npc_OOX17AI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
-        }
-        return true;
-    }
-
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_OOX17AI(creature);
     }
 
-    struct npc_OOX17AI : public npc_escortAI
+    struct npc_OOX17AI : public EscortAI
     {
-        npc_OOX17AI(Creature* creature) : npc_escortAI(creature) { }
+        npc_OOX17AI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -378,6 +361,20 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             summoned->AI()->AttackStart(me);
+        }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == Q_OOX17)
+            {
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
+                me->SetFullHealth();
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                me->SetImmuneToPC(false);
+                Talk(SAY_OOX_START);
+
+                Start(true, false, player->GetGUID());
+            }
         }
     };
 };

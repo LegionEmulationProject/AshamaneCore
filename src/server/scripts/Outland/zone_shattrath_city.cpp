@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,7 +64,7 @@ public:
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             CloseGossipMenuFor(player);
-            creature->setFaction(FACTION_OGRE_HOSTILE);
+            creature->SetFaction(FACTION_OGRE_HOSTILE);
             creature->AI()->Talk(SAY_RALIQ_ATTACK, player);
             creature->AI()->AttackStart(player);
         }
@@ -136,8 +135,6 @@ enum Salsalabim
 {
     SAY_DEMONIC_AGGRO          = 0,
     OPTION_ID_ALTRUIS_SENT_ME  = 0,
-    FACTION_FRIENDLY           = 35,
-    FACTION_DEMON_HOSTILE      = 90,
     MENU_ID_ALTRUIS_SENT_ME    = 7725,
     NPC_TEXT_SAL_GROWLS_AT_YOU = 9435,
     PATIENCE_AND_UNDERSTANDING = 10004,
@@ -155,7 +152,7 @@ public:
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             CloseGossipMenuFor(player);
-            creature->setFaction(FACTION_DEMON_HOSTILE);
+            creature->SetFaction(FACTION_DEMON);
             creature->AI()->Talk(SAY_DEMONIC_AGGRO, player);
             creature->AI()->AttackStart(player);
         }
@@ -379,12 +376,12 @@ public:
         return new npc_kservantAI(creature);
     }
 
-    struct npc_kservantAI : public npc_escortAI
+    struct npc_kservantAI : public EscortAI
     {
     public:
-        npc_kservantAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_kservantAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -486,12 +483,14 @@ struct npc_vormu : public ScriptedAI
 {
     npc_vormu(Creature* creature) : ScriptedAI(creature) { }
 
-    void sGossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) override
+    bool GossipSelect(Player* player, uint32 /*sender*/, uint32 /*action*/) override
     {
         ClearGossipMenuFor(player);
 
         if (!player->GetGroup() || player->GetGroup()->GetLeaderGUID() == player->GetGUID())
             sLFGMgr->JoinLfg(player, LFG_DUNGEON_TIME_WALKING_BLACK_TEMPLE);
+
+        return false;
     }
 };
 

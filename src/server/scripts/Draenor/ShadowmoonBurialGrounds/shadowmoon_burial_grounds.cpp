@@ -31,14 +31,14 @@
 enum RuneATEnums
 {
     SPELL_SHADOW_RUNE            = 152690,
-    
+
     SPELL_LUNAR_RUNE_1           = 164693,
     SPELL_SHADOW_RUNE_1          = 152684,
     SPELL_LUNAR_RUNE_2           = 164695,
     SPELL_SHADOW_RUNE_2          = 152691,
     SPELL_LUNAR_RUNE_3           = 164696,
     SPELL_SHADOW_RUNE_3          = 170038,
-    
+
     NPC_SHADOW_RUNE              = 75778,
 };
 
@@ -236,12 +236,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_EXHUME_THE_CRYPTS_1))
-                return false;
-
-            if (!sSpellMgr->GetSpellInfo(SPELL_EXHUME_THE_CRYPTS_2))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_EXHUME_THE_CRYPTS_1, SPELL_EXHUME_THE_CRYPTS_2 });
         }
 
         void SelectTarget(std::list<WorldObject*>& targets)
@@ -514,7 +509,7 @@ public:
                     sceneTimer = 0;
                     scenePhase = 1;
                     teleport = true;
-                    
+
                     checkTeleportTimer = 60000;
                 }
                 checkTimer = 200;

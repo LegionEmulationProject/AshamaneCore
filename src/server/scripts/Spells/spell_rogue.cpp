@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2085,7 +2085,8 @@ class spell_rog_saber_slash : public SpellScript
             return;
 
         //Saber slash has 35% chance to strike again and make your next Pistol Shot free (buff called Opportunity)
-        int32 chance = sSpellMgr->GetSpellInfo(SPELL_ROGUE_SABER_SLASH)->GetEffect(4)->BasePoints;
+        SpellInfo const* rogueSaberSlashInfo = sSpellMgr->GetSpellInfo(SPELL_ROGUE_SABER_SLASH);
+        int32 chance = rogueSaberSlashInfo->GetEffect(4)->BasePoints;
 
         //Jolly Roger increases the chance by 40%
         if (caster->HasAura(SPELL_ROGUE_JOLLY_ROGER))
@@ -2095,7 +2096,7 @@ class spell_rog_saber_slash : public SpellScript
         {
             caster->CastSpell(caster, SPELL_ROGUE_OPPORTUNITY, true);
 
-            SpellNonMeleeDamage dmg(caster, target, SPELL_ROGUE_SABER_SLASH, GetSpellInfo()->GetSpellXSpellVisualId(), GetSpellInfo()->SchoolMask);
+            SpellNonMeleeDamage dmg(caster, target, rogueSaberSlashInfo, { GetSpellInfo()->GetSpellXSpellVisualId(), 0 }, GetSpellInfo()->SchoolMask);
             dmg.damage = GetHitDamage();
             caster->DealSpellDamage(&dmg, false);
             caster->SendSpellNonMeleeDamageLog(&dmg);
@@ -2589,7 +2590,7 @@ public:
             if (!eventInfo.GetDamageInfo())
                 return false;
 
-            SpellNonMeleeDamage damageLog(caster, target, triggerSpell->Id, triggerSpell->GetSpellXSpellVisualId(), triggerSpell->SchoolMask);
+            SpellNonMeleeDamage damageLog(caster, target, triggerSpell, { triggerSpell->GetSpellXSpellVisualId(), 0 }, triggerSpell->SchoolMask);
             damageLog.damage = eventInfo.GetDamageInfo()->GetDamage();
             damageLog.cleanDamage = damageLog.damage;
             caster->DealSpellDamage(&damageLog, true);

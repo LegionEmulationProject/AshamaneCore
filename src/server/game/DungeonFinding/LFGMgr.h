@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -314,9 +314,8 @@ struct LFGDungeonData
     uint8 type;
     uint8 subtype;
     uint8 expansion;
-    uint8 randomId;
-    uint8 minlevel;
-    uint8 maxlevel;
+    uint8 group;
+    uint32 contentTuningId;
     Difficulty difficulty;
     bool seasonal;
     float x, y, z, o;
@@ -353,6 +352,8 @@ class TC_GAME_API LFGMgr
         bool inLfgDungeonMap(ObjectGuid guid, uint32 map, Difficulty difficulty);
         /// Get selected dungeons
         LfgDungeonSet const& GetSelectedDungeons(ObjectGuid guid);
+        /// Get selected random dungeon
+        uint32 GetSelectedRandomDungeon(ObjectGuid guid);
         /// Get current lfg state
         LfgState GetState(ObjectGuid guid);
         /// Get current vote kick state
@@ -414,7 +415,7 @@ class TC_GAME_API LFGMgr
         /// Gets the random dungeon reward corresponding to given dungeon and player level
         LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
         /// Returns all random and seasonal dungeons for given level and expansion
-        LfgDungeonSet GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion);
+        LfgDungeonSet GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion, uint32 contentTuningReplacementConditionMask);
         /// Teleport a player to/from selected dungeon
         void TeleportPlayer(Player* player, bool out, bool fromOpcode = false);
         /// Inits new proposal to boot a player

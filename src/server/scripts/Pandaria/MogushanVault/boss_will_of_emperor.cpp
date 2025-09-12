@@ -213,7 +213,7 @@ class boss_jin_qin_xi : public CreatureScript
             {
                 pInstance = creature->GetInstanceScript();
                 me->SetDisplayId(DISPLAY_BOSS_INVISIBLE);
-                me->setFaction(35);
+                me->SetFaction(35);
                 me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
                 sumCourage = 0;
             }
@@ -262,7 +262,7 @@ class boss_jin_qin_xi : public CreatureScript
 
                 if (pInstance->GetBossState(DATA_WILL_OF_EMPEROR) != DONE)
                     pInstance->SetBossState(DATA_WILL_OF_EMPEROR, NOT_STARTED);
-                
+
 
                 pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MAGNETIC_ARMOR_QIN);
@@ -428,7 +428,7 @@ class boss_jin_qin_xi : public CreatureScript
                         // 5 or 10 attacks, each combo is made of 2 phases - Using 10 by default
                         maxCombo = IsHeroic() ? 20 : 10;
                         devastatingComboPhase = 0;
-                        
+
                         // --- Summoning adds ---
                         events.ScheduleEvent(EVENT_SUMMON_RAGE, 11000);
 
@@ -589,7 +589,7 @@ class boss_jin_qin_xi : public CreatureScript
                     case EVENT_BOSS_WAIT_VISIBLE:
                     {
                         // Turn into ennemy and jump in the room
-                        me->setFaction(14);
+                        me->SetFaction(14);
                         // Landing coords 1st boss
                         float x = me->GetPositionX() + (15 * cos(me->GetOrientation()));
                         float y = me->GetPositionY() + (15 * sin(me->GetOrientation()));
@@ -625,7 +625,7 @@ class boss_jin_qin_xi : public CreatureScript
                                 alcove2 = urand(0, NB_ALCOVES - 1);
                             me->SummonCreature(NPC_EMPEROR_RAGE, tabAlcoves[alcove1][0], tabAlcoves[alcove1][1], tabAlcoves[alcove1][2], tabAlcoves[alcove1][3]);
                             me->SummonCreature(NPC_EMPEROR_RAGE, tabAlcoves[alcove2][0], tabAlcoves[alcove2][1], tabAlcoves[alcove2][2], tabAlcoves[alcove2][3]);
-                            
+
                             // Summoning other add : Emperor's Strength (if sumCourage == 0) or Empreror's Courage (if sumCourage == 1)
                             uint32 delaySummon = 1000 * urand(5, 10);
                             events.ScheduleEvent(EVENT_SUMMON_STRENGTH + sumCourage, delaySummon);
@@ -668,7 +668,7 @@ class boss_jin_qin_xi : public CreatureScript
                             me->RemoveUnitFlag2(UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-                            
+
                             // Emptying player list from previous combo
                             playerList.clear();
 
@@ -772,7 +772,7 @@ class boss_jin_qin_xi : public CreatureScript
                                 me->AddUnitFlag2(UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
-                                
+
 
                                 events.ScheduleEvent(EVENT_DEVASTATING_COMBO, urand(20000, 30000));
                             }
@@ -904,11 +904,11 @@ class mob_woe_add_generic : public CreatureScript
                 if (!pInstance)
                     return;
                 // Won't attack
-                me->setFaction(35);
+                me->SetFaction(35);
                 // Invisible
                 me->SetDisplayId(DISPLAY_ADD_INVISIBLE);
                 me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
-                
+
                 // Wait before casting
                 events.ScheduleEvent(EVENT_CAST_SKYBEAM, 1000);
 
@@ -919,7 +919,7 @@ class mob_woe_add_generic : public CreatureScript
                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_PULL, true);
                 }
             }
-            
+
             void MovementInform(uint32 uiType, uint32 id) override
             {
                 if (uiType != POINT_MOTION_TYPE && uiType != EFFECT_MOTION_TYPE)
@@ -998,7 +998,7 @@ class mob_woe_add_generic : public CreatureScript
 
                         // Add players in the list
                         for (auto player: playerList)
-                            me->getThreatManager().addThreat(player, 300.0f);
+                            me->GetThreatManager().addThreat(player, 300.0f);
 
                         // Pick a player to attack
                         if (!targetGuid)
@@ -1006,8 +1006,8 @@ class mob_woe_add_generic : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                             {
                                 targetGuid = target->GetGUID();
-                                me->getThreatManager().resetAllAggro();
-                                me->getThreatManager().addThreat(target, 300.0f);
+                                me->GetThreatManager().resetAllAggro();
+                                me->GetThreatManager().addThreat(target, 300.0f);
                                 AttackStart(target);
                                 me->SetInCombatWith(target);
                                 if (me->GetEntry() == NPC_EMPEROR_RAGE)
@@ -1131,7 +1131,7 @@ class mob_woe_add_generic : public CreatureScript
                         }
                         case EVENT_WAIT_VISIBLE:
                         {
-                            me->setFaction(14);
+                            me->SetFaction(14);
                             // Landing coords
                             float x = me->GetPositionX() + (15 * cos(me->GetOrientation()));
                             float y = me->GetPositionY() + (15 * sin(me->GetOrientation()));
@@ -1200,9 +1200,9 @@ class mob_woe_add_generic : public CreatureScript
                                         GetPlayerListInGrid(playerList, me, 150.0f);
 
                                         for (auto ply : playerList)
-                                            me->getThreatManager().addThreat(ply, 150.0f);
+                                            me->GetThreatManager().addThreat(ply, 150.0f);
 
-                                        target = SelectTarget(SELECT_TARGET_TOPAGGRO);
+                                        target = SelectTarget(SELECT_TARGET_MAXTHREAT);
                                         if (target)
                                         {
                                             targetGuid = target->GetGUID();
@@ -1232,7 +1232,7 @@ class mob_woe_add_generic : public CreatureScript
 
                                 std::list<Player*> tarList;
                                 GetPlayerListInGrid(tarList, me, dist);
-                            
+
                                 for (auto target : tarList)
                                     me->AddAura(SPELL_ENERGIZING_VISUAL, target);
 
@@ -1372,7 +1372,7 @@ class mob_ancient_mogu_machine : public CreatureScript
 {
     public:
         mob_ancient_mogu_machine() : CreatureScript("mob_ancient_mogu_machine") { }
-    
+
         struct mob_ancient_mogu_machineAI : public ScriptedAI
         {
 
@@ -1471,7 +1471,7 @@ class mob_general_purpose_bunnyJMF : public CreatureScript
 {
     public:
         mob_general_purpose_bunnyJMF() : CreatureScript("mob_general_purpose_bunnyJMF") { }
-    
+
         struct mob_general_purpose_bunnyJMFAI : public ScriptedAI
         {
             bool hasCast;
@@ -1559,7 +1559,7 @@ class spell_cosmetic_lightning : public SpellScriptLoader
                     GetCreatureListWithEntryInGrid(focus, caster, NPC_GENERAL_PURPOSE_BUNNY_JMF, 200.0f);
 
                     focus.remove(caster->ToCreature());
-                
+
                     for (auto cible: focus)
                     {
                         targets.push_back(cible);
@@ -1822,7 +1822,7 @@ class spell_energizing_smash : public SpellScriptLoader
 {
     public:
         spell_energizing_smash() : SpellScriptLoader("spell_energizing_smash") { }
-        
+
         class spell_ernergizing_smash_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_ernergizing_smash_SpellScript);

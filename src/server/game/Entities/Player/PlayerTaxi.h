@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,14 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PLAYERTAXI_H__
-#define __PLAYERTAXI_H__
+#ifndef PlayerTaxi_h__
+#define PlayerTaxi_h__
 
 #include "DBCEnums.h"
 #include "Define.h"
 #include <deque>
 #include <iosfwd>
-#include <vector>
+#include <string>
 
 struct FactionTemplateEntry;
 namespace WorldPackets
@@ -93,4 +93,4 @@ class TC_GAME_API PlayerTaxi
 
 std::ostringstream& operator <<(std::ostringstream& ss, PlayerTaxi const& taxi);
 
-#endif
+#endif // PlayerTaxi_h__

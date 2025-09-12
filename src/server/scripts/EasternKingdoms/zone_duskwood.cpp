@@ -1,20 +1,20 @@
 /*
-* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ *  more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /* ScriptData
 SDName: Duskwood
@@ -139,18 +139,18 @@ Position const TwillightCorrupter = { -10328.16f, -489.57f, 49.95f, 0.0f };
 
 class at_twilight_grove : public AreaTriggerScript
 {
-public:
-    at_twilight_grove() : AreaTriggerScript("at_twilight_grove") { }
+    public:
+        at_twilight_grove() : AreaTriggerScript("at_twilight_grove") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*areaTrigger*/, bool /*entered*/) override
-    {
-        if (player->GetQuestStatus(QUEST_NIGHTMARES_CORRUPTION) == QUEST_STATUS_INCOMPLETE)
-            if (!player->FindNearestCreature(NPC_TWILIGHT_CORRUPTER, 500.0f, true))
-                if (Creature* corrupter = player->SummonCreature(NPC_TWILIGHT_CORRUPTER, TwillightCorrupter, TEMPSUMMON_MANUAL_DESPAWN, 60000))
-                    corrupter->AI()->Talk(YELL_TWILIGHT_CORRUPTOR_RESPAWN, player);
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+        {
+            if (player->GetQuestStatus(QUEST_NIGHTMARES_CORRUPTION) == QUEST_STATUS_INCOMPLETE)
+                if (!player->FindNearestCreature(NPC_TWILIGHT_CORRUPTER, 500.0f, true))
+                    if (Creature* corrupter = player->SummonCreature(NPC_TWILIGHT_CORRUPTER, TwillightCorrupter, TEMPSUMMON_MANUAL_DESPAWN, 60000))
+                        corrupter->AI()->Talk(YELL_TWILIGHT_CORRUPTOR_RESPAWN, player);
 
-        return false;
-    };
+            return false;
+        };
 };
 
 enum SpellSummonStalvanData
@@ -300,8 +300,8 @@ struct npc_stalvan : public ScriptedAI
                         tobias->SetReactState(REACT_AGGRESSIVE);
 
                         me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC));
-                        me->AddThreat(tobias, 10.f);
-                        tobias->AddThreat(me, 10.f);
+                        AddThreat(tobias, 10.f);
+                        AddThreat(me, 10.f);
                         tobias->SetInCombatWith(me);
 
                         if (me->Attack(tobias, true))
@@ -507,7 +507,7 @@ struct npc_ebenlocke : public ScriptedAI
 
     npc_ebenlocke(Creature* creature) : ScriptedAI(creature) { }
 
-    void sQuestAccept(Player* /*player*/, Quest const* quest) override
+    void QuestAccept(Player* /*player*/, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_EMBALMERS_REVENGE)
         {

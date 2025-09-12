@@ -60,16 +60,16 @@ struct npc_talanji_arrival : public ScriptedAI
 {
     npc_talanji_arrival(Creature* creature) : ScriptedAI(creature) { }
 
-    void sQuestAccept(Player* player, Quest const* /*quest*/) override
+    void QuestAccept(Player* player, Quest const* /*quest*/) override
     {
         me->DestroyForPlayer(player);
     }
 };
 
 // 132661
-struct npc_talanji_arrival_escort : public npc_escortAI
+struct npc_talanji_arrival_escort : public EscortAI
 {
-    npc_talanji_arrival_escort(Creature* creature) : npc_escortAI(creature) { }
+    npc_talanji_arrival_escort(Creature* creature) : EscortAI(creature) { }
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -90,9 +90,9 @@ struct npc_talanji_arrival_escort : public npc_escortAI
 };
 
 // 138912
-struct npc_enforcer_pterrordax : public npc_escortAI
+struct npc_enforcer_pterrordax : public EscortAI
 {
-    npc_enforcer_pterrordax(Creature* creature) : npc_escortAI(creature) { }
+    npc_enforcer_pterrordax(Creature* creature) : EscortAI(creature) { }
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -121,19 +121,19 @@ struct npc_rastakhan_zuldazar_arrival : public ScriptedAI
 {
     npc_rastakhan_zuldazar_arrival(Creature* creature) : ScriptedAI(creature) { }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void QuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->ID == QUEST_SPEAKER_OF_THE_HORDE)
+        if (quest->GetQuestId() == QUEST_SPEAKER_OF_THE_HORDE)
             player->SummonCreature(NPC_ZOLANI, -1100.689941f, 817.934021f, 497.243011f, 6.062160f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000, true);
     }
 };
 
 // 135441
-struct npc_soth_zolani : public npc_escortAI
+struct npc_soth_zolani : public EscortAI
 {
-    npc_soth_zolani(Creature* creature) : npc_escortAI(creature) { }
+    npc_soth_zolani(Creature* creature) : EscortAI(creature) { }
 
-    void sGossipHello(Player* player) override
+    bool GossipHello(Player* player) override
     {
         //Zolani at the beginning shouldn't start running through the air
         if (player->hasQuest(46931))
@@ -142,6 +142,8 @@ struct npc_soth_zolani : public npc_escortAI
             Start(false, false, player->GetGUID());
             Talk(0);
         }
+
+        return false;
     }
 
     void LastWaypointReached() override
@@ -205,9 +207,9 @@ struct npc_talanji_great_seal : public ScriptedAI
 {
     npc_talanji_great_seal(Creature* creature) : ScriptedAI(creature) { }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void QuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->ID == QUEST_NEED_EACH_OTHER)
+        if (quest->GetQuestId() == QUEST_NEED_EACH_OTHER)
             player->CastSpell(player, SPELL_PREVIEW_TO_ZANDALAR, true);
     }
 };
@@ -230,10 +232,10 @@ class spell_generic_rastari_skull_whistle : public SpellScript
 };
 
 //
-class npc_ata_the_winglord_offensively_defence : public npc_escortAI
+class npc_ata_the_winglord_offensively_defence : public EscortAI
 {
 public:
-    npc_ata_the_winglord_offensively_defence(Creature* creature) : npc_escortAI(creature)
+    npc_ata_the_winglord_offensively_defence(Creature* creature) : EscortAI(creature)
     {
         me->SetCanFly(true);
         me->SetSpeed(MOVE_FLIGHT, 26);
@@ -266,10 +268,10 @@ public:
     }
 };
 
-class npc_ata_the_winglord_paku_master_of_winds : public npc_escortAI
+class npc_ata_the_winglord_paku_master_of_winds : public EscortAI
 {
 public:
-    npc_ata_the_winglord_paku_master_of_winds(Creature* creature) : npc_escortAI(creature)
+    npc_ata_the_winglord_paku_master_of_winds(Creature* creature) : EscortAI(creature)
     {
         me->SetCanFly(true);
         me->SetSpeed(MOVE_FLIGHT, 26);
@@ -302,10 +304,10 @@ public:
     }
 };
 
-class npc_pterrordax_paku_master_of_winds : public npc_escortAI
+class npc_pterrordax_paku_master_of_winds : public EscortAI
 {
 public:
-    npc_pterrordax_paku_master_of_winds(Creature* creature) : npc_escortAI(creature)
+    npc_pterrordax_paku_master_of_winds(Creature* creature) : EscortAI(creature)
     {
         me->SetCanFly(true);
         me->SetReactState(REACT_PASSIVE);
@@ -319,7 +321,7 @@ public:
             me->NeedChangeAI = false;
     }
 
-   /* void WaypointReached(uint32 waypointId) override
+   /* void WaypointReached(uint32 waypointId, uint32 /*pathId*//*) override
     {
         if (waypointId == 11)
             me->ForcedDespawn();
@@ -379,9 +381,10 @@ struct npc_paku : public ScriptedAI
         });
     }
 
-    void sGossipHello(Player* player) override
+    bool GossipHello(Player* player) override
     {
         player->KilledMonsterCredit(127377);
+        return false;
     }
 };
 

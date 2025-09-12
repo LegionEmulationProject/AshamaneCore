@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,14 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AreaBoundary.h"
 #include "ScriptMgr.h"
-#include "Creature.h"
-#include "CreatureAI.h"
+#include "AreaBoundary.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "magtheridons_lair.h"
 #include "Map.h"
+#include "ScriptedCreature.h"
 
 BossBoundaryData const boundaries =
 {
@@ -68,7 +67,7 @@ static DataTypes const collapseObjectDatas[] =
 class instance_magtheridons_lair : public InstanceMapScript
 {
     public:
-        instance_magtheridons_lair() : InstanceMapScript("instance_magtheridons_lair", 544) { }
+        instance_magtheridons_lair() : InstanceMapScript(MLScriptName, 544) { }
 
         struct instance_magtheridons_lair_InstanceMapScript : public InstanceScript
         {

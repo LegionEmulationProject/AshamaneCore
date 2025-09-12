@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,8 +47,6 @@ enum UnkorTheRuthless
 {
     SAY_SUBMIT              = 0,
     REQUIRED_KILL_COUNT     = 10,
-    FACTION_FRIENDLY        = 35,
-    FACTION_HOSTILE         = 45,
     SPELL_PULVERIZE         = 2676,
     QUEST_DONTKILLTHEFATONE = 9889,
     NPC_BOULDERFIST_INVADER = 18260
@@ -87,7 +84,7 @@ public:
         {
             Initialize();
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->setFaction(FACTION_HOSTILE);
+            me->SetFaction(FACTION_OGRE);
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -95,10 +92,10 @@ public:
         void DoNice()
         {
             Talk(SAY_SUBMIT);
-            me->setFaction(FACTION_FRIENDLY);
+            me->SetFaction(FACTION_FRIENDLY);
             me->SetStandState(UNIT_STAND_STATE_SIT);
             me->RemoveAllAuras();
-            me->DeleteThreatList();
+            me->GetThreatManager().ClearAllThreat();
             me->CombatStop(true);
             UnkorUnfriendly_Timer = 60000;
         }
@@ -111,7 +108,7 @@ public:
             {
                 if (Group* group = player->GetGroup())
                 {
-                    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                    for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
                     {
                         Player* groupie = itr->GetSource();
                         if (groupie && groupie->IsInMap(player) &&
@@ -222,12 +219,12 @@ public:
         return new npc_skywingAI(creature);
     }
 
-    struct npc_skywingAI : public npc_escortAI
+    struct npc_skywingAI : public EscortAI
     {
     public:
-        npc_skywingAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_skywingAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -259,7 +256,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 };
@@ -339,7 +336,7 @@ public:
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             CloseGossipMenuFor(player);
-            creature->setFaction(FACTION_HOSTILE_FLOON);
+            creature->SetFaction(FACTION_HOSTILE_FLOON);
             creature->AI()->Talk(SAY_FLOON_ATTACK, player);
             creature->AI()->AttackStart(player);
         }
@@ -365,7 +362,7 @@ public:
         npc_floonAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
-            m_uiNormFaction = creature->getFaction();
+            m_uiNormFaction = creature->GetFaction();
         }
 
         void Initialize()
@@ -383,8 +380,8 @@ public:
         void Reset() override
         {
             Initialize();
-            if (me->getFaction() != m_uiNormFaction)
-                me->setFaction(m_uiNormFaction);
+            if (me->GetFaction() != m_uiNormFaction)
+                me->SetFaction(m_uiNormFaction);
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -439,11 +436,11 @@ class npc_isla_starmane : public CreatureScript
 public:
     npc_isla_starmane() : CreatureScript("npc_isla_starmane") { }
 
-    struct npc_isla_starmaneAI : public npc_escortAI
+    struct npc_isla_starmaneAI : public EscortAI
     {
-        npc_isla_starmaneAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_isla_starmaneAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -503,8 +500,8 @@ public:
     {
         if (quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_H || quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_A)
         {
-            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-            creature->setFaction(FACTION_ESCORTEE);
+            ENSURE_AI(EscortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            creature->SetFaction(FACTION_ESCORTEE);
         }
         return true;
     }
@@ -644,9 +641,9 @@ public:
                 pEscortAI->Start(false, false, player->GetGUID());
 
             if (player->GetTeamId() == TEAM_ALLIANCE)
-                creature->setFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
+                creature->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
             else
-                creature->setFaction(FACTION_ESCORT_H_NEUTRAL_PASSIVE);
+                creature->SetFaction(FACTION_ESCORTEE_H_NEUTRAL_PASSIVE);
         }
         return true;
     }
@@ -656,11 +653,11 @@ public:
         return new npc_akunoAI(creature);
     }
 
-    struct npc_akunoAI : public npc_escortAI
+    struct npc_akunoAI : public EscortAI
     {
-        npc_akunoAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_akunoAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)

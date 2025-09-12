@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -93,9 +93,9 @@ public:
         return GetGnomereganAI<npc_blastmaster_emi_shortfuseAI>(creature);
     }
 
-    struct npc_blastmaster_emi_shortfuseAI : public npc_escortAI
+    struct npc_blastmaster_emi_shortfuseAI : public EscortAI
     {
-        npc_blastmaster_emi_shortfuseAI(Creature* creature) : npc_escortAI(creature)
+        npc_blastmaster_emi_shortfuseAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
             creature->RestoreFaction();
@@ -124,17 +124,19 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             if (gossipListId == 0)
             {
                 Start(true, false, player->GetGUID());
 
-                me->setFaction(player->getFaction());
+                me->SetFaction(player->GetFaction());
                 SetData(1, 0);
 
                 player->PlayerTalkClass->SendCloseGossip();
             }
+
+            return false;
         }
 
         void NextStep(uint32 uiTimerStep, bool bNextStep = true, uint8 uiPhaseStep = 0)
@@ -155,14 +157,14 @@ public:
             {
                 if (GameObject* go = ObjectAccessor::GetGameObject(*me, *itr))
                 {
-                    if (Creature* trigger = go->SummonTrigger(go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, 1))
+                    if (Creature* trigger = me->SummonTrigger(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, 1))
                     {
                         //visual effects are not working!
                         trigger->CastSpell(trigger, 11542, true);
                         trigger->CastSpell(trigger, 35470, true);
                     }
-                    go->RemoveFromWorld();
-                    //go->CastSpell(me, 12158); makes all die?!
+                    me->RemoveFromWorld();
+                    //me->CastSpell(me, 12158); makes all die?!
                 }
             }
 
@@ -188,7 +190,7 @@ public:
                 for (GuidList::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
                 {
                     if (GameObject* go = ObjectAccessor::GetGameObject(*me, *itr))
-                        go->RemoveFromWorld();
+                        me->RemoveFromWorld();
                 }
 
             if (!SummonList.empty())
@@ -203,7 +205,7 @@ public:
 
         void AggroAllPlayers(Creature* temp)
         {
-            Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
+            Map::PlayerList const& PlList = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
             {
                 if (Player* player = i->GetSource())
@@ -212,21 +214,17 @@ public:
                         continue;
 
                     if (player->IsAlive())
-                    {
-                        temp->SetInCombatWith(player);
-                        player->SetInCombatWith(temp);
-                        temp->AddThreat(player, 0.0f);
-                    }
+                        AddThreat(player, 0.0f, temp);
                 }
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             //just in case
             if (GetPlayerForEscort())
-                if (me->getFaction() != GetPlayerForEscort()->getFaction())
-                    me->setFaction(GetPlayerForEscort()->getFaction());
+                if (me->GetFaction() != GetPlayerForEscort()->GetFaction())
+                    me->SetFaction(GetPlayerForEscort()->GetFaction());
 
             switch (waypointId)
             {
@@ -308,7 +306,7 @@ public:
                 case 2:
                     if (GameObject* go = me->SummonGameObject(183410, -533.140f, -105.322f, -156.016f, 0.f, QuaternionData(), 1))
                     {
-                        GoSummonList.push_back(go->GetGUID());
+                        GoSummonList.push_back(me->GetGUID());
                         go->AddFlag(GO_FLAG_NOT_SELECTABLE); //We can't use it!
                     }
                     Summon(3);
@@ -323,7 +321,7 @@ public:
                 case 4:
                     if (GameObject* go = me->SummonGameObject(183410, -542.199f, -96.854f, -155.790f, 0.f, QuaternionData(), 1))
                     {
-                        GoSummonList.push_back(go->GetGUID());
+                        GoSummonList.push_back(me->GetGUID());
                         go->AddFlag(GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
@@ -337,7 +335,7 @@ public:
                 case 6:
                     if (GameObject* go = me->SummonGameObject(183410, -507.820f, -103.333f, -151.353f, 0.f, QuaternionData(), 1))
                     {
-                        GoSummonList.push_back(go->GetGUID());
+                        GoSummonList.push_back(me->GetGUID());
                         go->AddFlag(GO_FLAG_NOT_SELECTABLE); //We can't use it!
                         Summon(5);
                     }
@@ -345,7 +343,7 @@ public:
                 case 7:
                     if (GameObject* go = me->SummonGameObject(183410, -511.829f, -86.249f, -151.431f, 0.f, QuaternionData(), 1))
                     {
-                        GoSummonList.push_back(go->GetGUID());
+                        GoSummonList.push_back(me->GetGUID());
                         go->AddFlag(GO_FLAG_NOT_SELECTABLE); //We can't use it!
                     }
                     break;

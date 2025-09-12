@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,6 +30,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -160,7 +160,7 @@ public:
     // The array MUST be terminated by {0, 0, 0}
     DialogueHelper(DialogueEntry const* dialogueArray) :
       _dialogueArray(dialogueArray),
-          _currentEntry(NULL),
+          _currentEntry(nullptr),
           _actionTimer(0)
       { }
       // The array MUST be terminated by {0, 0, 0, 0, 0}
@@ -204,7 +204,7 @@ protected:
     /// Will be called when a dialogue step was done
     virtual void JustDidDialogueStep(int32 /*entry*/) { }
     /// Will be called to get a speaker, MUST be implemented if not used in instances
-    virtual Creature* GetSpeakerByEntry(int32 /*entry*/) { return NULL; }
+    virtual Creature* GetSpeakerByEntry(int32 /*entry*/) { return nullptr; }
 
 private:
     void DoNextDialogueStep()
@@ -300,7 +300,7 @@ public:
         if (quest->GetQuestId() == QUEST_GUARDIANS_ALTAR)
         {
             creature->AI()->Talk(SAY_QUEST_START);
-            creature->setFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
+            creature->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
 
             if (npc_ranshallaAI* escortAI = dynamic_cast<npc_ranshallaAI*>(creature->AI()))
                 escortAI->Start(false, false, player->GetGUID(), quest);
@@ -315,10 +315,9 @@ public:
         return new npc_ranshallaAI(creature);
     }
 
-    struct npc_ranshallaAI : public npc_escortAI, private DialogueHelper
+    struct npc_ranshallaAI : public EscortAI, private DialogueHelper
     {
-        npc_ranshallaAI(Creature* creature) : npc_escortAI(creature),
-            DialogueHelper(introDialogue)
+        npc_ranshallaAI(Creature* creature) : EscortAI(creature), DialogueHelper(introDialogue)
         {
             Initialize();
         }
@@ -402,7 +401,7 @@ public:
             StartNextDialogueText(SAY_PRIESTESS_ALTAR_3);
         }
 
-        void WaypointReached(uint32 pointId) override
+        void WaypointReached(uint32 pointId, uint32 /*pathId*/) override
         {
             switch (pointId)
             {
@@ -566,7 +565,7 @@ public:
                 case NPC_PRIESTESS_DATA_2:
                     return ObjectAccessor::GetCreature(*me, _secondPriestessGUID);
                 default:
-                    return NULL;
+                    return nullptr;
             }
 
         }
@@ -589,7 +588,7 @@ public:
             if (events.ExecuteEvent() == EVENT_RESUME)
                 StartNextDialogueText(SAY_PRIESTESS_ALTAR_3);
 
-            npc_escortAI::UpdateEscortAI(diff);
+            EscortAI::UpdateEscortAI(diff);
         }
     private:
         EventMap events;

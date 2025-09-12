@@ -191,7 +191,7 @@ public:
                     Reaper->DespawnOrUnsummon();
         }
 
-        uint32 GetData(uint32 type) const override 
+        uint32 GetData(uint32 type) const override
         {
             if (type == DATA_ACHIV_PROTOTYPE_PRODIGY)
             {
@@ -435,7 +435,7 @@ public:
             {
                 if (!me->HasAura(SPELL_ON_FIRE))
                     me->AddAura(SPELL_ON_FIRE, me);
-                me->setFaction(35);
+                me->SetFaction(35);
             }
         }
 
@@ -454,8 +454,8 @@ public:
         {
             Status = true;
             me->SetHealth(15);
-            me->setRegeneratingHealth(false);
-            me->setFaction(35);
+            me->SetRegenerateHealth(false);
+            me->SetFaction(35);
             me->AddAura(SPELL_ON_FIRE, me);
             me->CastSpell(me, SPELL_ON_FIRE);
             me->SetInCombatWithZone();

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -41,9 +40,9 @@ EndContentData */
 #include "GameObjectAI.h"
 #include "Group.h"
 #include "MotionMaster.h"
-#include "Player.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "TemporarySummon.h"
@@ -55,9 +54,6 @@ EndContentData */
 enum EternalBoard
 {
     QUEST_A_PAWN_ON_THE_ETERNAL_BOARD = 8519,
-
-    FACTION_HOSTILE                   = 14,
-    FACTION_FRIENDLY                  = 35,
 
     EVENT_AREA_RADIUS                 = 65,     // 65yds
     EVENT_COOLDOWN                    = 500000, // in ms. appears after event completed or failed (should be = Adds despawn time)
@@ -561,7 +557,7 @@ public:
                     case 51:
                     {
                         uint32 entries[4] = { NPC_KALDOREI_INFANTRY, NPC_ANUBISATH_CONQUEROR, NPC_QIRAJI_WASP, NPC_QIRAJI_TANK };
-                        Unit* mob = NULL;
+                        Unit* mob = nullptr;
                         for (uint8 i = 0; i < 4; ++i)
                         {
                             mob = player->FindNearestCreature(entries[i], 50);
@@ -624,7 +620,7 @@ public:
                         {
                             Talk(ARYGOS_YELL_1);
                             AnachronosQuestTrigger->AI()->EnterEvadeMode();
-                            eventEnd=true;
+                            eventEnd = true;
                         }
                         break;
                 }
@@ -747,7 +743,7 @@ public:
             }
             if (!hasTarget)
             {
-                Unit* target = NULL;
+                Unit* target = nullptr;
                 if (me->GetEntry() == NPC_ANUBISATH_CONQUEROR || me->GetEntry() == NPC_QIRAJI_TANK || me->GetEntry() == NPC_QIRAJI_WASP)
                     target = me->FindNearestCreature(NPC_KALDOREI_INFANTRY, 20, true);
                 if (me->GetEntry() == NPC_KALDOREI_INFANTRY)
@@ -875,7 +871,7 @@ public:
 
             if (Group* EventGroup = player->GetGroup())
             {
-                Player* groupMember = NULL;
+                Player* groupMember = nullptr;
 
                 uint8 GroupMemberCount = 0;
                 uint8 DeadMemberCount = 0;
@@ -983,7 +979,7 @@ public:
                     Merithra->SetNpcFlags(UNIT_NPC_FLAG_NONE);
                     Merithra->SetStandState(UNIT_STAND_STATE_STAND);
                     Merithra->SetDisplayId(MERITHRA_NIGHT_ELF_FORM);
-                    Merithra->setFaction(35);
+                    Merithra->SetFaction(35);
                 }
 
                 if (Caelestrasz)
@@ -991,7 +987,7 @@ public:
                     Caelestrasz->SetNpcFlags(UNIT_NPC_FLAG_NONE);
                     Caelestrasz->SetStandState(UNIT_STAND_STATE_STAND);
                     Caelestrasz->SetDisplayId(CAELESTRASZ_NIGHT_ELF_FORM);
-                    Caelestrasz->setFaction(35);
+                    Caelestrasz->SetFaction(35);
                 }
 
                 if (Arygos)
@@ -999,7 +995,7 @@ public:
                     Arygos->SetNpcFlags(UNIT_NPC_FLAG_NONE);
                     Arygos->SetStandState(UNIT_STAND_STATE_STAND);
                     Arygos->SetDisplayId(ARYGOS_GNOME_FORM);
-                    Arygos->setFaction(35);
+                    Arygos->SetFaction(35);
                 }
 
                 if (Anachronos)
@@ -1390,17 +1386,18 @@ struct npc_magni_bronzebeard_heart_chamber : public ScriptedAI
 {
     npc_magni_bronzebeard_heart_chamber(Creature* creature) : ScriptedAI(creature) { }
 
-    void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
         player->CastSpell(player, 268798, true); // Heart of Azeroth Scene
+        return false;
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void QuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->ID == 52428)
+        if (quest->GetQuestId() == 52428)
             player->PlayConversation(9001);
 
-        if (quest->ID == 51403 || quest->ID == 53031)
+        if (quest->GetQuestId() == 51403 || quest->GetQuestId() == 53031)
             player->PlayConversation(8689);
     }
 };
@@ -1514,17 +1511,17 @@ struct go_azeroth_heart_chamber_teleport_pad : public GameObjectAI
         if (!player)
             return false;
 
-        if (player->HasQuest(QUEST_SPEAKER_IMPERATIVE_ALLIANCE) && go->GetEntry() != GO_TELEPORT_PAD_ALLIANCE)
+        if (player->HasQuest(QUEST_SPEAKER_IMPERATIVE_ALLIANCE) && me->GetEntry() != GO_TELEPORT_PAD_ALLIANCE)
             return true;
-        else if (player->HasQuest(QUEST_SPEAKER_IMPERATIVE_HORDE) && go->GetEntry() != GO_TELEPORT_PAD_HORDE)
+        else if (player->HasQuest(QUEST_SPEAKER_IMPERATIVE_HORDE) && me->GetEntry() != GO_TELEPORT_PAD_HORDE)
             return true;
-        else if (!player->HasQuest(QUEST_SPEAKER_IMPERATIVE_ALLIANCE) && !player->HasQuest(QUEST_SPEAKER_IMPERATIVE_HORDE) && go->GetEntry() != GO_TELEPORT_PAD_SILITHUS)
+        else if (!player->HasQuest(QUEST_SPEAKER_IMPERATIVE_ALLIANCE) && !player->HasQuest(QUEST_SPEAKER_IMPERATIVE_HORDE) && me->GetEntry() != GO_TELEPORT_PAD_SILITHUS)
             return true;
 
         return false;
     }
 
-    bool GossipHello(Player* player, bool /*isUse*/) override
+    bool GossipHello(Player* player) override
     {
         player->KilledMonsterCredit(140176);
         player->KilledMonsterCredit(142930);

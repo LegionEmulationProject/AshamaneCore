@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,11 +38,11 @@ enum Spells
 
 #define LOCALE_TRICK_OR_TREAT_0 "Trick or Treat!"
 #define LOCALE_TRICK_OR_TREAT_2 "Des bonbons ou des blagues!"
-#define LOCALE_TRICK_OR_TREAT_3 "SÃ¼ÃŸes oder Saures!"
-#define LOCALE_TRICK_OR_TREAT_6 "Â¡Truco o trato!"
+#define LOCALE_TRICK_OR_TREAT_3 "Süßes oder Saures!"
+#define LOCALE_TRICK_OR_TREAT_6 "¡Truco o trato!"
 
 #define LOCALE_INNKEEPER_0 "Make this inn my home."
-#define LOCALE_INNKEEPER_3 "Ich mÃ¶chte dieses Gasthaus zu meinem Heimatort machen."
+#define LOCALE_INNKEEPER_3 "Ich möchte dieses Gasthaus zu meinem Heimatort machen."
 
 class npc_innkeeper : public CreatureScript
 {
@@ -53,7 +53,7 @@ public:
     {
         if (IsHolidayActive(HOLIDAY_HALLOWS_END) && !player->HasAura(SPELL_TRICK_OR_TREATED))
         {
-            const char* localizedEntry;
+            char const* localizedEntry;
             switch (player->GetSession()->GetSessionDbcLocale())
             {
                 case LOCALE_frFR: localizedEntry = LOCALE_TRICK_OR_TREAT_2; break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,6 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "Vehicle.h"
 
 enum Spells
@@ -116,7 +115,7 @@ class npc_ymirjar_flamebearer : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_ymirjar_flamebearerAI(creature);
+            return GetPitOfSaronAI<npc_ymirjar_flamebearerAI>(creature);
         }
 };
 
@@ -170,7 +169,7 @@ class npc_iceborn_protodrake : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_iceborn_protodrakeAI(creature);
+            return GetPitOfSaronAI<npc_iceborn_protodrakeAI>(creature);
         }
 };
 
@@ -229,7 +228,7 @@ class npc_geist_ambusher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_geist_ambusherAI(creature);
+            return GetPitOfSaronAI<npc_geist_ambusherAI>(creature);
         }
 };
 

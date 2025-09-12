@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -193,12 +192,12 @@ struct BattlegroundWGScore final : public BattlegroundScore
             }
         }
 
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics& playerData) const override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
         {
             BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
 
-            playerData.Stats.push_back(FlagCaptures);
-            playerData.Stats.push_back(FlagReturns);
+            playerData.Stats.emplace_back(WS_OBJECTIVE_CAPTURE_FLAG, FlagCaptures);
+            playerData.Stats.emplace_back(WS_OBJECTIVE_RETURN_FLAG, FlagReturns);
         }
 
         uint32 GetAttr1() const final override { return FlagCaptures; }
@@ -212,7 +211,7 @@ class BattlegroundWS : public Battleground
 {
     public:
         /* Construction */
-        BattlegroundWS();
+        BattlegroundWS(BattlegroundTemplate const* battlegroundTemplate);
         ~BattlegroundWS();
 
         /* inherited from BattlegroundClass */
@@ -246,7 +245,7 @@ class BattlegroundWS : public Battleground
         bool SetupBattleground() override;
         void Reset() override;
         void EndBattleground(uint32 winner) override;
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
         WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         void UpdateFlagState(uint32 team, uint32 value);

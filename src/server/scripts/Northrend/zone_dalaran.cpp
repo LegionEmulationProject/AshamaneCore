@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,9 +28,9 @@ Script Data End */
 #include "Mail.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
 
 /*******************************************************
  * npc_mageguard_dalaran
@@ -167,16 +167,15 @@ class npc_minigob_manabonk : public CreatureScript
             Player* SelectTargetInDalaran()
             {
                 std::vector<Player*> PlayerInDalaranList;
-                PlayerInDalaranList.clear();
 
-                Map::PlayerList const &players = me->GetMap()->GetPlayers();
+                Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     if (Player* player = itr->GetSource()->ToPlayer())
                         if (player->GetZoneId() == ZONE_DALARAN_WOTLK && !player->IsFlying() && !player->IsMounted() && !player->IsGameMaster())
                             PlayerInDalaranList.push_back(player);
 
                 if (PlayerInDalaranList.empty())
-                    return NULL;
+                    return nullptr;
                 return Trinity::Containers::SelectRandomContainerElement(PlayerInDalaranList);
             }
 

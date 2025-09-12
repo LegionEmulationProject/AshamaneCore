@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -41,7 +41,7 @@ uint32 BG_TP_Honor[BG_HONOR_MODE_NUM][BG_TP_REWARD_NUM] =
     {60, 40, 80}  // holiday
 };
 
-BattlegroundTP::BattlegroundTP()
+BattlegroundTP::BattlegroundTP(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     BgObjects.resize(BG_TP_OBJECT_MAX);
     BgCreatures.resize(BG_CREATURES_MAX_TP);
@@ -252,7 +252,6 @@ void BattlegroundTP::AddPlayer(Player* player)
     Battleground::AddPlayer(player);
     PlayerScores[player->GetGUID()] = new BattlegroundTPScore(player->GetGUID(), player->GetBGTeam());
 }
-
 
 void BattlegroundTP::RespawnFlag(uint32 Team, bool captured)
 {
@@ -696,30 +695,30 @@ bool BattlegroundTP::SetupBattleground()
         return false;
     }
 
-    WorldSafeLocsEntry const *sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_ALLIANCE);
-    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.641396f, TEAM_ALLIANCE))
+    WorldSafeLocsEntry const *sg = sObjectMgr->GetWorldSafeLoc(TP_GRAVEYARD_MIDDLE_ALLIANCE);
+    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->Loc.GetPositionX(), sg->Loc.GetPositionY(), sg->Loc.GetPositionZ(), 3.641396f, TEAM_ALLIANCE))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundTP: Failed to spawn Alliance spirit guides! Battleground not created!");
         return false;
     }
 
 
-    sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_START_ALLIANCE);
-    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.641396f, TEAM_ALLIANCE))
+    sg = sObjectMgr->GetWorldSafeLoc(TP_GRAVEYARD_START_ALLIANCE);
+    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->Loc.GetPositionX(), sg->Loc.GetPositionY(), sg->Loc.GetPositionZ(), 3.641396f, TEAM_ALLIANCE))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundTP: Failed to spawn Alliance start spirit guides! Battleground not created!");
         return false;
     }
 
 
-    sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_HORDE);
-    if (!sg || !AddSpiritGuide(TP_SPIRIT_HORDE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.641396f, TEAM_HORDE))
+    sg = sObjectMgr->GetWorldSafeLoc(TP_GRAVEYARD_MIDDLE_HORDE);
+    if (!sg || !AddSpiritGuide(TP_SPIRIT_HORDE, sg->Loc.GetPositionX(), sg->Loc.GetPositionY(), sg->Loc.GetPositionZ(), 3.641396f, TEAM_HORDE))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundTP: Failed to spawn Horde spirit guides! Battleground not created!");
         return false;
     }
-    sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_START_HORDE);
-    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.641396f, TEAM_HORDE))
+    sg = sObjectMgr->GetWorldSafeLoc(TP_GRAVEYARD_START_HORDE);
+    if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->Loc.GetPositionX(), sg->Loc.GetPositionY(), sg->Loc.GetPositionZ(), 3.641396f, TEAM_HORDE))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundTP: Failed to spawn Horde start spirit guide! Battleground not created!");
         return false;
@@ -802,10 +801,10 @@ bool BattlegroundTP::UpdatePlayerScore(Player* player, uint32 type, uint32 value
     switch (type)
     {
         case SCORE_FLAG_CAPTURES:                           // flags captured
-            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, TP_OBJECTIVE_CAPTURE_FLAG);
+            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_TP_FLAG_CAPTURES);
             break;
         case SCORE_FLAG_RETURNS:                            // flags returned
-            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, TP_OBJECTIVE_RETURN_FLAG);
+            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_TP_FLAG_RETURNS);
             break;
         default:
             break;
@@ -814,7 +813,7 @@ bool BattlegroundTP::UpdatePlayerScore(Player* player, uint32 type, uint32 value
 }
 
 
-WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveYard(Player* player)
+WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveyard(Player* player)
 {
     // if status in progress, it returns main or start graveyards with spiritguides
     // else it will return the graveyard in the flagroom - this is especially good
@@ -824,22 +823,22 @@ WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveYard(Player* player)
     if (player->GetTeam() == ALLIANCE)
     {
         if (GetStatus() == STATUS_IN_PROGRESS)
-            return sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_ALLIANCE);
+            return sObjectMgr->GetWorldSafeLoc(TP_GRAVEYARD_MIDDLE_ALLIANCE);
         else
-            return sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_FLAGROOM_ALLIANCE);
+            return sObjectMgr->GetWorldSafeLoc(TP_GRAVEYARD_FLAGROOM_ALLIANCE);
     }
     else
     {
         if (GetStatus() == STATUS_IN_PROGRESS)
-            return sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_HORDE);
+            return sObjectMgr->GetWorldSafeLoc(TP_GRAVEYARD_MIDDLE_HORDE);
         else
-            return sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_FLAGROOM_HORDE);
+            return sObjectMgr->GetWorldSafeLoc(TP_GRAVEYARD_FLAGROOM_HORDE);
     }
 }
 
 /*WorldSafeLocsEntry const* BattlegroundTP::GetExploitTeleportLocation(Team team)
 {
-    return sWorldSafeLocsStore.LookupEntry(team == ALLIANCE ? TP_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : TP_EXPLOIT_TELEPORT_LOCATION_HORDE);
+    return sObjectMgr->GetWorldSafeLoc(team == ALLIANCE ? TP_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : TP_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }*/
 
 void BattlegroundTP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)

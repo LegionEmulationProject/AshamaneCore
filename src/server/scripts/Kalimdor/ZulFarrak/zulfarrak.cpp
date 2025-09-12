@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,6 +29,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -44,8 +44,6 @@ EndContentData */
 
 enum blyAndCrewFactions
 {
-    FACTION_HOSTILE           = 14,
-    FACTION_FRIENDLY          = 35,  //while in cages (so the trolls won't attack them while they're caged)
     FACTION_FREED             = 250  //after release (so they'll be hostile towards trolls)
 };
 
@@ -132,7 +130,7 @@ public:
         {
             Initialize();
 
-            me->setFaction(FACTION_FRIENDLY);
+            me->SetFaction(FACTION_FRIENDLY);
         }
 
         void UpdateAI(uint32 diff) override
@@ -155,7 +153,7 @@ public:
                             Text_Timer = 5000;
                             break;
                         case 3:
-                            me->setFaction(FACTION_HOSTILE);
+                            me->SetFaction(FACTION_MONSTER);
                             if (Player* target = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                                 AttackStart(target);
 
@@ -200,7 +198,7 @@ public:
         {
            if (Creature* crew = ObjectAccessor::GetCreature(*me, instance->GetGuidData(entry)))
                if (crew->IsAlive())
-                   crew->setFaction(FACTION_HOSTILE);
+                   crew->SetFaction(FACTION_MONSTER);
         }
     };
 
@@ -239,7 +237,7 @@ private:
             crew->SetWalk(true);
             crew->SetHomePosition(x, y, z, 0);
             crew->GetMotionMaster()->MovePoint(1, x, y, z);
-            crew->setFaction(FACTION_FREED);
+            crew->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
         }
     }
 };
@@ -312,7 +310,7 @@ public:
         npc_weegli_blastfuseAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            destroyingDoor=false;
+            destroyingDoor = false;
             Bomb_Timer = 10000;
             LandMine_Timer = 30000;
         }
@@ -388,11 +386,11 @@ public:
         {
             if (me->IsAlive())
             {
-                me->setFaction(FACTION_FRIENDLY);
+                me->SetFaction(FACTION_FRIENDLY);
                 me->GetMotionMaster()->MovePoint(0, 1858.57f, 1146.35f, 14.745f);
                 me->SetHomePosition(1858.57f, 1146.35f, 14.745f, 3.85f); // in case he gets interrupted
                 Talk(SAY_WEEGLI_OK_I_GO);
-                destroyingDoor=true;
+                destroyingDoor = true;
             }
         }
     };
@@ -428,6 +426,7 @@ public:
                 if ((randomchance - CHANCE_ZOMBIE) < CHANCE_DEAD_HERO)
                     go->SummonCreature(NPC_DEAD_HERO, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
         }
+
         go->AddUse();
         return false;
     }
@@ -448,14 +447,14 @@ class at_zumrah : public AreaTriggerScript
 public:
     at_zumrah() : AreaTriggerScript("at_zumrah") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*areaTrigger*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         Creature* pZumrah = player->FindNearestCreature(ZUMRAH_ID, 30.0f);
 
         if (!pZumrah)
             return false;
 
-        pZumrah->setFaction(ZUMRAH_HOSTILE_FACTION);
+        pZumrah->SetFaction(ZUMRAH_HOSTILE_FACTION);
         return true;
     }
 

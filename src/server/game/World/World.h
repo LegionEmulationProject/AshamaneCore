@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,10 +23,10 @@
 #define __WORLD_H
 
 #include "Common.h"
+#include "AsyncCallbackProcessor.h"
 #include "DatabaseEnvFwd.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
-#include "QueryCallbackProcessor.h"
 #include "SharedDefines.h"
 #include "Timer.h"
 
@@ -147,7 +146,6 @@ enum WorldBoolConfigs
     CONFIG_START_ALL_SPELLS,
     CONFIG_START_ALL_EXPLORED,
     CONFIG_START_ALL_REP,
-    CONFIG_ALWAYS_MAXSKILL,
     CONFIG_PVP_TOKEN_ENABLE,
     CONFIG_NO_RESET_TALENT_COST,
     CONFIG_SHOW_KICK_IN_WORLD,
@@ -170,7 +168,6 @@ enum WorldBoolConfigs
     CONFIG_ENABLE_MMAPS,
     CONFIG_WINTERGRASP_ENABLE,
     CONFIG_TOLBARAD_ENABLE,
-    CONFIG_UI_QUESTLEVELS_IN_DIALOGS,     // Should we add quest levels to the title in the NPC dialogs?
     CONFIG_EVENT_ANNOUNCE,
     CONFIG_STATS_LIMITS_ENABLE,
     CONFIG_INSTANCES_RESET_ANNOUNCE,
@@ -196,6 +193,8 @@ enum WorldBoolConfigs
     CONFIG_GAME_OBJECT_CHECK_INVALID_POSITION,
     CONFIG_LEGACY_BUFF_ENABLED,
     CONFIG_IGNORE_DUNGEONS_BIND,
+    CONFIG_CHECK_GOBJECT_LOS,
+    CONFIG_RESPAWN_DYNAMIC_ESCORTNPC,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -218,6 +217,8 @@ enum WorldFloatConfigs
     CONFIG_ARENA_WIN_RATING_MODIFIER_2,
     CONFIG_ARENA_LOSE_RATING_MODIFIER,
     CONFIG_ARENA_MATCHMAKER_RATING_MODIFIER,
+    CONFIG_RESPAWN_DYNAMICRATE_CREATURE,
+    CONFIG_RESPAWN_DYNAMICRATE_GAMEOBJECT,
     FLOAT_CONFIG_VALUE_COUNT
 };
 
@@ -245,7 +246,6 @@ enum WorldIntConfigs
     CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK,
     CONFIG_CHARACTERS_PER_ACCOUNT,
     CONFIG_CHARACTERS_PER_REALM,
-    CONFIG_DEMON_HUNTERS_PER_REALM,
     CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER,
     CONFIG_SKIP_CINEMATICS,
     CONFIG_MAX_PLAYER_LEVEL,
@@ -253,6 +253,7 @@ enum WorldIntConfigs
     CONFIG_START_PLAYER_LEVEL,
     CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL,
     CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL,
+    CONFIG_START_ALLIED_RACE_LEVEL,
     CONFIG_START_PLAYER_MONEY,
     CONFIG_CURRENCY_START_APEXIS_CRYSTALS,
     CONFIG_CURRENCY_MAX_APEXIS_CRYSTALS,
@@ -339,7 +340,6 @@ enum WorldIntConfigs
     CONFIG_LOGDB_CLEARINTERVAL,
     CONFIG_LOGDB_CLEARTIME,
     CONFIG_CLIENTCACHE_VERSION,
-    CONFIG_HOTFIX_CACHE_VERSION,
     CONFIG_GUILD_NEWS_LOG_COUNT,
     CONFIG_GUILD_EVENT_LOG_COUNT,
     CONFIG_GUILD_BANK_EVENT_LOG_COUNT,
@@ -399,9 +399,19 @@ enum WorldIntConfigs
     CONFIG_CHARTER_COST_ARENA_5v5,
     CONFIG_NO_GRAY_AGGRO_ABOVE,
     CONFIG_NO_GRAY_AGGRO_BELOW,
-    CONFIG_AUCTION_GETALL_DELAY,
+    CONFIG_AUCTION_REPLICATE_DELAY,
     CONFIG_AUCTION_SEARCH_DELAY,
+    CONFIG_AUCTION_TAINTED_SEARCH_DELAY,
     CONFIG_TALENTS_INSPECTING,
+    CONFIG_RESPAWN_MINCHECKINTERVALMS,
+    CONFIG_RESPAWN_DYNAMICMODE,
+    CONFIG_RESPAWN_GUIDWARNLEVEL,
+    CONFIG_RESPAWN_GUIDALERTLEVEL,
+    CONFIG_RESPAWN_RESTARTQUIETTIME,
+    CONFIG_RESPAWN_DYNAMICMINIMUM_CREATURE,
+    CONFIG_RESPAWN_DYNAMICMINIMUM_GAMEOBJECT,
+    CONFIG_RESPAWN_GUIDWARNING_FREQUENCY,
+    CONFIG_SOCKET_TIMEOUTTIME_ACTIVE,
     CONFIG_BLACKMARKET_MAXAUCTIONS,
     CONFIG_BLACKMARKET_UPDATE_PERIOD,
     CONFIG_AZERITE_KNOWLEGE,
@@ -552,13 +562,12 @@ enum WorldStates
 /// Storage class for commands issued for delayed execution
 struct TC_GAME_API CliCommandHolder
 {
-    typedef void(*Print)(void*, const char*);
+    typedef void(*Print)(void*, char const*);
     typedef void(*CommandFinished)(void*, bool success);
 
     void* m_callbackArg;
-    char *m_command;
+    char* m_command;
     Print m_print;
-
     CommandFinished m_commandFinished;
 
     CliCommandHolder(void* callbackArg, char const* command, Print zprint, CommandFinished commandFinished);
@@ -588,7 +597,7 @@ class TC_GAME_API World
         bool RemoveSession(uint32 id);
         /// Get the number of current active sessions
         void UpdateMaxSessionCounters();
-        const SessionMap& GetAllSessions() const { return m_sessions; }
+        SessionMap const& GetAllSessions() const { return m_sessions; }
         uint32 GetActiveAndQueuedSessionCount() const { return uint32(m_sessions.size()); }
         uint32 GetActiveSessionCount() const { return uint32(m_sessions.size() - m_QueuedPlayer.size()); }
         uint32 GetQueuedSessionCount() const { return uint32(m_QueuedPlayer.size()); }
@@ -667,9 +676,9 @@ class TC_GAME_API World
         void LoadConfigSettings(bool reload = false);
 
         void SendWorldText(uint32 string_id, ...);
-        void SendGlobalText(const char* text, WorldSession* self);
+        void SendGlobalText(char const* text, WorldSession* self);
         void SendGMText(uint32 string_id, ...);
-        void SendServerMessage(ServerMessageType messageID, std::string stringParam = "", Player* player = NULL);
+        void SendServerMessage(ServerMessageType messageID, std::string stringParam = "", Player* player = nullptr);
         void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
         void SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
         bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
@@ -680,7 +689,7 @@ class TC_GAME_API World
         uint32 GetShutDownTimeLeft() const { return m_ShutdownTimer; }
         void ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std::string& reason = std::string());
         uint32 ShutdownCancel();
-        void ShutdownMsg(bool show = false, Player* player = NULL, const std::string& reason = std::string());
+        void ShutdownMsg(bool show = false, Player* player = nullptr, const std::string& reason = std::string());
         static uint8 GetExitCode() { return m_ExitCode; }
         static void StopNow(uint8 exitcode) { m_stopEvent = true; m_ExitCode = exitcode; }
         static bool IsStopped() { return m_stopEvent; }
@@ -742,6 +751,7 @@ class TC_GAME_API World
         void LoadWorldStates();
 
         bool IsFFAPvPRealm() const;
+        bool IsPvPRealm() const;
 
         void KickAll();
         void KickAllLess(AccountTypes sec);
@@ -784,6 +794,10 @@ class TC_GAME_API World
         void ReloadRBAC();
 
         void RemoveOldCorpses();
+        void TriggerGuidWarning();
+        void TriggerGuidAlert();
+        bool IsGuidWarning() { return _guidWarn; }
+        bool IsGuidAlert() { return _guidAlert; }
 
     protected:
         void _UpdateGameTime();
@@ -888,7 +902,21 @@ class TC_GAME_API World
         AutobroadcastContainer m_Autobroadcasts;
 
         void ProcessQueryCallbacks();
+
+        void SendGuidWarning();
+        void DoGuidWarningRestart();
+        void DoGuidAlertRestart();
         QueryCallbackProcessor _queryProcessor;
+
+        std::string _guidWarningMsg;
+        std::string _alertRestartReason;
+
+        std::mutex _guidAlertLock;
+
+        bool _guidWarn;
+        bool _guidAlert;
+        uint32 _warnDiff;
+        time_t _warnShutdownTime;
 };
 
 TC_GAME_API extern Realm realm;

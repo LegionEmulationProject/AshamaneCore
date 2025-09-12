@@ -23,7 +23,7 @@
 
 enum eNerzulSpells
 {
-    // Ritual of Bones: 76518   
+    // Ritual of Bones: 76518
     SpellMalevolance                    = 154442,
     SpellOmenOfDeathPeriodicSpell       = 175988,
     SpellOmenOfDeathSummon              = 154350,
@@ -46,7 +46,7 @@ enum eNerzulSpells
 
 enum eNerzulEvents
 {
-    // Ritual of Bones: 76518 
+    // Ritual of Bones: 76518
     EventMalevolance,
     EventRitualOfSouls,
     EventOmenOfDeath,
@@ -64,7 +64,7 @@ enum eNerzulTalks
     TalkSpell02,   ///< A kindeling of bones and shadows.. army of the dead.. ARISE! [43689]
     TalkSpell03,   ///< Into the ABYSS! [43690]
     TalkSpell04,   ///< Feel the void, cold embrace.. [43691]
-}; 
+};
 
 enum eNerzulCreatures
 {
@@ -104,7 +104,7 @@ public:
         void Reset() override
         {
             events.Reset();
-            me->setFaction(16);
+            me->SetFaction(16);
 
             m_X = 10.375f;
             m_Y = 4.538f;
@@ -299,7 +299,7 @@ public:
         void Reset() override
         {
             {
-                const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eNerzulSpells::SpellRitualOfBonesPeriodic);
+                const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eNerzulSpells::SpellRitualOfBonesPeriodic, me->GetMap()->GetDifficultyID());
 
                 if (!l_SpellInfo)
                     return;
@@ -365,7 +365,7 @@ public:
             }
 
             me->SetDisplayId(11686);
-            me->setFaction(35);
+            me->SetFaction(35);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
 
@@ -426,7 +426,7 @@ public:
         void Reset() override
         {
             me->SetDisplayId(11686);
-            me->setFaction(35);
+            me->SetFaction(35);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
         }
@@ -434,7 +434,7 @@ public:
         void UpdateAI(uint32 const diff) override
         {
             events.Update(diff);
-            
+
             if (m_Instance == nullptr)
                 return;
 
@@ -515,7 +515,7 @@ public:
         void Reset() override
         {
             me->SetDisplayId(11686);
-            me->setFaction(35);
+            me->SetFaction(35);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
             me->SetDisableGravity(true);

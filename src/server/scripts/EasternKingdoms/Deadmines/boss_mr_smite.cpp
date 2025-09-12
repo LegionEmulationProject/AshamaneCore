@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -132,7 +132,7 @@ public:
                     if (GameObject* go = GameObject::GetGameObject(*me, instance->GetGuidData(DATA_SMITE_CHEST)))
                     {
                         me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MovePoint(1, go->GetPositionX() - 3.0f, go->GetPositionY(), go->GetPositionZ());
+                        me->GetMotionMaster()->MovePoint(1, me->GetPositionX() - 3.0f, me->GetPositionY(), me->GetPositionZ());
                         }*/
             }
 

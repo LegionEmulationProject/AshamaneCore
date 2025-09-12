@@ -119,7 +119,7 @@ public:
             m_PhaseCounter = 0;
             m_VortexDiff = 0;
             m_Vortex = false;
-            
+
             me->CastSpell(me, eNhalishSpells::SpellShadowChannel);
 
             me->AddUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL);
@@ -278,7 +278,7 @@ public:
 
                if (creature)
                {
-                   creature->setFaction(35);
+                   creature->SetFaction(35);
                    creature->SetReactState(ReactStates::REACT_PASSIVE);
                    creature->GetMotionMaster()->MoveRandom(15.0f);
 
@@ -330,7 +330,7 @@ public:
                         if (itr->IsWithinDist(me, 25.0f, true))
                         {
                             if (itr->IsAlive() && !itr->HasMovementForce(me->GetGUID()))
-                                itr->ApplyMovementForce(me->GetGUID(), 3.0f, position);
+                                itr->ApplyMovementForce(me->GetGUID(), position, 3.0f, 0);
                             else if (!itr->IsAlive() && itr->HasMovementForce(me->GetGUID()))
                                 itr->RemoveMovementForce(me->GetGUID());
                         }
@@ -369,7 +369,7 @@ public:
                             break;
                         case 1:
                             events.ScheduleEvent(eNhalishEvents::EventVoidVortex, 5 * TimeConstants::IN_MILLISECONDS);
-                            break;                                           
+                            break;
                     }
 
                     events.ScheduleEvent(eNhalishEvents::EventPlanarShift, 30 * TimeConstants::IN_MILLISECONDS);
@@ -422,7 +422,7 @@ public:
     shadowmoon_burial_grounds_soul() : CreatureScript("shadowmoon_burial_grounds_soul") { }
 
     bool OnGossipHello(Player* /*player*/, Creature* creature) override
-    {   
+    {
         if (shadowmoon_burial_grounds_soul::shadowmoon_burial_grounds_creaturesAI* linkAI = CAST_AI(shadowmoon_burial_grounds_soul::shadowmoon_burial_grounds_creaturesAI, creature->GetAI()))
         {
             if (linkAI && linkAI->m_HasDied)
@@ -462,14 +462,14 @@ public:
         bool m_HasDied;
 
         void Reset() override
-        {         
+        {
             events.Reset();
 
             if (!m_victimGUID.IsEmpty())
             {
                 if (Unit* victim = ObjectAccessor::GetUnit(*me, m_victimGUID))
                 {
-                    me->CastSpell(victim, eNhalishSpells::SpellSoulShred); // automatically target the summoner TARGET_UNIT_SUMMONER 
+                    me->CastSpell(victim, eNhalishSpells::SpellSoulShred); // automatically target the summoner TARGET_UNIT_SUMMONER
                     me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellUnortodoxExistanceAuraDummy);
                 }
             }
@@ -500,7 +500,7 @@ public:
             me->RemoveAllAuras();
 
             me->Respawn();
-            me->setFaction(35);
+            me->SetFaction(35);
             me->SetReactState(ReactStates::REACT_PASSIVE);
 
             me->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
@@ -554,7 +554,7 @@ public:
 
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
-            me->setFaction(16);
+            me->SetFaction(16);
 
             me->CastSpell(me, eNhalishSpells::SpellShadowChannel);
         }
@@ -573,7 +573,7 @@ public:
             }
         }
     };
-     
+
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new shadowmoon_burial_grounds_creaturesAI(creature);
@@ -598,7 +598,7 @@ public:
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
             me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
-            me->setFaction(35);
+            me->SetFaction(35);
             me->SetDisplayId(11686);
 
             m_Timer = 500;
@@ -679,11 +679,8 @@ public:
         {
             PreventHitDefaultEffect(effectIndex);
 
-            if (!GetCaster())
-                return;
-
            const WorldLocation* l_WorldLocation = GetExplTargetDest();
-           const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eNhalishSpells::SpellVoidDevstationAreaTrigger);
+           const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eNhalishSpells::SpellVoidDevstationAreaTrigger, GetCaster()->GetMap()->GetDifficultyID());
 
            if (!l_SpellInfo)
                return;
@@ -703,7 +700,7 @@ public:
     }
 };
 
-/// Void Blast - 152792  
+/// Void Blast - 152792
 class spell_shadowmoon_burial_grounds_void_blast : public SpellScriptLoader
 {
 public:
@@ -720,7 +717,7 @@ public:
             {
                 if (caster->IsAIEnabled)
                 {
-                    if (Unit* target = caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                    if (Unit* target = caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_MAXTHREAT))
                     {
                         caster->CastSpell(target, eNhalishSpells::SpellVoidBlastDot);
                     }
@@ -752,7 +749,7 @@ public:
     }
 };
 
-/// Void Vortex - 152801 
+/// Void Vortex - 152801
 class spell_shadowmoon_burial_grounds_void_vortex : public SpellScriptLoader
 {
 public:
@@ -796,7 +793,7 @@ public:
     }
 };
 
-/// Soul Steal - 152962 
+/// Soul Steal - 152962
 class spell_shadowmoon_burial_grounds_soul_steal : public SpellScriptLoader
 {
 public:
@@ -854,7 +851,7 @@ public:
                 }
             }
         }
-  
+
         void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_burial_grounds_soul_steal_SpellScript::HandleForceCast, SpellEffIndex::EFFECT_0, SPELL_EFFECT_FORCE_CAST);
@@ -867,7 +864,7 @@ public:
     }
 };
 
-/// Planar Shift - 153623   
+/// Planar Shift - 153623
 class spell_shadowmoon_burial_grounds_planar_shift : public SpellScriptLoader
 {
 public:
@@ -902,7 +899,7 @@ public:
     }
 };
 
-/// Void Devestation - 153072 
+/// Void Devestation - 153072
 class areatrigger_void_devestation : public AreaTriggerAI
 {
 public:

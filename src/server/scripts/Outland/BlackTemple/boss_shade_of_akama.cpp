@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,7 +26,6 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
@@ -222,7 +221,7 @@ public:
         {
             _Reset();
             Initialize();
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
             me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             me->SetEmoteState(EMOTE_STATE_STUN);
             me->SetWalk(true);
@@ -263,7 +262,7 @@ public:
             {
                 _isInPhaseOne = false;
                 me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 me->SetWalk(false);
                 events.ScheduleEvent(EVENT_ADD_THREAT, Milliseconds(100));
 
@@ -291,7 +290,7 @@ public:
 
         void EnterEvadeModeIfNeeded()
         {
-            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 if (Player* player = i->GetSource())
                     if (player->IsAlive() && !player->IsGameMaster() && CheckBoundary(player))
@@ -384,7 +383,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->setFaction(ASHTONGUE_FACTION_FRIEND);
+            me->SetFaction(ASHTONGUE_FACTION_FRIEND);
             DoCastSelf(SPELL_STEALTH);
 
             if (_instance->GetBossState(DATA_SHADE_OF_AKAMA) != DONE)
@@ -430,7 +429,7 @@ public:
             {
                 _isInCombat = false;
                 me->CombatStop(true);
-                me->setFaction(ASHTONGUE_FACTION_FRIEND);
+                me->SetFaction(ASHTONGUE_FACTION_FRIEND);
                 me->SetWalk(true);
                 _events.Reset();
                 me->GetMotionMaster()->MovePoint(AKAMA_INTRO_WAYPOINT, AkamaWP[1]);
@@ -484,7 +483,7 @@ public:
                     case EVENT_SHADE_CHANNEL:
                         me->SetFacingTo(FACE_THE_PLATFORM);
                         DoCastSelf(SPELL_AKAMA_SOUL_CHANNEL);
-                        me->setFaction(AKAMA_FACTION_COMBAT);
+                        me->SetFaction(AKAMA_FACTION_COMBAT);
                         _events.ScheduleEvent(EVENT_FIXATE, Seconds(5));
                         break;
                     case EVENT_FIXATE:
@@ -532,7 +531,7 @@ public:
                 }
             }
 
-            if (me->getFaction() == AKAMA_FACTION_COMBAT)
+            if (me->GetFaction() == AKAMA_FACTION_COMBAT)
             {
                 if (!UpdateVictim())
                     return;
@@ -550,13 +549,15 @@ public:
                     shade->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             if (gossipListId == 0)
             {
                 CloseGossipMenuFor(player);
                 _events.ScheduleEvent(EVENT_SHADE_START, Milliseconds(500));
             }
+
+            return false;
         }
 
     private:
@@ -1170,7 +1171,7 @@ public:
                     Talk(SAY_BROKEN_SPECIAL);
                     break;
                 case ACTION_BROKEN_HAIL:
-                    me->setFaction(ASHTONGUE_FACTION_FRIEND);
+                    me->SetFaction(ASHTONGUE_FACTION_FRIEND);
                     Talk(SAY_BROKEN_HAIL);
                     break;
                 case ACTION_BROKEN_EMOTE:

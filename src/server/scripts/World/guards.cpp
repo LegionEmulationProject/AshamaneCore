@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -121,7 +120,7 @@ public:
                 if (me->IsWithinMeleeRange(me->GetVictim()))
                 {
                     bool healing = false;
-                    SpellInfo const* info = NULL;
+                    SpellInfo const* info = nullptr;
 
                     //Select a healing spell if less than 30% hp
                     if (me->HealthBelowPct(30))
@@ -157,7 +156,7 @@ public:
                 if (!me->IsNonMeleeSpellCast(false))
                 {
                     bool healing = false;
-                    SpellInfo const* info = NULL;
+                    SpellInfo const* info = nullptr;
 
                     //Select a healing spell if less than 30% hp ONLY 33% of the time
                     if (me->HealthBelowPct(30) && 33 > urand(0, 99))

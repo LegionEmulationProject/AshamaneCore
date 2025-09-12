@@ -147,7 +147,7 @@ class boss_brackenspore : public CreatureScript
             RejuvenatingMush    = 78868,
             InvisibleMan        = 64693,
             /// Explosive Shroom
-            TriggerA            = 2000006, //targetted by 163777(60ft) 
+            TriggerA            = 2000006, //targetted by 163777(60ft)
             TriggerB            = 2000007, //targetted by 163813(60ft)
             TriggerC            = 2000008, //targetted by 163815(60ft)
             TriggerD            = 2000009, //targetted by 163796(40ft)
@@ -575,13 +575,13 @@ class boss_brackenspore : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventSpecialAbility, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventScheduleEnergy:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_MAXTHREAT))
                             AttackStart(target);
                         me->CastSpell(me, eSpells::EnergyRegen, true);
                         me->GetMotionMaster()->Clear();
                         break;
                     case eEvents::EventRot:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_MAXTHREAT))
                             me->CastSpell(target, eSpells::RotDot, true);
                         m_Events.ScheduleEvent(eEvents::EventRot, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -981,7 +981,7 @@ class npc_highmaul_living_mushroom : public CreatureScript
 
             void Reset() override
             {
-                me->DisableHealthRegen();
+                me->SetRegenerateHealth(false);
                 me->SetHealth(me->GetMaxHealth() / 2);
                 me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
 
@@ -1061,7 +1061,7 @@ class npc_highmaul_rejuvenating_mushroom : public CreatureScript
 
             void Reset() override
             {
-                me->DisableHealthRegen();
+                me->SetRegenerateHealth(false);
                 me->SetHealth(me->GetMaxHealth() / 2);
                 me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
 
@@ -1818,7 +1818,7 @@ class areatrigger_highmaul_call_of_the_tides : public AreaTriggerAI
 {
 public:
     areatrigger_highmaul_call_of_the_tides(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger)
-    { 
+    {
         timer = 0;
     }
 
@@ -1890,7 +1890,7 @@ public:
                     if (Creature* brackenspore = instance->instance->GetCreature(instance->GetGuidData(eHighmaulCreatures::Brackenspore)))
                         target->CastSpell(target, CallOfTheTidesDamage, true, nullptr, nullptr, brackenspore->GetGUID());
             }
-                        
+
 
             timer = 1 * IN_MILLISECONDS;
         }

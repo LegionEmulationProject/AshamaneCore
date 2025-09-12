@@ -74,9 +74,9 @@ struct boss_odyn_hov : public BossAI
     boss_odyn_hov(Creature* creature) : BossAI(creature, DATA_ODYN)
     {
         me->SetReactState(REACT_DEFENSIVE);
-        me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-        me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-        me->setFaction(35);
+        me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE));
+        me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
+        me->SetFaction(35);
         me->SetCanFly(false);
     }
 
@@ -234,9 +234,9 @@ struct boss_odyn_hov : public BossAI
                     break;
 
                 case EVENT_SAY_PRE_COMBAT:
-                    me->setFaction(14);
-                    me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                    me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFaction(14);
+                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE));
+                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
                     me->SetWalk(false);
                     me->GetMotionMaster()->MoveJump(2402.76f, 528.64f, 748.99f, 0.0f, 20.0f, 5.0f);
                     me->SetHomePosition(2402.76f, 528.64f, 748.99f, 0.0f);
@@ -380,7 +380,7 @@ struct npc_spear_of_light : public ScriptedAI
     {
         me->SetLevel(110);
         me->CastSpell(me, 198059, true);
-        me->setFaction(14);
+        me->SetFaction(14);
         me->SetReactState(REACT_PASSIVE);
         me->SetDisplayId(11686);
         me->DespawnOrUnsummon(30000);

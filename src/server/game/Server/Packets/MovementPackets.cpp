@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -53,8 +53,8 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
     data.WriteBit(hasFallData);
     data.WriteBit(hasSpline);
 
-    data.WriteBit(0); // HeightChangeFailed
-    data.WriteBit(0); // RemoteTimeValid
+    data.WriteBit(false); // HeightChangeFailed
+    data.WriteBit(false); // RemoteTimeValid
 
     data.FlushBits();
 
@@ -227,24 +227,48 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineJu
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineAnimTierTransition const& animTierTransition)
+{
+    data << int32(animTierTransition.TierTransitionID);
+    data << uint32(animTierTransition.StartTime);
+    data << uint32(animTierTransition.EndTime);
+    data << uint8(animTierTransition.AnimTier);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineUnknown901 const& unk)
+{
+    for (WorldPackets::Movement::MonsterSplineUnknown901::Inner const& unkInner : unk.Data)
+    {
+        data << int32(unkInner.Unknown_1);
+        data << int32(unkInner.Unknown_2);
+        data << int32(unkInner.Unknown_3);
+        data << uint32(unkInner.Unknown_4);
+    }
+
+    return data;
+}
+
 ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline const& movementSpline)
 {
     data << uint32(movementSpline.Flags);
-    data << uint8(movementSpline.AnimTier);
-    data << uint32(movementSpline.TierTransStartTime);
     data << int32(movementSpline.Elapsed);
     data << uint32(movementSpline.MoveTime);
     data << uint32(movementSpline.FadeObjectTime);
     data << uint8(movementSpline.Mode);
-    data << uint8(movementSpline.VehicleExitVoluntary);
     data << movementSpline.TransportGUID;
     data << int8(movementSpline.VehicleSeat);
     data.WriteBits(movementSpline.Face, 2);
     data.WriteBits(movementSpline.Points.size(), 16);
+    data.WriteBit(movementSpline.VehicleExitVoluntary);
+    data.WriteBit(movementSpline.Interpolate);
     data.WriteBits(movementSpline.PackedDeltas.size(), 16);
     data.WriteBit(movementSpline.SplineFilter.is_initialized());
     data.WriteBit(movementSpline.SpellEffectExtraData.is_initialized());
     data.WriteBit(movementSpline.JumpExtraData.is_initialized());
+    data.WriteBit(movementSpline.AnimTierTransition.is_initialized());
+    data.WriteBit(movementSpline.Unknown901.is_initialized());
     data.FlushBits();
 
     if (movementSpline.SplineFilter)
@@ -266,6 +290,7 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
 
     for (TaggedPosition<Position::XYZ> const& pos : movementSpline.Points)
         data << pos;
+
     for (TaggedPosition<Position::PackedXYZ> const& pos : movementSpline.PackedDeltas)
         data << pos;
 
@@ -274,6 +299,12 @@ ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline 
 
     if (movementSpline.JumpExtraData)
         data << *movementSpline.JumpExtraData;
+
+    if (movementSpline.AnimTierTransition)
+        data << *movementSpline.AnimTierTransition;
+
+    if (movementSpline.Unknown901)
+        data << *movementSpline.Unknown901;
 
     return data;
 }
@@ -315,10 +346,11 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         data.WriteBits(moveSpline.facing.type, 2);                              // Face
         bool hasFadeObjectTime = data.WriteBit(moveSpline.splineflags.fadeObject && moveSpline.effect_start_time < moveSpline.Duration());
         data.WriteBits(moveSpline.getPath().size(), 16);
-        data.WriteBits(uint8(moveSpline.spline.mode()), 2);                     // Mode
-        data.WriteBit(0);                                                       // HasSplineFilter
+        data.WriteBit(false);                                                   // HasSplineFilter
         data.WriteBit(moveSpline.spell_effect_extra.is_initialized());          // HasSpellEffectExtraData
         data.WriteBit(moveSpline.splineflags.parabolic);                        // HasJumpExtraData
+        data.WriteBit(moveSpline.anim_tier.is_initialized());                   // HasAnimationTierTransition
+        data.WriteBit(false);                                                   // HasUnknown901
         data.FlushBits();
 
         //if (HasSplineFilterKey)
@@ -374,6 +406,25 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
             data << uint32(moveSpline.effect_start_time);
             data << uint32(0);                                                  // Duration (override)
         }
+
+        if (moveSpline.anim_tier)
+        {
+            data << int32(moveSpline.anim_tier->TierTransitionId);
+            data << uint32(moveSpline.effect_start_time);
+            data << uint32(0);
+            data << uint8(moveSpline.anim_tier->AnimTier);
+        }
+
+        //if (HasUnknown901)
+        //{
+        //    for (WorldPackets::Movement::MonsterSplineUnknown901::Inner const& unkInner : unk.Data) size = 16
+        //    {
+        //        data << int32(unkInner.Unknown_1);
+        //        data << int32(unkInner.Unknown_2);
+        //        data << int32(unkInner.Unknown_3);
+        //        data << uint32(unkInner.Unknown_4);
+        //    }
+        //}
     }
 }
 
@@ -381,6 +432,44 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectAreaTriggerSpline(
 {
     data.WriteBits(spline.getPoints().size(), 16);
     data.append<G3D::Vector3>(spline.getPoints().data(), spline.getPoints().size());
+}
+
+void WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(MovementForce const& movementForce, ByteBuffer& data, Position const* objectPosition /*= nullptr*/)
+{
+    data << movementForce.ID;
+    data << movementForce.Origin;
+    if (movementForce.Type == 1 && objectPosition) // gravity
+    {
+        TaggedPosition<Position::XYZ> direction;
+        if (movementForce.Magnitude != 0.0f)
+        {
+            Position tmp(movementForce.Origin.Pos.GetPositionX() - objectPosition->GetPositionX(),
+                movementForce.Origin.Pos.GetPositionY() - objectPosition->GetPositionY(),
+                movementForce.Origin.Pos.GetPositionZ() - objectPosition->GetPositionZ());
+            float lengthSquared = tmp.GetExactDistSq(0.0f, 0.0f, 0.0f);
+            if (lengthSquared > 0.0f)
+            {
+                float mult = 1.0f / std::sqrt(lengthSquared) * movementForce.Magnitude;
+                tmp.m_positionX *= mult;
+                tmp.m_positionY *= mult;
+                tmp.m_positionZ *= mult;
+                float minLengthSquared = (tmp.GetPositionX() * tmp.GetPositionX() * 0.04f) +
+                    (tmp.GetPositionY() * tmp.GetPositionY() * 0.04f) +
+                    (tmp.GetPositionZ() * tmp.GetPositionZ() * 0.04f);
+                if (lengthSquared > minLengthSquared)
+                    direction = tmp;
+            }
+        }
+
+        data << direction;
+    }
+    else
+        data << movementForce.Direction;
+
+    data << uint32(movementForce.TransportID);
+    data << float(movementForce.Magnitude);
+    data.WriteBits(movementForce.Type, 2);
+    data.FlushBits();
 }
 
 void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)
@@ -398,15 +487,17 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
 
     if (splineFlags.animation)
     {
-        movementSpline.AnimTier = splineFlags.getAnimTier();
-        movementSpline.TierTransStartTime = moveSpline.effect_start_time;
+        movementSpline.AnimTierTransition.emplace();
+        movementSpline.AnimTierTransition->TierTransitionID = moveSpline.anim_tier->TierTransitionId;
+        movementSpline.AnimTierTransition->StartTime = moveSpline.effect_start_time;
+        movementSpline.AnimTierTransition->AnimTier = moveSpline.anim_tier->AnimTier;
     }
 
     movementSpline.MoveTime = moveSpline.Duration();
 
     if (splineFlags.parabolic)
     {
-        movementSpline.JumpExtraData = boost::in_place();
+        movementSpline.JumpExtraData.emplace();
         movementSpline.JumpExtraData->JumpGravity = moveSpline.vertical_acceleration;
         movementSpline.JumpExtraData->StartTime = moveSpline.effect_start_time;
     }
@@ -416,7 +507,7 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
 
     if (moveSpline.spell_effect_extra)
     {
-        movementSpline.SpellEffectExtraData = boost::in_place();
+        movementSpline.SpellEffectExtraData.emplace();
         movementSpline.SpellEffectExtraData->TargetGUID = moveSpline.spell_effect_extra->Target;
         movementSpline.SpellEffectExtraData->SpellVisualID = moveSpline.spell_effect_extra->SpellVisualId;
         movementSpline.SpellEffectExtraData->ProgressCurveID = moveSpline.spell_effect_extra->ProgressCurveId;
@@ -544,10 +635,19 @@ WorldPacket const* WorldPackets::Movement::TransferAborted::Write()
     return &_worldPacket;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::TeleportLocation const& teleportLocation)
+{
+    data << teleportLocation.Pos;
+    data << int32(teleportLocation.Unused901_1);
+    data << int32(teleportLocation.Unused901_2);
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Movement::NewWorld::Write()
 {
     _worldPacket << int32(MapID);
-    _worldPacket << Pos;
+    _worldPacket << Loc;
     _worldPacket << uint32(Reason);
     _worldPacket << MovementOffset;
     return &_worldPacket;
@@ -579,15 +679,20 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce const& movementForce)
+ByteBuffer& operator<<(ByteBuffer& data, MovementForce const& movementForce)
 {
-    data << movementForce.ID;
-    data << movementForce.Direction;
-    data << movementForce.Origin;
-    data << movementForce.TransportID;
-    data << movementForce.Magnitude;
-    data.WriteBits(movementForce.Type, 2);
-    data.FlushBits();
+    WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(movementForce, data);
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, MovementForce& movementForce)
+{
+    data >> movementForce.ID;
+    data >> movementForce.Origin;
+    data >> movementForce.Direction;
+    data >> movementForce.TransportID;
+    data >> movementForce.Magnitude;
+    movementForce.Type = data.ReadBits(2);
 
     return data;
 }
@@ -596,7 +701,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
 {
     _worldPacket << *Status;
 
-    _worldPacket << uint32(MovementForces.size());
+    _worldPacket << uint32(MovementForces ? MovementForces->size() : 0);
     _worldPacket.WriteBit(WalkSpeed.is_initialized());
     _worldPacket.WriteBit(RunSpeed.is_initialized());
     _worldPacket.WriteBit(RunBackSpeed.is_initialized());
@@ -608,8 +713,9 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
     _worldPacket.WriteBit(PitchRate.is_initialized());
     _worldPacket.FlushBits();
 
-    for (WorldPackets::Movement::MovementForce const& force : MovementForces)
-        _worldPacket << force;
+    if (MovementForces)
+        for (MovementForce const& force : *MovementForces)
+            _worldPacket << force;
 
     if (WalkSpeed)
         _worldPacket << *WalkSpeed;
@@ -728,9 +834,9 @@ WorldPacket const* WorldPackets::Movement::MoveSetCollisionHeight::Write()
     _worldPacket << uint32(SequenceIndex);
     _worldPacket << float(Height);
     _worldPacket << float(Scale);
+    _worldPacket << uint8(Reason);
     _worldPacket << uint32(MountDisplayID);
     _worldPacket << int32(ScaleDuration);
-    _worldPacket.WriteBits(Reason, 2);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -745,21 +851,19 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateCollisionHeight::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write()
-{
-    _worldPacket << *Status;
-    _worldPacket << TriggerGUID;
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::Movement::MoveApplyMovementForce::Write()
 {
     _worldPacket << MoverGUID;
     _worldPacket << SequenceIndex;
-    _worldPacket << Force;
+    _worldPacket << *Force;
 
     return &_worldPacket;
+}
+
+void WorldPackets::Movement::MoveApplyMovementForceAck::Read()
+{
+    _worldPacket >> Ack;
+    _worldPacket >> Force;
 }
 
 WorldPacket const* WorldPackets::Movement::MoveRemoveMovementForce::Write()
@@ -771,10 +875,24 @@ WorldPacket const* WorldPackets::Movement::MoveRemoveMovementForce::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Movement::MoveRemoveMovementForceAck::Read()
+{
+    _worldPacket >> Ack;
+    _worldPacket >> ID;
+}
+
 WorldPacket const* WorldPackets::Movement::MoveUpdateApplyMovementForce::Write()
 {
     _worldPacket << *Status;
-    _worldPacket << Force;
+    _worldPacket << *Force;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write()
+{
+    _worldPacket << *Status;
+    _worldPacket << TriggerGUID;
 
     return &_worldPacket;
 }
@@ -784,7 +902,7 @@ void WorldPackets::Movement::MoveSetCollisionHeightAck::Read()
     _worldPacket >> Data;
     _worldPacket >> Height;
     _worldPacket >> MountDisplayID;
-    Reason = UpdateCollisionHeightReason(_worldPacket.ReadBits(2));
+    Reason = _worldPacket.read<UpdateCollisionHeightReason, uint8>();
 }
 
 void WorldPackets::Movement::MoveTimeSkipped::Read()
@@ -869,13 +987,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompound
     data.WriteBit(stateChange.MovementForceGUID.is_initialized());
     data.FlushBits();
 
-    if (stateChange.CollisionHeight)
-    {
-        data << float(stateChange.CollisionHeight->Height);
-        data << float(stateChange.CollisionHeight->Scale);
-        data.WriteBits(stateChange.CollisionHeight->Reason, 2);
-        data.FlushBits();
-    }
+    if (stateChange.MovementForce_)
+        data << *stateChange.MovementForce_;
 
     if (stateChange.Speed)
         data << float(*stateChange.Speed);
@@ -890,11 +1003,15 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveSetCompound
     if (stateChange.VehicleRecID)
         data << int32(*stateChange.VehicleRecID);
 
+    if (stateChange.CollisionHeight)
+    {
+        data << float(stateChange.CollisionHeight->Height);
+        data << float(stateChange.CollisionHeight->Scale);
+        data << uint8(stateChange.CollisionHeight->Reason);
+    }
+
     if (stateChange.MovementForceGUID)
         data << *stateChange.MovementForceGUID;
-
-    if (stateChange.MovementForce_)
-        data << *stateChange.MovementForce_;
 
     return data;
 }

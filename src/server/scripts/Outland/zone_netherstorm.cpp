@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,10 +31,10 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "QuestDef.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 
@@ -318,7 +317,7 @@ class at_commander_dawnforge : public AreaTriggerScript
 public:
     at_commander_dawnforge() : AreaTriggerScript("at_commander_dawnforge") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*areaTrigger*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         //if player lost aura or not have at all, we should not try start event.
         if (!player->HasAura(SPELL_SUNFURY_DISGUISE))
@@ -409,7 +408,7 @@ public:
                 PlayerGUID = who->GetGUID();
         }
 
-        //void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/) override
+        //void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) override
         //{
         //    DoCast(me, SPELL_DE_MATERIALIZE);
         //}
@@ -431,21 +430,14 @@ public:
             // some code to cast spell Mana Burn on random target which has mana
             if (ManaBurnTimer <= diff)
             {
-                std::list<HostileReference*> AggroList = me->getThreatManager().getThreatList();
                 std::list<Unit*> UnitsWithMana;
-
-                for (std::list<HostileReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
-                {
-                    if (Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
-                    {
-                        if (unit->GetCreateMana() > 0)
-                            UnitsWithMana.push_back(unit);
-                    }
-                }
+                for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
+                    if (ref->GetVictim()->GetPower(POWER_MANA))
+                        UnitsWithMana.push_back(ref->GetVictim());
                 if (!UnitsWithMana.empty())
                 {
                     DoCast(Trinity::Containers::SelectRandomContainerElement(UnitsWithMana), SPELL_MANA_BURN);
-                    ManaBurnTimer = 8000 + (rand32() % 10 * 1000); // 8-18 sec cd
+                    ManaBurnTimer = urand(8000, 18000); // 8-18 sec cd
                 }
                 else
                     ManaBurnTimer = 3500;
@@ -499,9 +491,9 @@ public:
     {
         if (quest->GetQuestId() == Q_ALMABTRIEB)
         {
-            creature->setFaction(113);
+            creature->SetFaction(113);
             creature->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
+            ENSURE_AI(EscortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         }
         return true;
     }
@@ -511,9 +503,9 @@ public:
         return new npc_bessyAI(creature);
     }
 
-    struct npc_bessyAI : public npc_escortAI
+    struct npc_bessyAI : public EscortAI
     {
-        npc_bessyAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_bessyAI(Creature* creature) : EscortAI(creature) { }
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -521,7 +513,7 @@ public:
                 player->FailQuest(Q_ALMABTRIEB);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -582,9 +574,9 @@ public:
         return new npc_maxx_a_million_escortAI(creature);
     }
 
-    struct npc_maxx_a_million_escortAI : public npc_escortAI
+    struct npc_maxx_a_million_escortAI : public EscortAI
     {
-        npc_maxx_a_million_escortAI(Creature* creature) : npc_escortAI(creature)
+        npc_maxx_a_million_escortAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -603,7 +595,7 @@ public:
             Initialize();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -620,7 +612,7 @@ public:
                         // take the GO -> animation
                         me->HandleEmoteCommand(EMOTE_STATE_LOOT);
                         SetEscortPaused(true);
-                        bTake=true;
+                        bTake = true;
                     }
                     break;
                 case 36: //return and quest_complete
@@ -637,7 +629,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (bTake)
             {
@@ -647,7 +639,7 @@ public:
                     if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_DRAENEI_MACHINE, INTERACTION_DISTANCE))
                     {
                         SetEscortPaused(false);
-                        bTake=false;
+                        bTake = false;
                         uiTakeTimer = 3000;
                         go->Delete();
                     }
@@ -665,7 +657,7 @@ public:
         {
             if (npc_maxx_a_million_escortAI* pEscortAI = CAST_AI(npc_maxx_a_million_escort::npc_maxx_a_million_escortAI, creature->AI()))
             {
-                creature->setFaction(113);
+                creature->SetFaction(113);
                 pEscortAI->Start(false, false, player->GetGUID());
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -220,7 +220,11 @@ class spell_mother_shahraz_fatal_attraction : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_SABER_LASH_IMMUNITY, SPELL_FATAL_ATTRACTION });
+                return ValidateSpellInfo(
+                {
+                    SPELL_SABER_LASH_IMMUNITY,
+                    SPELL_FATAL_ATTRACTION
+                });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -371,13 +375,7 @@ class spell_mother_shahraz_random_periodic : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_BEAM_SINISTER,
-                    SPELL_BEAM_VILE,
-                    SPELL_BEAM_WICKED,
-                    SPELL_BEAM_SINFUL
-                });
+                return ValidateSpellInfo(RandomBeam);
             }
 
             void OnPeriodic(AuraEffect const* /*aurEffect*/)

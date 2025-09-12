@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,6 +31,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Group.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
@@ -109,7 +109,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_restless_soulAI(creature);
+        return GetStratholmeAI<npc_restless_soulAI>(creature);
     }
 
     struct npc_restless_soulAI : public ScriptedAI
@@ -137,7 +137,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (Tagged || spell->Id != SPELL_EGAN_BLASTER)
                 return;
@@ -202,7 +202,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_spectral_ghostly_citizenAI(creature);
+        return GetStratholmeAI<npc_spectral_ghostly_citizenAI>(creature);
     }
 
     struct npc_spectral_ghostly_citizenAI : public ScriptedAI
@@ -228,7 +228,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (!Tagged && spell->Id == SPELL_EGAN_BLASTER)
                 Tagged = true;

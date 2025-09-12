@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,6 +31,7 @@ namespace WorldPackets
             int32 ItemModifiedAppearanceID = 0;
             uint32 Slot = 0;
             int32 SpellItemEnchantmentID = 0;
+            int32 SecondaryItemModifiedAppearanceID = 0;
         };
 
         class TransmogrifyItems final : public ClientPacket
@@ -50,22 +51,23 @@ namespace WorldPackets
             bool CurrentSpecOnly = false;
         };
 
-        class TransmogCollectionUpdate final : public ServerPacket
+        class AccountTransmogUpdate final : public ServerPacket
         {
         public:
-            TransmogCollectionUpdate() : ServerPacket(SMSG_TRANSMOG_COLLECTION_UPDATE) { }
+            AccountTransmogUpdate() : ServerPacket(SMSG_ACCOUNT_TRANSMOG_UPDATE) { }
 
             WorldPacket const* Write() override;
 
             bool IsFullUpdate = false;
             bool IsSetFavorite = false;
             std::vector<uint32> FavoriteAppearances;
+            std::vector<uint32> NewAppearances;
         };
 
-        class OpenTransmogrifier final : public ServerPacket
+        class TransmogrifyNPC final : public ServerPacket
         {
         public:
-            OpenTransmogrifier(ObjectGuid const& guid) : ServerPacket(SMSG_OPEN_TRANSMOGRIFIER, 16), Guid(guid) { }
+            TransmogrifyNPC(ObjectGuid const& guid) : ServerPacket(SMSG_TRANSMOGRIFY_NPC, 16), Guid(guid) { }
 
             WorldPacket const* Write() override;
 

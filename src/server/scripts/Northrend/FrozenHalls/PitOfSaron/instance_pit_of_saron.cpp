@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "Creature.h"
-#include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "pit_of_saron.h"
@@ -162,28 +161,6 @@ class instance_pit_of_saron : public InstanceMapScript
                         _cavernstriggersVector.push_back(creature->GetGUID());
                         break;
                     default:
-                        break;
-                }
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_ICE_WALL:
-                    case GO_HALLS_OF_REFLECTION_PORTCULLIS:
-                        AddDoor(go, true);
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_ICE_WALL:
-                    case GO_HALLS_OF_REFLECTION_PORTCULLIS:
-                        AddDoor(go, false);
                         break;
                 }
             }

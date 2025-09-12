@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,7 +59,7 @@ struct PacketHeader
 
 #pragma pack(pop)
 
-PacketLog::PacketLog() : _file(NULL)
+PacketLog::PacketLog() : _file(nullptr)
 {
     std::call_once(_initializeFlag, &PacketLog::Initialize, this);
 }
@@ -69,7 +69,7 @@ PacketLog::~PacketLog()
     if (_file)
         fclose(_file);
 
-    _file = NULL;
+    _file = nullptr;
 }
 
 PacketLog* PacketLog::instance()
@@ -100,7 +100,7 @@ void PacketLog::Initialize()
             header.Build = realm.Build;
             header.Locale[0] = 'e'; header.Locale[1] = 'n'; header.Locale[2] = 'U'; header.Locale[3] = 'S';
             std::memset(header.SessionKey, 0, sizeof(header.SessionKey));
-            header.SniffStartUnixtime = time(NULL);
+            header.SniffStartUnixtime = time(nullptr);
             header.SniffStartTicks = getMSTime();
             header.OptionalDataSize = 0;
 
@@ -132,20 +132,20 @@ void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost:
     }
 
     header.OptionalData.SocketPort = port;
-    header.Length = packet.size() + sizeof(header.Opcode);
+    std::size_t size = packet.size();
+    if (direction == CLIENT_TO_SERVER)
+        size -= 2;
+
+    header.Length = size + sizeof(header.Opcode);
     header.Opcode = packet.GetOpcode();
 
     fwrite(&header, sizeof(header), 1, _file);
-    if (!packet.empty())
+    if (size)
     {
         uint8 const* data = packet.contents();
-        std::size_t size = packet.size();
         if (direction == CLIENT_TO_SERVER)
-        {
             data += 2;
-            size -= 2;
-        }
-        fwrite(packet.contents(), 1, packet.size(), _file);
+        fwrite(data, 1, size, _file);
     }
 
     fflush(_file);

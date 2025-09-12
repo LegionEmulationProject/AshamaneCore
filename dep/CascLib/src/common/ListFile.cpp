@@ -121,7 +121,7 @@ static int ListFile_GetFileDataId(PLISTFILE_CACHE pCache, PDWORD PtrFileDataId)
 //-----------------------------------------------------------------------------
 // Functions for parsing an external listfile
 
-void * ListFile_OpenExternal(const TCHAR * szListFile)
+void * ListFile_OpenExternal(LPCTSTR szListFile)
 {
     PLISTFILE_CACHE pCache = NULL;
     TFileStream * pStream;
@@ -199,7 +199,7 @@ size_t ListFile_GetNextLine(void * pvListFile, const char ** pszLineBegin, const
     {
         // If we have found a newline, stop loading
         // Note: the 0x85 char came from Overwatch build 24919
-        if(pCache->pPos[0] == 0x0A || pCache->pPos[0] == 0x0D || pCache->pPos[0] == 0x85)
+        if(pCache->pPos[0] == '\x0A' || pCache->pPos[0] == '\x0D' || pCache->pPos[0] == '\x85')
             break;
 
         // Blizzard listfiles can also contain information about patch:
@@ -245,7 +245,7 @@ size_t ListFile_GetNextLine(void * pvListFile, char * szBuffer, size_t nMaxChars
 
     // If we didn't read anything, set the error code
     if(nLength == 0)
-        SetLastError(dwErrCode);
+        SetCascError(dwErrCode);
     return nLength;
 }
 
@@ -282,7 +282,7 @@ size_t ListFile_GetNext(void * pvListFile, char * szBuffer, size_t nMaxChars, PD
         nLength = ListFile_GetNextLine(pvListFile, szBuffer, nMaxChars);
         if(nLength == 0)
         {
-            dwErrCode = GetLastError();
+            dwErrCode = GetCascError();
             break;
         }
 
@@ -292,7 +292,7 @@ size_t ListFile_GetNext(void * pvListFile, char * szBuffer, size_t nMaxChars, PD
     }
 
     if(dwErrCode != ERROR_SUCCESS)
-        SetLastError(dwErrCode);
+        SetCascError(dwErrCode);
     return nLength;
 }
 

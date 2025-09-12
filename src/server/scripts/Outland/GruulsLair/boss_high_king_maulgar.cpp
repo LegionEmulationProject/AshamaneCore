@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -181,7 +180,7 @@ public:
                 //Charging_Timer
                 if (Charging_Timer <= diff)
                 {
-                    Unit* target = NULL;
+                    Unit* target = nullptr;
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (target)
                     {
@@ -249,7 +248,7 @@ public:
 
             if (me->Attack(who, true))
             {
-                me->AddThreat(who, 0.0f);
+                AddThreat(who, 0.0f);
                 me->SetInCombatWith(who);
                 who->SetInCombatWith(me);
 
@@ -293,7 +292,7 @@ public:
             //DeathCoil Timer /need correct timer
             if (DeathCoil_Timer <= diff)
             {
-                Unit* target = NULL;
+                Unit* target = nullptr;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target)
                     DoCast(target, SPELL_DEATH_COIL);
@@ -558,17 +557,14 @@ public:
             //BlastWave_Timer
             if (BlastWave_Timer <= diff)
             {
-                Unit* target = NULL;
-                std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
                 std::vector<Unit*> target_list;
-                for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                 {
-                    target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
-                                                                //15 yard radius minimum
-                    if (target && target->IsWithinDist(me, 15, false))
+                    Unit* target = ref->GetVictim();
+                    if (target && target->IsWithinDist(me, 15, false)) // 15 yard radius minimum
                         target_list.push_back(target);
-                    target = NULL;
                 }
+                Unit* target = nullptr;
                 if (!target_list.empty())
                     target = *(target_list.begin() + rand32() % target_list.size());
 

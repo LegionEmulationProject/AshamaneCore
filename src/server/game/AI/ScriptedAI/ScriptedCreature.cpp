@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +20,7 @@
 #include "DB2Stores.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "CreatureAIImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
@@ -30,13 +30,6 @@
 #include "Spell.h"
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
-
-// Spell summary for ScriptedAI::SelectSpell
-struct TSpellSummary
-{
-    uint8 Targets;                                          // set of enum SelectTarget
-    uint8 Effects;                                          // set of enum SelectEffect
-} extern* SpellSummary;
 
 void SummonList::Summon(Creature const* summon)
 {
@@ -169,6 +162,14 @@ void ScriptedAI::UpdateAI(uint32 diff)
     DoMeleeAttackIfReady();
 }
 
+void ScriptedAI::SetUnlock(uint32 time)
+{
+    me->GetScheduler().Schedule(Milliseconds(time), [this](TaskContext /*context*/)
+    {
+        IsLock = false;
+    });
+}
+
 void ScriptedAI::DoStartMovement(Unit* victim, float distance, float angle)
 {
     if (victim)
@@ -212,6 +213,49 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)
     source->PlayDirectSound(soundId);
 }
 
+void ScriptedAI::AddThreat(Unit* victim, float amount, Unit* who)
+{
+    if (!victim)
+        return;
+    if (!who)
+        who = me;
+    who->GetThreatManager().AddThreat(victim, amount, nullptr, true, true);
+}
+
+void ScriptedAI::ModifyThreatByPercent(Unit* victim, int32 pct, Unit* who)
+{
+    if (!victim)
+        return;
+    if (!who)
+        who = me;
+    who->GetThreatManager().ModifyThreatByPercent(victim, pct);
+}
+
+void ScriptedAI::ResetThreat(Unit* victim, Unit* who)
+{
+    if (!victim)
+        return;
+    if (!who)
+        who = me;
+    who->GetThreatManager().ResetThreat(victim);
+}
+
+void ScriptedAI::ResetThreatList(Unit* who)
+{
+    if (!who)
+        who = me;
+    who->GetThreatManager().ResetAllThreat();
+}
+
+float ScriptedAI::GetThreat(Unit const* victim, Unit const* who)
+{
+    if (!victim)
+        return 0.0f;
+    if (!who)
+        who = me;
+    return who->GetThreatManager().GetThreat(victim);
+}
+
 Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime)
 {
     return me->SummonCreature(entry, me->GetPositionX() + offsetX, me->GetPositionY() + offsetY, me->GetPositionZ() + offsetZ, angle, TempSummonType(type), despawntime);
@@ -244,23 +288,25 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
     uint32 spellCount = 0;
 
     SpellInfo const* tempSpell = nullptr;
+    AISpellInfoType const* aiSpell = nullptr;
 
     //Check if each spell is viable(set it to null if not)
     for (uint32 i = 0; i < MAX_CREATURE_SPELLS; i++)
     {
-        tempSpell = sSpellMgr->GetSpellInfo(me->m_spells[i]);
+        tempSpell = sSpellMgr->GetSpellInfo(me->m_spells[i], me->GetMap()->GetDifficultyID());
+        aiSpell = GetAISpellInfo(me->m_spells[i], me->GetMap()->GetDifficultyID());
 
         //This spell doesn't exist
-        if (!tempSpell)
+        if (!tempSpell || !aiSpell)
             continue;
 
         // Targets and Effects checked first as most used restrictions
         //Check the spell targets if specified
-        if (targets && !(SpellSummary[me->m_spells[i]].Targets & (1 << (targets-1))))
+        if (targets && !(aiSpell->Targets & (1 << (targets-1))))
             continue;
 
         //Check the type of spell if we are looking for a specific spell type
-        if (effect && !(SpellSummary[me->m_spells[i]].Effects & (1 << (effect-1))))
+        if (effect && !(aiSpell->Effects & (1 << (effect-1))))
             continue;
 
         //Check for school if specified
@@ -291,38 +337,6 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
         return nullptr;
 
     return apSpell[urand(0, spellCount - 1)];
-}
-
-void ScriptedAI::DoResetThreat()
-{
-    if (!me->CanHaveThreatList() || me->getThreatManager().isThreatListEmpty())
-    {
-        TC_LOG_ERROR("scripts", "DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = %d)", me->GetEntry());
-        return;
-    }
-
-    ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
-
-    for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-    {
-        Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
-        if (unit && DoGetThreat(unit))
-            DoModifyThreatPercent(unit, -100);
-    }
-}
-
-float ScriptedAI::DoGetThreat(Unit* unit)
-{
-    if (!unit)
-        return 0.0f;
-    return me->getThreatManager().getThreat(unit);
-}
-
-void ScriptedAI::DoModifyThreatPercent(Unit* unit, int32 pct)
-{
-    if (!unit)
-        return;
-    me->getThreatManager().modifyThreatPercent(unit, pct);
 }
 
 void ScriptedAI::DoTeleportTo(float x, float y, float z, uint32 time)
@@ -436,6 +450,68 @@ void ScriptedAI::SetCombatMovement(bool allowMovement)
     _isCombatMovementAllowed = allowMovement;
 }
 
+void ScriptedAI::LoadEventData(std::vector<EventData> const* data)
+{
+    eventList = data;
+}
+
+void ScriptedAI::GetEventData(uint16 group)
+{
+    if (!eventList)
+        return;
+
+    for (EventData data : *eventList)
+        if (data.group == group)
+            events.ScheduleEvent(data.eventId, data.time, data.group, data.phase);
+}
+
+void ScriptedAI::LoadTalkData(std::vector<TalkData> const* data)
+{
+    talkList = data;
+}
+
+void ScriptedAI::GetTalkData(uint32 eventId)
+{
+    if (!talkList)
+        return;
+
+    for (TalkData data : *talkList)
+    {
+        if (data.eventId == eventId)
+        {
+            switch (data.eventType)
+            {
+                case EVENT_TYPE_TALK:
+                    me->AI()->Talk(data.eventData);
+                    break;
+                case EVENT_TYPE_CONVERSATION:
+                    if (data.eventData > 0)
+                        if (instance)
+                            instance->DoPlayConversation(data.eventData);
+                    break;
+                case EVENT_TYPE_ACHIEVEMENT:
+                    if (data.eventData > 0)
+                        if (instance)
+                            instance->DoCompleteAchievement(data.eventData);
+                    break;
+                case EVENT_TYPE_SPELL:
+                    if (data.eventData > 0)
+                        if (instance)
+                            instance->DoCastSpellOnPlayers(data.eventData);
+                    break;
+                case EVENT_TYPE_YELL:
+                    if (data.eventData > 0)
+                        me->Yell(data.eventData);
+                    break;
+                case EVENT_TYPE_SAY:
+                    if (data.eventData > 0)
+                        me->Say(data.eventData);
+                    break;
+            }
+        }
+    }
+}
+
 enum NPCs
 {
     NPC_BROODLORD   = 12017,
@@ -472,7 +548,7 @@ void BossAI::_Reset()
     summons.DespawnAll();
     me->RemoveAllAreaTriggers();
     me->GetScheduler().CancelAll();
-    if (instance)
+    if (instance && instance->GetBossState(_bossId) != DONE)
         instance->SetBossState(_bossId, NOT_STARTED);
 }
 
@@ -537,7 +613,7 @@ void BossAI::TeleportCheaters()
     float x, y, z;
     me->GetPosition(x, y, z);
 
-    ThreatContainer::StorageType threatList = me->getThreatManager().getThreatList();
+    ThreatContainer::StorageType threatList = me->GetThreatManager().getThreatList();
     for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
         if (Unit* target = (*itr)->getTarget())
             if (target->GetTypeId() == TYPEID_PLAYER && !CheckBoundary(target))
@@ -547,7 +623,7 @@ void BossAI::TeleportCheaters()
 void BossAI::JustSummoned(Creature* summon)
 {
     summons.Summon(summon);
-    if (me->IsInCombat())
+    if (me->IsEngaged())
         DoZoneInCombat(summon);
 }
 
@@ -561,12 +637,12 @@ bool BossAI::CanAIAttack(Unit const* target) const
     return CheckBoundary(target);
 }
 
-void BossAI::_DespawnAtEvade(uint32 delayToRespawn, Creature* who)
+void BossAI::_DespawnAtEvade(Seconds delayToRespawn /*= 30s*/, Creature* who /*= nullptr*/)
 {
-    if (delayToRespawn < 2)
+    if (delayToRespawn < Seconds(2))
     {
-        TC_LOG_ERROR("scripts", "_DespawnAtEvade called with delay of %u seconds, defaulting to 2.", delayToRespawn);
-        delayToRespawn = 2;
+        TC_LOG_ERROR("scripts", "_DespawnAtEvade called with delay of " SI64FMTD " seconds, defaulting to 2.", delayToRespawn.count());
+        delayToRespawn = Seconds(2);
     }
 
     if (!who)
@@ -579,7 +655,7 @@ void BossAI::_DespawnAtEvade(uint32 delayToRespawn, Creature* who)
         return;
     }
 
-    who->DespawnOrUnsummon(0, Seconds(delayToRespawn));
+    who->DespawnOrUnsummon(0, delayToRespawn);
 
     if (instance && who == me)
         instance->SetBossState(_bossId, FAIL);
@@ -596,17 +672,17 @@ void StaticBossAI::_Reset()
 
 void StaticBossAI::_InitStaticSpellCast()
 {
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(_staticSpell);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(_staticSpell, me->GetMap()->GetDifficultyID());
     if (!spellInfo)
         return;
 
-    bool isAura = spellInfo->HasAura(me->GetMap()->GetDifficultyID());
-    bool isArea = spellInfo->IsAffectingArea(me->GetMap()->GetDifficultyID());
+    bool isAura = spellInfo->HasAura();
+    bool isArea = spellInfo->IsAffectingArea();
 
     me->GetScheduler().Schedule(2s, [this, isAura, isArea](TaskContext context)
     {
         // Check if any player in range
-        for (auto threat : me->getThreatManager().getThreatList())
+        for (auto threat : me->GetThreatManager().getThreatList())
         {
             if (me->IsWithinCombatRange(threat->getTarget(), me->GetCombatReach()))
             {

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,11 +64,11 @@ enum ProfessorPhizzlethorpe
     FACTION_SUNKEN_TREASURE = 113
 };
 
-struct npc_professor_phizzlethorpe : public npc_escortAI
+struct npc_professor_phizzlethorpe : public EscortAI
 {
-    npc_professor_phizzlethorpe(Creature* creature) : npc_escortAI(creature) { }
+    npc_professor_phizzlethorpe(Creature* creature) : EscortAI(creature) { }
 
-    void WaypointReached(uint32 waypointId) override
+    void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
     {
         Player* player = GetPlayerForEscort();
         if (!player)
@@ -107,13 +106,13 @@ struct npc_professor_phizzlethorpe : public npc_escortAI
         Talk(SAY_AGGRO);
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void QuestAccept(Player* player, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_SUNKEN_TREASURE)
         {
             Talk(SAY_PROGRESS_1, player);
-            npc_escortAI::Start(false, false, player->GetGUID(), quest);
-            me->setFaction(FACTION_SUNKEN_TREASURE);
+            EscortAI::Start(false, false, player->GetGUID(), quest);
+            me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
         }
     }
 
@@ -143,10 +142,8 @@ struct npc_professor_phizzlethorpe : public npc_escortAI
                     break;
             }
         }
-        npc_escortAI::UpdateAI(diff);
+        EscortAI::UpdateAI(diff);
     }
-
-    EventMap events;
 };
 
 enum Myzrael
@@ -163,7 +160,7 @@ class spell_summon_myzrael : public SpellScript
         if (Creature* myzrael = GetCaster()->SummonCreature(NPC_MYZRAEL, -948.493f, -3113.98f, 50.4207f, 3.14159f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 90000))
         {
             myzrael->SetReactState(REACT_AGGRESSIVE);
-            myzrael->setFaction(14);
+            myzrael->SetFaction(14);
             myzrael->AddUnitFlag(UNIT_FLAG_PVP_ATTACKABLE);
         }
     }

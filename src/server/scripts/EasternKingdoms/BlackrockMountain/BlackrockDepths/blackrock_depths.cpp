@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "blackrock_depths.h"
-#include "CreatureAIImpl.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -87,7 +87,7 @@ class at_ring_of_law : public AreaTriggerScript
 public:
     at_ring_of_law() : AreaTriggerScript("at_ring_of_law") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*areaTrigger*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
         {
@@ -125,9 +125,9 @@ public:
         return GetBlackrockDepthsAI<npc_grimstoneAI>(creature);
     }
 
-    struct npc_grimstoneAI : public npc_escortAI
+    struct npc_grimstoneAI : public EscortAI
     {
-        npc_grimstoneAI(Creature* creature) : npc_escortAI(creature)
+        npc_grimstoneAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
             instance = creature->GetInstanceScript();
@@ -192,7 +192,7 @@ public:
             MobDeath_Timer = 2500;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -339,7 +339,7 @@ public:
             }
 
             if (CanWalk)
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
            }
     };
 };
@@ -359,7 +359,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_phalanxAI(creature);
+        return GetBlackrockDepthsAI<npc_phalanxAI>(creature);
     }
 
     struct npc_phalanxAI : public ScriptedAI
@@ -510,7 +510,7 @@ public:
                 creature->AI()->Talk(SAY_GOT_BEER);
                 creature->CastSpell(creature, SPELL_DRUNKEN_RAGE, false);
 
-                if (npc_escortAI* escortAI = CAST_AI(npc_rocknot::npc_rocknotAI, creature->AI()))
+                if (EscortAI* escortAI = CAST_AI(npc_rocknot::npc_rocknotAI, creature->AI()))
                     escortAI->Start(false, false);
             }
         }
@@ -523,9 +523,9 @@ public:
         return GetBlackrockDepthsAI<npc_rocknotAI>(creature);
     }
 
-    struct npc_rocknotAI : public npc_escortAI
+    struct npc_rocknotAI : public EscortAI
     {
-        npc_rocknotAI(Creature* creature) : npc_escortAI(creature)
+        npc_rocknotAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
             instance = creature->GetInstanceScript();
@@ -556,7 +556,7 @@ public:
                 go->SetGoState((GOState)state);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -600,7 +600,7 @@ public:
                     //spell by trap has effect61, this indicate the bar go hostile
 
                     if (Unit* tmp = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PHALANX)))
-                        tmp->setFaction(14);
+                        tmp->SetFaction(14);
 
                     //for later, this event(s) has alot more to it.
                     //optionally, DONE can trigger bar to go hostile.
@@ -610,7 +610,7 @@ public:
                 } else BreakDoor_Timer -= diff;
             }
 
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 };

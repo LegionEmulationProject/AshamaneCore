@@ -86,6 +86,16 @@ typedef struct _CASC_TAG_ENTRY
     char TagName[1];                                // Tag name. Variable length.
 } CASC_TAG_ENTRY, *PCASC_TAG_ENTRY;
 
+// Information about index file
+typedef struct _CASC_INDEX
+{
+    LPTSTR szFileName;                              // Full name of the index file
+    LPBYTE pbFileData;                              // Loaded content of the index file
+    size_t cbFileData;                               // Size of the index file
+    DWORD NewSubIndex;                              // New subindex
+    DWORD OldSubIndex;                              // Old subindex
+} CASC_INDEX, *PCASC_INDEX;
+
 // Normalized header of the index files.
 // Both version 1 and version 2 are converted to this structure
 typedef struct _CASC_INDEX_HEADER
@@ -197,7 +207,7 @@ typedef struct _CASC_FILE_FRAME
     CONTENT_KEY FrameHash;                          // MD5 hash of the file frame
     ULONGLONG StartOffset;                          // Starting offset of the file span
     ULONGLONG EndOffset;                            // Ending offset of the file span
-    DWORD DataFileOffset;                           // Offset in the data file (data.###)
+    ULONGLONG DataFileOffset;                       // Offset in the data file (data.###)
     DWORD EncodedSize;                              // Encoded size of the frame
     DWORD ContentSize;                              // Content size of the frame
 } CASC_FILE_FRAME, *PCASC_FILE_FRAME;
@@ -265,6 +275,7 @@ struct TCascStorage
 
     // Class members
     PCASC_OPEN_STORAGE_ARGS pArgs;                  // Open storage arguments. Only valid during opening the storage
+    CASC_LOCK StorageLock;                          // Lock for multi-threaded operations
 
     LPCTSTR szIndexFormat;                          // Format of the index file name
     LPTSTR  szCodeName;                             // On local storage, this select a product in a multi-product storage. For online storage, this selects a product
@@ -275,6 +286,7 @@ struct TCascStorage
     LPTSTR  szCdnServers;                           // Multi-SZ list of CDN servers
     LPTSTR  szCdnPath;                              // Remote CDN sub path for the product
     LPSTR   szRegion;                               // Product region. Only when "versions" is used as storage root file
+    LPSTR   szBuildKey;                             // Product build key, aka MD5 of the build file
     DWORD dwDefaultLocale;                          // Default locale, read from ".build.info"
     DWORD dwBuildNumber;                            // Product build number
     DWORD dwRefCount;                               // Number of references
@@ -292,6 +304,8 @@ struct TCascStorage
     QUERY_KEY BuildFiles;                           // List of supported build files
 
     TFileStream * DataFiles[CASC_MAX_DATA_FILES];   // Array of open data files
+    CASC_INDEX IndexFiles[CASC_INDEX_COUNT];        // Array of found index files
+    CASC_MAP IndexEKeyMap;
 
     CASC_CKEY_ENTRY EncodingCKey;                   // Information about ENCODING file
     CASC_CKEY_ENTRY DownloadCKey;                   // Information about DOWNLOAD file
@@ -315,9 +329,8 @@ struct TCascStorage
     size_t EKeyLength;                              // EKey length from the index files
     DWORD FileOffsetBits;                           // Number of bits in the storage offset which mean data segent offset
 
-    CASC_ARRAY ExtraKeysList;                       // List additional encryption keys
-    CASC_MAP   EncryptionKeys;                      // Map of encryption keys
-
+    CASC_KEY_MAP KeyMap;                            // Growable map of encryption keys
+    ULONGLONG  LastFailKeyName;                     // The value of the encryption key that recently was NOT found.
 };
 
 struct TCascFile
@@ -465,7 +478,10 @@ DWORD CascDecrypt(TCascStorage * hs, LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LP
 //-----------------------------------------------------------------------------
 // Support for index files
 
+bool CopyEKeyEntry(TCascStorage * hs, PCASC_CKEY_ENTRY pCKeyEntry);
+
 DWORD LoadIndexFiles(TCascStorage * hs);
+void  FreeIndexFiles(TCascStorage * hs);
 
 //-----------------------------------------------------------------------------
 // Support for ROOT file

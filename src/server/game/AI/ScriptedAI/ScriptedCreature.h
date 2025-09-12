@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,11 +19,13 @@
 #define SCRIPTEDCREATURE_H_
 
 #include "CreatureAI.h"
-#include "Creature.h" // convenience include for scripts, all uses of ScriptedCreature also need Creature (except ScriptedCreature itself doesn't need Creature)
+#include "Creature.h"  // convenience include for scripts, all uses of ScriptedCreature also need Creature (except ScriptedCreature itself doesn't need Creature)
 #include "DBCEnums.h"
 #include "TaskScheduler.h"
 
 class InstanceScript;
+enum SelectTargetType : uint8;
+enum SelectEffect : uint8;
 
 class TC_GAME_API EntryCheckPredicate
 {
@@ -40,6 +41,59 @@ class TC_GAME_API DummyEntryCheckPredicate
 {
     public:
         bool operator()(ObjectGuid const&) const { return true; }
+};
+
+struct TC_GAME_API EventData
+{
+    //Has to be between 1 and 8
+    uint16 group = 0; uint16 phase = 0;
+    uint32 eventId; uint32 time;
+};
+
+struct TC_GAME_API TalkData
+{
+    uint32 eventId, eventType, eventData;
+};
+
+enum TC_GAME_API Phase_Data
+{
+    PHASE_00,
+    PHASE_01,
+    PHASE_02,
+    PHASE_03,
+    PHASE_04,
+    PHASE_05,
+    PHASE_06,
+    PHASE_07,
+    PHASE_08,
+};
+
+enum TC_GAME_API Event_Types
+{
+    EVENT_TYPE_TALK,
+    EVENT_TYPE_CONVERSATION,
+    EVENT_TYPE_ACHIEVEMENT,
+    EVENT_TYPE_SPELL,
+    EVENT_TYPE_YELL,
+    EVENT_TYPE_SAY,
+};
+
+enum TC_GAME_API On_Events
+{
+    EVENT_ON_JUSTDIED = 2000,
+    EVENT_ON_KILLEDUNIT,
+    EVENT_ON_JUSTSUMMON,
+    EVENT_ON_ENTERCOMBAT,
+    EVENT_ON_MOVEINLINEOFSIGHT,
+    EVENT_ON_HP90,
+    EVENT_ON_HP80,
+    EVENT_ON_HP70,
+    EVENT_ON_HP60,
+    EVENT_ON_HP50,
+    EVENT_ON_HP40,
+    EVENT_ON_HP30,
+    EVENT_ON_HP20,
+    EVENT_ON_HP10,
 };
 
 struct TC_GAME_API ScriptedAI : public CreatureAI
@@ -86,12 +140,27 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     // Called when AI is temporarily replaced or put back when possess is applied or removed
     void OnPossess(bool /*apply*/) { }
 
+    void LoadEventData(std::vector<EventData> const* data);
+
+    void GetEventData(uint16 group);
+
+    void LoadTalkData(std::vector<TalkData> const* data);
+
+    void GetTalkData(uint32 eventId);
+
+    void SetUnlock(uint32 time);
+
     // *************
     // Variables
     // *************
 
     //For fleeing
     bool IsFleeing;
+
+    bool IsLock;
+
+    std::vector<EventData> const* eventList = nullptr;
+    std::vector<TalkData> const* talkList = nullptr;
 
     // *************
     //Pure virtual functions
@@ -125,11 +194,16 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     //Plays a sound to all nearby players
     void DoPlaySoundToSet(WorldObject* source, uint32 soundId);
 
-    //Drops all threat to 0%. Does not remove players from the threat list
-    void DoResetThreat();
-
-    float DoGetThreat(Unit* unit);
-    void DoModifyThreatPercent(Unit* unit, int32 pct);
+    // Add specified amount of threat directly to victim (ignores redirection effects) - also puts victim in combat and engages them if necessary
+    void AddThreat(Unit* victim, float amount, Unit* who = nullptr);
+    // Adds/removes the specified percentage from the specified victim's threat (to who, or me if not specified)
+    void ModifyThreatByPercent(Unit* victim, int32 pct, Unit* who = nullptr);
+    // Resets the victim's threat level to who (or me if not specified) to zero
+    void ResetThreat(Unit* victim, Unit* who = nullptr);
+    // Resets the specified unit's threat list (me if not specified) - does not delete entries, just sets their threat to zero
+    void ResetThreatList(Unit* who = nullptr);
+    // Returns the threat level of victim towards who (or me if not specified)
+    float GetThreat(Unit const* victim, Unit const* who = nullptr);
 
     void DoTeleportTo(float x, float y, float z, uint32 time = 0);
     void DoTeleportTo(float const pos[4]);
@@ -186,6 +260,7 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     bool Is25ManRaid() const { return _difficulty == DIFFICULTY_25_N || _difficulty == DIFFICULTY_25_HC; }
     bool IsLFR() const { return _difficulty == DIFFICULTY_LFR || _difficulty == DIFFICULTY_LFR_NEW; }
     bool IsMythic() const { return me->GetMap()->IsMythic(); }
+    bool IsChallengeMode() const { return _difficulty == DIFFICULTY_MYTHIC_KEYSTONE; }
 
     template<class T> inline
     const T& DUNGEON_MODE(const T& normal5, const T& heroic10) const
@@ -283,10 +358,10 @@ class TC_GAME_API BossAI : public ScriptedAI
         void _EnterCombat(bool showFrameEngage = true);
         void _JustDied();
         void _JustReachedHome();
-        void _KilledUnit(Unit* victim);
+        void _KilledUnit(Unit * victim);
         void _DamageTaken(Unit* attacker, uint32& damage);
-        void _DespawnAtEvade(uint32 delayToRespawn = 30, Creature* who = nullptr);
-        void _DespawnAtEvade(Seconds const& time, Creature* who = nullptr) { _DespawnAtEvade(uint32(time.count()), who); }
+        void _DespawnAtEvade(Seconds delayToRespawn, Creature* who = nullptr);
+        void _DespawnAtEvade(uint32 delayToRespawn = 30, Creature* who = nullptr) { _DespawnAtEvade(Seconds(delayToRespawn), who); }
 
         void TeleportCheaters();
 

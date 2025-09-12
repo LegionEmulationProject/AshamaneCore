@@ -23,17 +23,6 @@
 #include "ScriptMgr.h"
 #include "eye_of_azshara.h"
 
-// 97171
-struct npc_hatecoil_arcanist : public ScriptedAI
-{
-    npc_hatecoil_arcanist(Creature* creature) : ScriptedAI(creature) { }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        me->GetInstanceScript()->SetData(DATA_ARCANIST_DIED, 0);
-    }
-};
-
 // 196027
 class spell_hatecoil_arcanist_aqua_spout : public SpellScript
 {
@@ -90,7 +79,7 @@ class spell_animated_storm_water_spout : public SpellScript
             target->GetNearPoint(target, x, y, z, 1, 3.0f, frand(0.f, 2.f * float(M_PI)));
             if (Creature* waterSpout = caster->SummonCreature(NPC_WATER_SPOUT, x, y, z, 1.0f, TEMPSUMMON_MANUAL_DESPAWN))
             {
-                waterSpout->setFaction(caster->getFaction());
+                waterSpout->SetFaction(caster->GetFaction());
                 waterSpout->CastSpell(waterSpout, SPELL_WATER_SPOUT_AT, false);
                 waterSpout->GetMotionMaster()->MoveRandom(25.0f);
             }
@@ -208,7 +197,7 @@ class aura_eoa_violent_winds_force_move : public AuraScript
     void ApplyForceMove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->ApplyMovementForce(target->GetGUID(), 2.0f, Position(-3486.264f, 4386.87f, -3.580416f));
+        target->ApplyMovementForce(target->GetGUID(), Position(-3486.264f, 4386.87f, -3.580416f), 2.0f, 0);
     }
 
     void RemoveForceMove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -277,8 +266,6 @@ class spell_eoa_lightning_strikes_damage : public SpellScript
 
 void AddSC_eye_of_azshara()
 {
-    RegisterCreatureAI(npc_hatecoil_arcanist);
-
     RegisterSpellScript(spell_hatecoil_arcanist_aqua_spout);
     RegisterSpellScript(spell_animated_storm_water_spout);
     RegisterSpellScript(spell_skrog_tidestomper_massive_quake);

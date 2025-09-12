@@ -1047,16 +1047,16 @@ public:
 
         void EventInform(uint32 eventId) override
         {
-            if (Creature* tobias = ObjectAccessor::GetCreature(*go, m_tobiasGUID))
+            if (Creature* tobias = ObjectAccessor::GetCreature(*me, m_tobiasGUID))
                 tobias->AI()->DoAction(eventId);
 
-            if (Creature* trigger = ObjectAccessor::GetCreature(*go, m_triggerGUID))
+            if (Creature* trigger = ObjectAccessor::GetCreature(*me, m_triggerGUID))
                 trigger->AI()->DoAction(eventId);
 
             if (eventId == ACTION_EVENT_ID_25727) // ship is on destroy.. we must leave quickly.. or player char is destroyed in database storing..
             {
                 WorldLocation wLoc = WorldLocation(654, -1317.54f, 2121.90f, 5.6296f, 0.218f);
-                std::list<Player*> pList = go->SelectNearestPlayers(70.0f);
+                std::list<Player*> pList = me->SelectNearestPlayers(70.0f);
                 for (auto player : pList)
                     player->TeleportTo(wLoc);
             }
@@ -1083,11 +1083,11 @@ public:
                 case EVENT_CHECK_POSITIONS:
                 {
                     if (!m_playerGUID)
-                        if (Player* player = go->SelectNearestPlayer(100.0f))
+                        if (Player* player = me->SelectNearestPlayer(100.0f))
                             m_playerGUID = player->GetGUID();
 
                     if (!m_triggerGUID)
-                        if (Creature* trigger = go->FindNearestCreature(40350, 100.0f))
+                        if (Creature* trigger = me->FindNearestCreature(40350, 100.0f))
                             m_triggerGUID = trigger->GetGUID();
 
                      m_events.ScheduleEvent(EVENT_CHECK_POSITIONS, 2500);
@@ -1445,39 +1445,30 @@ public:
                     {
                         if (ObjectGuid::LowType guid = me->GetMap()->GenerateLowGuid<HighGuid::GameObject>())
                         {
-                            GameObjectData& data = sObjectMgr->NewGOData(guid);
+                            GameObjectData& data = sObjectMgr->NewOrExistGameObjectData(guid);
                             data.id = 204458;
-                            data.posX = 53.6417f;
-                            data.posY = -0.00663333f;
-                            data.posZ = 10.4467f;
-                            data.orientation = 2.010638f;
+                            data.spawnPoint.Relocate(53.6417f, -0.00663333f, 10.4467f, 2.010638f);
                             GameObject* go = trans->CreateGOPassenger(guid, &data);
-                            go->SetObjectScale(2.0f);
+                            me->SetObjectScale(2.0f);
                             sObjectMgr->AddGameobjectToGrid(guid, &data);
                         }
                         if (ObjectGuid::LowType guid = me->GetMap()->GenerateLowGuid<HighGuid::GameObject>())
                         {
-                            GameObjectData& data = sObjectMgr->NewGOData(guid);
+                            GameObjectData& data = sObjectMgr->NewOrExistGameObjectData(guid);
                             data.id = 204458;
-                            data.posX = 53.6808f;
-                            data.posY = -2.18513f;
-                            data.posZ = 10.4467f;
-                            data.orientation = 2.010638f;
+                            data.spawnPoint.Relocate(53.6808f, -2.18513f, 10.4467f, 2.010638f);
                             GameObject* go = trans->CreateGOPassenger(guid, &data);
-                            go->SetObjectScale(2.0f);
+                            me->SetObjectScale(2.0f);
                             sObjectMgr->AddGameobjectToGrid(guid, &data);
                         }
                         //
                         if (ObjectGuid::LowType guid = me->GetMap()->GenerateLowGuid<HighGuid::GameObject>())
                         {
-                            GameObjectData& data = sObjectMgr->NewGOData(guid);
+                            GameObjectData& data = sObjectMgr->NewOrExistGameObjectData(guid);
                             data.id = 204458;
-                            data.posX = 53.1084f;
-                            data.posY = 2.12947f;
-                            data.posZ = 10.4467f;
-                            data.orientation = 2.010638f;
+                            data.spawnPoint.Relocate(53.1084f, 2.12947f, 10.4467f, 2.010638f);
                             GameObject* go = trans->CreateGOPassenger(guid, &data);
-                            go->SetObjectScale(2.0f);
+                            me->SetObjectScale(2.0f);
                             sObjectMgr->AddGameobjectToGrid(guid, &data);
                         }
                     }
@@ -1494,10 +1485,7 @@ public:
                         {
                             CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
                             data.id = 43567;
-                            data.posX = -47.758198f;
-                            data.posY = -11.800224f;
-                            data.posZ = 13.089049f;
-                            data.orientation = 0.549271f;
+                            data.spawnPoint.Relocate(-47.758198f, -11.800224f, 13.089049f, 0.549271f);
                             Creature* npc = trans->CreateNPCPassenger(guid, &data);
                             sObjectMgr->AddCreatureToGrid(guid, &data);
                             m_bigOrcGUID = npc->GetGUID();
@@ -1578,10 +1566,7 @@ public:
                             {
                                 CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
                                 data.id = 43713;
-                                data.posX = player->GetTransOffset().GetPositionX();
-                                data.posY = player->GetTransOffset().GetPositionY();
-                                data.posZ = player->GetTransOffset().GetPositionZ();
-                                data.orientation = player->GetTransOffset().GetOrientation();
+                                data.spawnPoint.Relocate(player->GetTransOffset());
                                 Creature* npc = trans->CreateNPCPassenger(guid, &data);
                                 sObjectMgr->AddCreatureToGrid(guid, &data);
                                 npc->AI()->SetGUID(player->GetGUID(), PLAYER_GUID);

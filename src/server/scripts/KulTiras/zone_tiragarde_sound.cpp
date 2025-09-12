@@ -86,9 +86,9 @@ struct npc_jaina_boralus_intro : public ScriptedAI
 {
     npc_jaina_boralus_intro(Creature* creature) : ScriptedAI(creature) { }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void QuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->ID == QUEST_DAUGHTER_OF_THE_SEA)
+        if (quest->GetQuestId() == QUEST_DAUGHTER_OF_THE_SEA)
             player->CastSpell(player, SPELL_PROUDMOORE_KEEP_ESCORT, true);
     }
 };
@@ -181,9 +181,9 @@ struct npc_flynn_fairwind : public ScriptedAI
         TALK_NO = 3,
     };
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void QuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->ID == QUEST_OUT_LIKE_FLYNN)
+        if (quest->GetQuestId() == QUEST_OUT_LIKE_FLYNN)
         {
             if (Creature* flynn = player->SummonCreature(me->GetEntry(), me->GetPosition(), TEMPSUMMON_CORPSE_DESPAWN, 0, 0, true))
             {
@@ -305,7 +305,7 @@ struct go_toldagor_cell_block_lever : public GameObjectAI
 {
     go_toldagor_cell_block_lever(GameObject* go) : GameObjectAI(go) { }
 
-    bool GossipHello(Player* player, bool /*isUse*/) override
+    bool GossipHello(Player* player) override
     {
         player->CastSpell(player, SPELL_SCENE_FLYNN_JAILBREAK, true);
         player->UnsummonCreatureByEntry(NPC_FLYNN_BEGIN);
@@ -640,11 +640,13 @@ class npc_cyrus_crestfall : public ScriptedAI
 public:
     npc_cyrus_crestfall(Creature* creature) : ScriptedAI(creature) { }
 
-    void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
         player->KilledMonsterCredit(137009);
         player->PlayConversation(7653);
         CloseGossipMenuFor(player);
+
+        return false;
     }
 };
 
@@ -667,9 +669,10 @@ class npc_boralus_portal_maga : public ScriptedAI
 public:
     npc_boralus_portal_maga(Creature* creature) : ScriptedAI(creature) { }
 
-    void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
         KillCreditMe(player);
+        return false;
     }
 };
 
@@ -679,15 +682,16 @@ class npc_taelia_harbormaster : public ScriptedAI
 public:
     npc_taelia_harbormaster(Creature* creature) : ScriptedAI(creature) { }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void QuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->ID == QUEST_NATION_DIVIDED)
+        if (quest->GetQuestId() == QUEST_NATION_DIVIDED)
             player->CastSpell(player, SPELL_SCENE_NATION_DIVIDED, true);
     }
 
-    void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
         player->CastSpell(player, SPELL_SCENE_NATION_DIVIDED, true);
+        return false;
     }
 };
 
@@ -697,9 +701,10 @@ class npc_boralus_adventure_map : public ScriptedAI
 public:
     npc_boralus_adventure_map(Creature* creature) : ScriptedAI(creature) { }
 
-    void sGossipHello(Player* player) override
+    bool GossipHello(Player* player) override
     {
         KillCreditMe(player);
+        return false;
     }
 };
 
@@ -723,9 +728,9 @@ public:
                 KillCreditMe(player);
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void QuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->ID == QUEST_LOVESICK_ID)
+        if (quest->GetQuestId() == QUEST_LOVESICK_ID)
         {
             me->DestroyForPlayer(player);
             player->CastSpell(nullptr, SPELL_SUMMON_FLYNN_ESCORT_ID, true);
@@ -761,10 +766,10 @@ public:
 /// TODO Make Flynn wait for player
 /// TODO Cast the good spells at the right time
 // 126490
-class npc_flynn_lovesick_escort : public npc_escortAI
+class npc_flynn_lovesick_escort : public EscortAI
 {
 public:
-    npc_flynn_lovesick_escort(Creature* creature) : npc_escortAI(creature) { }
+    npc_flynn_lovesick_escort(Creature* creature) : EscortAI(creature) { }
 
     enum
     {
@@ -793,7 +798,7 @@ public:
         });
     }
 
-    void WaypointReached(uint32 pointId) override
+    void WaypointReached(uint32 pointId, uint32 /*pathId*/) override
     {
         switch (pointId)
         {
@@ -865,9 +870,9 @@ public:
 
     npc_hilde_firebreaker_queststarter(Creature* creature) : ScriptedAI(creature) { }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void QuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->ID != QUEST_BACKUP_WILL_I_PACK)
+        if (quest->GetQuestId() != QUEST_BACKUP_WILL_I_PACK)
             return;
 
         players.push_back(player);
@@ -910,7 +915,7 @@ private:
 };
 
 //129841 Hilde Firebreaker
-class npc_hilde_firebreaker_protect : public npc_escortAI
+class npc_hilde_firebreaker_protect : public EscortAI
 {
 public:
     enum
@@ -921,7 +926,7 @@ public:
         NPC_FALLEN_KEEPER = 128608
     };
 
-    npc_hilde_firebreaker_protect(Creature* creature) : npc_escortAI(creature)
+    npc_hilde_firebreaker_protect(Creature* creature) : EscortAI(creature)
     {
         pos[0] = Position(1108.739990f, 261.151001f, 17.821600f, 1.603710f); // 128405
         pos[1] = Position(1115.000000f, 261.557007f, 18.138300f, 1.946000f); // 128591
@@ -969,7 +974,7 @@ public:
         }
     }
     /*
-    void WaypointReached(uint32 pointId) override
+    void WaypointReached(uint32 pointId, uint32 /*pathId*//*) override
     {
         if (pointId == 1)
         {
@@ -1014,9 +1019,9 @@ public:
         }
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void QuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->ID == QUEST_HOLD_MY_HAND)
+        if (quest->GetQuestId() == QUEST_HOLD_MY_HAND)
         {
             player->CastSpell(player, SPELL_CANCEL_ESCORT_PENNY);
             player->CastSpell(player, SPELL_ESCORTING_PENNY_HARDWICK);
@@ -1026,10 +1031,10 @@ public:
 
 ///TODO Make Penny wait at far
 // 131748
-class npc_penny_hardwick_escort : public npc_escortAI
+class npc_penny_hardwick_escort : public EscortAI
 {
 public:
-    npc_penny_hardwick_escort(Creature* creature) : npc_escortAI(creature) { }
+    npc_penny_hardwick_escort(Creature* creature) : EscortAI(creature) { }
 
     enum
     {
@@ -1062,7 +1067,7 @@ public:
         }
     }
 
-    void JustRespawned() override
+    void JustAppeared() override
     {
         if (Player* player = GetPlayerForEscort())
         {
@@ -1073,7 +1078,7 @@ public:
 };
 
 // 143096
-class npc_riding_macaw_patrol : public npc_escortAI
+class npc_riding_macaw_patrol : public EscortAI
 {
 public:
     enum
@@ -1082,7 +1087,7 @@ public:
         QUEST_RODRIGO_REVENGE = 49403
     };
 
-    npc_riding_macaw_patrol(Creature* creature) : npc_escortAI(creature)
+    npc_riding_macaw_patrol(Creature* creature) : EscortAI(creature)
     {
         me->SetCanFly(true);
     }

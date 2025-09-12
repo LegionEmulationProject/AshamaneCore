@@ -95,15 +95,17 @@ public:
 
         void StartMovePath()
         {
+            Movement::PointsArray path(WaypointAlurielAnomaly, WaypointAlurielAnomaly + WaypointAlurielAnomalySize);
+
             Movement::MoveSplineInit init(me);
             init.SetCyclic();
             init.SetSmooth();
             init.SetVelocity(4.0f);
-            init.MovebyPath(WaypointAlurielAnomaly, 0);
+            init.MovebyPath(path, 0);
             init.Launch();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* who) override
         {
             Talk(SAY_AGGRO);
             DoZoneInCombat();
@@ -131,7 +133,11 @@ public:
             summons.DespawnAll();
         }
 
-        void KilledUnit(Unit* /*who*/) override
+        void DoAction(int32 param)
+        {
+        }
+
+        void KilledUnit(Unit* who)
         {
             //if (who->ToPlayer())
             //   Talk(SAY_KILL);
@@ -233,7 +239,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* killer) override
         {
             Talk(SAY_DEATH);
             _JustDied();
@@ -322,12 +328,10 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_FROST))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_MARK_OF_FROST });
         }
 
-        void Tick(AuraEffect const* /*aurEff*/)
+        void Tick(AuraEffect const* aurEff)
         {
             if (Unit* caster = GetCaster())
             {
@@ -431,7 +435,14 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& targetsList)
         {
-            targetsList.remove_if([](WorldObject* obj)
+            if (targetsList.empty())
+                return;
+
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+
+            targetsList.remove_if([caster](WorldObject* obj)
             {
                 if (Unit* target = obj->ToUnit())
                     return !target->HasAura(SPELL_MARK_OF_FROST);
@@ -477,8 +488,8 @@ public:
 
         void OnUnitEnter(Unit* unit) override
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_POOL_OF_FROST);
             Unit* caster = at->GetCaster();
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_POOL_OF_FROST, caster->GetMap()->GetDifficultyID());
             if (!caster || !unit || !spellInfo)
                 return;
 
@@ -519,7 +530,14 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& targetsList)
         {
-            targetsList.remove_if([](WorldObject* obj)
+            if (targetsList.empty())
+                return;
+
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+
+            targetsList.remove_if([caster](WorldObject* obj)
             {
                 if (Creature* target = obj->ToCreature())
                     return target->GetEntry() != 107694;
@@ -530,8 +548,12 @@ public:
 
         void Animate(SpellEffIndex /*effIndex*/)
         {
-            if (Unit * target = GetHitUnit())
-                GetCaster()->CastSpell(target, SPELL_ANIMATE_SUMMON, true);
+            Unit* caster = GetCaster();
+            Unit* target = GetHitUnit();
+            if (!caster || !target)
+                return;
+
+            caster->CastSpell(target, SPELL_ANIMATE_SUMMON, true);
         }
 
         void Register() override

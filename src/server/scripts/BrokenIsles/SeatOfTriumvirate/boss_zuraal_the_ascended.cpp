@@ -43,6 +43,8 @@ enum Spells
 
     SPELL_RELEASE_VOID_ENERGY   = 244618,
     SPELL_VOID_TEAR             = 244621,
+
+    SPELL_PHYSICAL_REALM_COSMETIC = 244087,
 };
 
 enum Npcs
@@ -58,6 +60,10 @@ struct boss_zuraal_the_ascended : public BossAI
 
     void ScheduleTasks() override
     {
+        me->RemoveAurasDueToSpell(SPELL_VOID_PHASED);
+        me->RemoveAurasDueToSpell(SPELL_PHYSICAL_REALM_COSMETIC);
+        me->setActive(true);
+        DoZoneInCombat();
         events.ScheduleEvent(SPELL_NULL_PALM,   10s);
         events.ScheduleEvent(SPELL_DECIMATE,    10s);
         events.ScheduleEvent(SPELL_UMBRA_SHIFT, 10s);
@@ -65,6 +71,11 @@ struct boss_zuraal_the_ascended : public BossAI
 
     void ExecuteEvent(uint32 eventId) override
     {
+        if (HealthBelowPct(45))
+        {
+            DoCastSelf(SPELL_MADDENED_FRENZY, true);
+        }
+
         switch (eventId)
         {
             case SPELL_NULL_PALM:
@@ -75,7 +86,7 @@ struct boss_zuraal_the_ascended : public BossAI
             }
             case SPELL_DECIMATE:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT))
                     me->CastSpell(target, SPELL_DECIMATE, false);
 
                 events.Repeat(10s);
@@ -86,7 +97,7 @@ struct boss_zuraal_the_ascended : public BossAI
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                     me->CastSpell(target, SPELL_UMBRA_SHIFT, false);
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true, -SPELL_UMBRA_SHIFT))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true, false, -SPELL_UMBRA_SHIFT))
                     me->CastSpell(target, SPELL_FIXATE, false);
 
                 break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,16 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
+#include "black_temple.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
-#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
-#include "black_temple.h"
 
 enum Says
 {
@@ -501,7 +501,7 @@ public:
         {
             // Need be negative to heal trigger
             int32 bp = addhealth * (-1);
-            me->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, (Unit*) nullptr, true);
+            me->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, nullptr, true);
         }
 
         void ExecuteEvent(uint32 eventId) override
@@ -708,7 +708,7 @@ class spell_illidari_council_balance_of_power : public SpellScriptLoader
 
                 PreventDefaultAction();
                 int32 bp = dmgInfo->GetDamage();
-                GetTarget()->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, (Unit*) nullptr, true, nullptr, aurEff);
+                GetTarget()->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, nullptr, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -806,7 +806,7 @@ class spell_illidari_council_reflective_shield : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_REFLECTIVE_SHIELD_DAMAGE });
             }
 
-            void OnAbsorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void OnAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 Unit* target = GetTarget();
                 if (dmgInfo.GetAttacker() == target)
@@ -889,7 +889,11 @@ class spell_illidari_council_seal : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_SEAL_OF_COMMAND, SPELL_SEAL_OF_BLOOD });
+                return ValidateSpellInfo(
+                {
+                    SPELL_SEAL_OF_COMMAND,
+                    SPELL_SEAL_OF_BLOOD
+                });
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)

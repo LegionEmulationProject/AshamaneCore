@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -159,7 +158,7 @@ public:
                         HandleGameObject(StageDoorRightGUID, true);
                         if (GameObject* sideEntrance = instance->GetGameObject(SideEntranceDoor))
                             sideEntrance->RemoveFlag(GO_FLAG_LOCKED);
-                        UpdateEncounterStateForKilledCreature(16812, NULL);
+                        UpdateEncounterStateForKilledCreature(16812, nullptr);
                     }
                     break;
                 case DATA_CHESS:
@@ -227,6 +226,9 @@ public:
                 case GO_DUST_COVERED_CHEST:
                     DustCoveredChest = go->GetGUID();
                     break;
+                case GO_BLACKENED_URN:
+                    BlackenedUrnGUID = go->GetGUID();
+                    break;
             }
 
             switch (OperaEvent)
@@ -290,6 +292,8 @@ public:
                     return MastersTerraceDoor[1];
                 case DATA_IMAGE_OF_MEDIVH:
                     return ImageGUID;
+                case DATA_GO_BLACKENED_URN:
+                    return BlackenedUrnGUID;
             }
 
             return ObjectGuid::Empty;
@@ -314,6 +318,7 @@ public:
         ObjectGuid MastersTerraceDoor[2];
         ObjectGuid ImageGUID;
         ObjectGuid DustCoveredChest;
+        ObjectGuid BlackenedUrnGUID;
     };
 };
 

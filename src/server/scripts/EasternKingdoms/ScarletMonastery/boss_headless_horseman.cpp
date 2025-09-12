@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Group.h"
 #include "InstanceScript.h"
 #include "LFGMgr.h"
@@ -187,7 +187,7 @@ public:
                 DoCast(me, _spell);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_WISP_FLIGHT_PORT && Creaturetype == 4)
                 me->SetDisplayId(2027);
@@ -261,7 +261,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void SaySound(uint8 textEntry, Unit* target = 0)
+        void SaySound(uint8 textEntry, Unit* target = nullptr)
         {
             Talk(textEntry, target);
 
@@ -302,7 +302,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (!withbody)
                 return;
@@ -446,7 +446,7 @@ public:
                 headGUID.Clear();
             }
 
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(false);
             //instance->SetBossState(DATA_HORSEMAN_EVENT, NOT_STARTED);
         }
 
@@ -532,7 +532,7 @@ public:
             }
         }
 
-        void SaySound(uint8 textEntry, Unit* target = 0)
+        void SaySound(uint8 textEntry, Unit* target = nullptr)
         {
             Talk(textEntry, target);
             laugh += 4000;
@@ -540,9 +540,9 @@ public:
 
         Player* SelectRandomPlayer(float range = 0.0f, bool checkLoS = true)
         {
-            Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+            Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
             if (PlayerList.isEmpty())
-                return NULL;
+                return nullptr;
 
             std::list<Player*> temp;
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -556,10 +556,10 @@ public:
                 advance(j, rand32() % temp.size());
                 return (*j);
             }
-            return NULL;
+            return nullptr;
         }
 
-        void SpellHitTarget(Unit* unit, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* unit, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_CONFLAGRATION && unit->HasAura(SPELL_CONFLAGRATION))
                 SaySound(SAY_CONFLAGRATION, unit);
@@ -585,7 +585,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (withhead)
                 return;
@@ -604,14 +604,6 @@ public:
                 DoCast(me, SPELL_HEAD);
                 caster->GetMotionMaster()->Clear(false);
                 caster->GetMotionMaster()->MoveFollow(me, 6, float(urand(0, 5)));
-                //DoResetThreat();//not sure if need
-                ThreatContainer::StorageType threatlist = caster->getThreatManager().getThreatList();
-                for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                {
-                    Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
-                    if (unit && unit->IsAlive() && unit != caster)
-                        me->AddThreat(unit, caster->getThreatManager().getThreat(unit));
-                }
             }
         }
 
@@ -805,7 +797,7 @@ public:
         {
             float x, y, z;
             me->GetPosition(x, y, z);   //this visual aura some under ground
-            me->SetPosition(x, y, z + 0.35f, 0.0f);
+            me->UpdatePosition(x, y, z + 0.35f, 0.0f);
             debuffGUID.Clear();
             Despawn();
             Creature* debuff = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 14500);
@@ -824,7 +816,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_SPROUTING)
             {
@@ -861,7 +853,7 @@ public:
             if (!who || !me->IsValidAttackTarget(who) || me->GetVictim())
                 return;
 
-            me->AddThreat(who, 0.0f);
+            AddThreat(who, 0.0f);
             if (sprouted)
                 DoStartMovement(who);
         }

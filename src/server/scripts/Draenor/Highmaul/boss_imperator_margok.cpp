@@ -45,7 +45,7 @@ Position const g_ChogallEventsPos[] =
 @TODO:
 - Ajouter le MM pour les NPCs (les getdata des ePhases)
 - faire des fonctions pour les déplacements vers les runes (gain de place dans le code), faire des tableaux pour les positions/dialogues/... indexés sur l'id de la rune
-- visuel des runes activées sur le SLG generic : 
+- visuel des runes activées sur le SLG generic :
     déplacement   : visu : 174026
     reproduction  : visu du socl : 174044
     fortification : visual du socle : 174043
@@ -493,7 +493,7 @@ class boss_imperator_margok : public CreatureScript
                                 }
                             }
 
-                            if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_MAXTHREAT))
                                 AttackStart(target);
                         });
 
@@ -706,10 +706,10 @@ class boss_imperator_margok : public CreatureScript
                     itr->DespawnOrUnsummon();
 
                 me->GetCreatureListWithEntryInGrid(NightList, WORLD_TRIGGER, 300.0f);
-                
+
                 for (Creature* itr : NightList)
                     itr->DespawnOrUnsummon();
-                
+
                 me->RemoveAllAreaTriggers();
                 std::list<AreaTrigger*> AreaTriggerList;
                 me->GetAreaTriggerListWithSpellIDInRange(AreaTriggerList, SpellGrowingShadowsAT, 300);
@@ -1114,7 +1114,7 @@ class boss_imperator_margok : public CreatureScript
                     }
                     case eCosmeticEvents::EventCheckPlayerZ:
                     {
-                        std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                        std::list<HostileReference*> l_ThreatList = me->GetThreatManager().getThreatList();
                         for (HostileReference* l_Ref : l_ThreatList)
                         {
                             if (Player* player = ObjectAccessor::GetPlayer(*me, l_Ref->getUnitGuid()))
@@ -1176,7 +1176,7 @@ class boss_imperator_margok : public CreatureScript
                     /// ALL DIFFICULTIES
                     case eEvents::EventMarkOfChaos:
                     {
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_MAXTHREAT))
                         {
                             switch (m_Phase)
                             {
@@ -1282,7 +1282,7 @@ class boss_imperator_margok : public CreatureScript
                             me->CastSpell(me, eSpells::DestructiveResonanceReplicationSearch, false);
                             break;
                         }
-                        
+
                         me->CastSpell(me, eSpells::DestructiveResonanceCosmetic, true);
                         m_Events.ScheduleEvent(eEvents::EventDestructiveResonance, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -1308,7 +1308,7 @@ class boss_imperator_margok : public CreatureScript
                             me->CastSpell(me, eSpells::SummonReplicatingArcaneAberration, false);
                             break;
                         }
-                        
+
                         me->CastSpell(me, eSpells::SummonArcaneAberrationCosmetic, true);
 
                         if (m_Phase != ePhases::MythicPhase4ChoGall) Talk(eTalks::ArcaneAberration);
@@ -1352,7 +1352,7 @@ class boss_imperator_margok : public CreatureScript
                     if (l_Trigger != nullptr)
                         l_TriggerGuid = l_Trigger->GetGUID();
 
-                    std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                    std::list<HostileReference*> l_ThreatList = me->GetThreatManager().getThreatList();
                     for (HostileReference* l_Ref : l_ThreatList)
                     {
                         if (Player* player = ObjectAccessor::GetPlayer(*me, l_Ref->getUnitGuid()))
@@ -1368,7 +1368,7 @@ class boss_imperator_margok : public CreatureScript
                                     && !l_TriggerGuid.IsEmpty() && l_Trigger)
                                 {
                                     if (!player->HasMovementForce(l_TriggerGuid))
-                                        player->ApplyMovementForce(l_TriggerGuid, -5.5f, *l_Trigger);
+                                        player->ApplyMovementForce(l_TriggerGuid, *l_Trigger, -5.5f, 0);
                                 }
                             }
                             else
@@ -1405,7 +1405,7 @@ class boss_imperator_margok : public CreatureScript
 
                             l_MinRadius += (l_YardsPerMs * m_NovaTimePhase3[l_I]);
 
-                            std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                            std::list<HostileReference*> l_ThreatList = me->GetThreatManager().getThreatList();
                             for (HostileReference* l_Ref : l_ThreatList)
                             {
                                 if (Player* player = ObjectAccessor::GetPlayer(*me, l_Ref->getUnitGuid()))
@@ -1418,7 +1418,7 @@ class boss_imperator_margok : public CreatureScript
                         }
                     }
 
-                    std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                    std::list<HostileReference*> l_ThreatList = me->GetThreatManager().getThreatList();
                     for (HostileReference* l_Ref : l_ThreatList)
                     {
                         if (Player* player = ObjectAccessor::GetPlayer(*me, l_Ref->getUnitGuid()))
@@ -1880,7 +1880,7 @@ public:
         ///< Glimpse of Madness
         SpellGlimpseOfMadnessSearch = 165243,
         SpellGlimpseOfMadnessSpawn  = 165647,
-        SpellGlimpseOfMadnessClone  = 165486,   ///< should spawn npc:82242 and clone caster from it 
+        SpellGlimpseOfMadnessClone  = 165486,   ///< should spawn npc:82242 and clone caster from it
         SpellGlimpseOfMadnessDummy  = 165664,   ///< unused? infinite aura, maybe for not targetting affected players
         ///< Edge of the void
         SpellEdgeOfTheVoidPeriodic  = 165178,
@@ -2056,7 +2056,7 @@ public:
 
                     me->RemoveAura(eSpells::SpellCosmeticVoidOmni);
                 });
-                
+
                 AddTimedDelayedOperation(7500 + 11000 + 2000 /* 1-3seconds after the event */, [this]() -> void
                 {
                     //cho'gall aggro
@@ -2071,7 +2071,7 @@ public:
                         me->GetMotionMaster()->MoveChase(victim);
                     }
                 });
-                
+
                 break;
             }
         }
@@ -2157,9 +2157,9 @@ public:
             {
                 case eEvents::EventSpawnIntroAdds:
                 {
-                    ///< 45 secs to spawn 25 adds 
+                    ///< 45 secs to spawn 25 adds
                     m_IntroSpawned++;
-                    
+
                     Position pos = g_ChogallEventsPos[urand(3, 4)];
 
                     if (TempSummon* add = me->SummonCreature(NpcNightTwistedFaithful, pos, TEMPSUMMON_DEAD_DESPAWN))
@@ -3073,7 +3073,7 @@ class npc_highmaul_gorian_warmage : public CreatureScript
                 {
                     case eEvents::EventFixate:
                     {
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true, -eSpells::Fixate))
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -eSpells::Fixate))
                         {
                             m_FixateTarget = target->GetGUID();
                             me->CastSpell(target, eSpells::Fixate, true);
@@ -3232,7 +3232,7 @@ class npc_highmaul_gorian_reaver : public CreatureScript
                 {
                     case eEvents::EventCrushArmor:
                     {
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_MAXTHREAT))
                             me->CastSpell(target, eSpells::CrushArmor, true);
 
                         m_Events.ScheduleEvent(eEvents::EventCrushArmor, 11 * TimeConstants::IN_MILLISECONDS);
@@ -3240,10 +3240,10 @@ class npc_highmaul_gorian_reaver : public CreatureScript
                     }
                     case eEvents::EventKickToTheFace:
                     {
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_MAXTHREAT))
                         {
                             me->CastSpell(target, eSpells::KickToTheFace, true);
-                            me->getThreatManager().modifyThreatPercent(target, -100);
+                            ModifyThreatByPercent(target, -100);
                         }
 
                         m_Events.ScheduleEvent(eEvents::EventKickToTheFace, 25 * TimeConstants::IN_MILLISECONDS);
@@ -4288,7 +4288,7 @@ class spell_highmaul_force_nova_dot : public SpellScriptLoader
             RuneOfReplication = 6,
             MythicPhase1 = 7,
             MythicPhase3 = 11,
-            MythicPhase4ChoGall = 12,    
+            MythicPhase4ChoGall = 12,
         };
 
         class spell_highmaul_force_nova_dot_AuraScript : public AuraScript
@@ -4305,7 +4305,7 @@ class spell_highmaul_force_nova_dot : public SpellScriptLoader
                             return;
 
                         uint8 l_Phase = l_Margok->AI()->GetData(eData::PhaseID);
-                        if (l_Phase == ePhase::RuneOfReplication || l_Phase == ePhase::MythicPhase1 || 
+                        if (l_Phase == ePhase::RuneOfReplication || l_Phase == ePhase::MythicPhase1 ||
                             l_Phase == ePhase::MythicPhase3 || l_Phase == ePhase::MythicPhase4ChoGall)
                             target->CastSpell(target, eSpell::ForceNovaReplicationAoEDamage, true);
                     }
@@ -4554,7 +4554,7 @@ public:
         PrepareAuraScript(spell_highmaul_infinite_darkness_AuraScript);
 
         bool Load() override
-        { 
+        {
             m_HealAbsorbAmount = 0;
             return true;
         }
