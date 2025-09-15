@@ -1225,7 +1225,7 @@ public:
                 if (!player->HasAura(SPELL_DRUID_FORM_CAT_INCREASE_SPEED))
                 {
                     player->CastSpell(player, SPELL_DRUID_FORM_CAT_INCREASE_SPEED, true);
-                    player->RemoveMovementImpairingAuras();
+                    player->RemoveMovementImpairingAuras(true);
                 }
             }
         }
@@ -1416,7 +1416,7 @@ public:
                 caster->CastSpell(caster, SPELL_DRUID_BEAR_FORM, true);
 
             if (Unit* target = GetHitUnit())
-                target->RemoveMovementImpairingAuras();
+                target->RemoveMovementImpairingAuras(true);
         }
 
         void Register() override

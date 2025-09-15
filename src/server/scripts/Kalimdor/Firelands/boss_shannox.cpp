@@ -499,7 +499,7 @@ class npc_shannox_riplimb : public CreatureScript
                         events.Reset();
                         me->SetReactState(REACT_PASSIVE);
                         me->AttackStop();
-                        me->RemoveMovementImpairingAuras();
+                        me->RemoveMovementImpairingAuras(true);
                         me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, false);
                         DoCast(me, SPELL_DOGGED_DETERMINATION, true);
                         break;
@@ -530,7 +530,7 @@ class npc_shannox_riplimb : public CreatureScript
                         me->RemoveAurasDueToSpell(SPELL_DOGGED_DETERMINATION);
                         me->RemoveAurasDueToSpell(SPELL_FETCH_SPEAR);
                         me->GetMotionMaster()->MovementExpired();
-                        me->RemoveMovementImpairingAuras();
+                        me->RemoveMovementImpairingAuras(true);
                         me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
                         me->SetReactState(REACT_AGGRESSIVE);
                         events.ScheduleEvent(EVENT_LIMB_RIP, 5000);

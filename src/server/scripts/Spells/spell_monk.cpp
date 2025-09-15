@@ -1949,7 +1949,7 @@ public:
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Unit* target = GetHitUnit())
-                target->RemoveMovementImpairingAuras();
+                target->RemoveMovementImpairingAuras(true);
         }
 
         void Register() override
