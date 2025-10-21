@@ -50,8 +50,12 @@
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include <openssl/opensslv.h>
 #include <openssl/crypto.h>
+#include <openssl/opensslv.h>
+#if defined(OPENSSL_VERSION_MAJOR) && (OPENSSL_VERSION_MAJOR >= 3)
+#include <openssl/provider.h>
+#endif
+#include <boost/dll/runtime_symbol_info.hpp>
 #include <boost/asio/signal_set.hpp>
 #include <boost/dll/runtime_symbol_info.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -188,7 +192,7 @@ extern int main(int argc, char** argv)
         []()
         {
             TC_LOG_INFO("server.worldserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
-            TC_LOG_INFO("server.worldserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+            TC_LOG_INFO("server.worldserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
             TC_LOG_INFO("server.worldserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );

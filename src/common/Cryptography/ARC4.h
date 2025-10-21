@@ -20,6 +20,7 @@
 #define _AUTH_SARC4_H
 
 #include "Define.h"
+#include <array>
 #include <openssl/evp.h>
 
 class TC_COMMON_API ARC4
@@ -31,7 +32,10 @@ class TC_COMMON_API ARC4
         void Init(uint8* seed);
         void UpdateData(int len, uint8* data);
     private:
-        EVP_CIPHER_CTX* m_ctx;
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+        EVP_CIPHER *_cipher;
+#endif
+        EVP_CIPHER_CTX* _ctx;
 };
 
 #endif

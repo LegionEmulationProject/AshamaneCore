@@ -45,6 +45,10 @@
 #define MIN_MYSQL_SERVER_VERSION_STRING "5.7"
 #define MIN_MYSQL_CLIENT_VERSION 50700u
 #define MIN_MYSQL_CLIENT_VERSION_STRING "5.7"
+#define MIN_MARIADB_SERVER_VERSION 100209u
+#define MIN_MARIADB_SERVER_VERSION_STRING "10.2.9"
+#define MIN_MARIADB_CLIENT_VERSION 30003u
+#define MIN_MARIADB_CLIENT_VERSION_STRING "3.0.3"
 
 #define MIN_MARIADB_SERVER_VERSION 100209u
 #define MIN_MARIADB_SERVER_VERSION_STRING "10.2.9"
@@ -469,7 +473,6 @@ uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConne
 #else
             TC_LOG_ERROR("sql.driver", "TrinityCore does not support MariaDB versions below " MIN_MARIADB_SERVER_VERSION_STRING " (found id %u, need id >= %u), please update your MySQL server", connection->GetServerVersion(), MIN_MARIADB_SERVER_VERSION);
 #endif
-
             return 1;
         }
         else

@@ -211,6 +211,13 @@ namespace Ashamane
     private:
         std::unordered_map<std::string, boost::any> dataMap;
     };
+
+    template<class ArgumentType, class ResultType>
+    struct unary_function
+    {
+        typedef ArgumentType argument_type;
+        typedef ResultType result_type;
+    };
 }
 
 #endif
