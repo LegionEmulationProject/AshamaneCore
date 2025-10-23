@@ -305,9 +305,11 @@ private:
     uint32 _bossId;
 };
 
-class HammerTargetSelector : public std::unary_function<Unit*, bool>
+class HammerTargetSelector
 {
 public:
+    using argument_type = Unit*;
+    using result_type = bool;
     HammerTargetSelector(Unit const* unit) : _me(unit) { }
 
     bool operator()(Unit* unit) const

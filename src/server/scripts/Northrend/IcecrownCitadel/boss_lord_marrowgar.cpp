@@ -102,9 +102,12 @@ enum Actions
     ACTION_TALK_ENTER_ZONE        = 2
 };
 
-class BoneSpikeTargetSelector : public std::unary_function<Unit*, bool>
+class BoneSpikeTargetSelector
 {
-    public:
+public:
+    using argument_type = Unit*;
+    using result_type = bool;
+
         BoneSpikeTargetSelector(UnitAI* ai) : _ai(ai) { }
 
         bool operator()(Unit* unit) const

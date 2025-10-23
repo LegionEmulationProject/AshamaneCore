@@ -1405,9 +1405,12 @@ class spell_sonic_pulse : public SpellScriptLoader
         }
 };
 
-class ExhaleTargetFilter : public std::unary_function<Unit*, bool>
+class ExhaleTargetFilter
 {
     public:
+    using argument_type = Unit*;
+    using result_type = bool;
+
         explicit ExhaleTargetFilter(Unit* caster) : _caster(caster) { }
 
         bool operator()(WorldObject* object) const
