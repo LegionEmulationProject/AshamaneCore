@@ -1,0 +1,35 @@
+name: GCC
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v5
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/bin" >> "$GITHUB_OUTPUT"
+    - name: Dependencies
+      run: |
+        sudo apt-get update && sudo apt-get install -yq libboost-all-dev libreadline-dev libbz2-dev libncurses-dev p7zip
+    - name: Setup
+      env:
+        CMAKE_BUILD_TYPE: Debug
+      run: >
+        cmake -S ${{ github.workspace }} -B ${{ steps.strings.outputs.build-output-dir }}
+        -DWITH_WARNINGS=0 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1
+        -DCMAKE_INSTALL_PREFIX=check_install
+    - name: Build
+      run: |
+        cd bin
+        make -j 4 -k && make install
+    - name: Check executables
+      run: |
+        cd ${{ github.workspace }}/check_install/bin
+        ./bnetserver --version
+        ./worldserver --version
