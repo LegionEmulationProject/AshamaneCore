@@ -134,7 +134,7 @@ public:
     }
 };
 
-// 228329 & 228330 - Téléportation
+// 228329 & 228330 - Tï¿½lï¿½portation
 class spell_dalaran_teleportation : public SpellScript
 {
     PrepareSpellScript(spell_dalaran_teleportation);
@@ -258,7 +258,7 @@ public:
 
 void AddSC_dalaran_legion()
 {
-    new OnLegionArrival();
+    // new OnLegionArrival();
     new On110Arrival();
 
     RegisterSpellScript(spell_dalaran_teleportation);
