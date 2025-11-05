@@ -4330,8 +4330,13 @@ void Spell::SendSpellGo()
         {
             castData.RemainingRunes->Start = 0;
             castData.RemainingRunes->Count = 0;
-            for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
-                castData.RemainingRunes->Cooldowns.push_back(0);
+            if (Player* player = GetCaster()->ToPlayer())
+            {
+                for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
+                {
+                    castData.RemainingRunes->Cooldowns.push_back(0);
+                }
+            }     
         }
     }
 
