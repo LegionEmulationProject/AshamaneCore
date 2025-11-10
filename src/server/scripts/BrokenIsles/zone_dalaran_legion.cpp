@@ -95,8 +95,6 @@ public:
 
         if (player->GetQuestStatus(QUEST_BLINK_OF_AN_EYE) == QUEST_STATUS_NONE)
         {
-            Conversation::CreateConversation(CONVERSATION_KHADGAR_BLINK_OF_EYE, player, player->GetPosition(), { player->GetGUID() });
-
             if (const Quest* quest = sObjectMgr->GetQuestTemplate(QUEST_BLINK_OF_AN_EYE))
                 player->AddQuest(quest, nullptr);
         }
@@ -134,7 +132,7 @@ public:
     }
 };
 
-// 228329 & 228330 - Téléportation
+// 228329 & 228330 - Tï¿½lï¿½portation
 class spell_dalaran_teleportation : public SpellScript
 {
     PrepareSpellScript(spell_dalaran_teleportation);
@@ -258,7 +256,7 @@ public:
 
 void AddSC_dalaran_legion()
 {
-    new OnLegionArrival();
+    // new OnLegionArrival();
     new On110Arrival();
 
     RegisterSpellScript(spell_dalaran_teleportation);

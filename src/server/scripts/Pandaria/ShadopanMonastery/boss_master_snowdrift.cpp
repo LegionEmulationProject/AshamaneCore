@@ -20,6 +20,7 @@
 #include "ScriptedCreature.h"
 #include "shadopan_monastery.h"
 #include "Vehicle.h"
+#include <random>
 
 enum eSpells
 {
@@ -366,7 +367,9 @@ class boss_master_snowdrift : public CreatureScript
                     {
                         std::vector<uint8> randomIndex;
                         for (int i = 0; i < 3; ++i) randomIndex.push_back(i); // 0 1 2
-                        std::random_shuffle(randomIndex.begin(), randomIndex.end());
+                        std::random_device rd;
+                        std::mt19937 g(rd());
+                        std::shuffle(randomIndex.begin(), randomIndex.end(), g);
 
                         bool isBoss = true;
 

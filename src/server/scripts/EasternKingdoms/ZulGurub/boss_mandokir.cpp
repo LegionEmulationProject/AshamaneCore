@@ -548,9 +548,12 @@ class spell_mandokir_spirit_vengeance_cancel : public SpellScriptLoader
         }
 };
 
-class DevastatingSlamTargetSelector : public std::unary_function<Unit *, bool>
+class DevastatingSlamTargetSelector
 {
-    public:
+public:
+    using argument_type = Unit*;
+    using result_type = bool;
+
         DevastatingSlamTargetSelector(Creature* me, const Unit* victim) : _me(me), _victim(victim) {}
 
         bool operator() (WorldObject* target)

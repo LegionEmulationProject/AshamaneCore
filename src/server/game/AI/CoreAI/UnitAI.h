@@ -72,29 +72,37 @@ struct TC_GAME_API DefaultTargetSelector
 
 // Target selector for spell casts checking range, auras and attributes
 /// @todo Add more checks from Spell::CheckCast
-struct TC_GAME_API SpellTargetSelector : public std::unary_function<Unit*, bool>
+struct TC_GAME_API SpellTargetSelector
 {
-    public:
-        SpellTargetSelector(Unit* caster, uint32 spellId);
-        bool operator()(Unit const* target) const;
+public:
+    using argument_type = Unit*;
+    using result_type = bool;
 
-    private:
-        Unit const* _caster;
-        SpellInfo const* _spellInfo;
+    SpellTargetSelector(Unit* caster, uint32 spellId);
+    bool operator()(Unit const* target) const;
+
+private:
+    Unit const* _caster;
+    SpellInfo const* _spellInfo;
 };
 
 // Very simple target selector, will just skip main target
 // NOTE: When passing to UnitAI::SelectTarget remember to use 0 as position for random selection
 //       because tank will not be in the temporary list
-struct TC_GAME_API NonTankTargetSelector : public std::unary_function<Unit*, bool>
+struct TC_GAME_API NonTankTargetSelector
 {
-    public:
-        NonTankTargetSelector(Unit* source, bool playerOnly = true) : _source(source), _playerOnly(playerOnly) { }
-        bool operator()(Unit const* target) const;
+public:
+    using argument_type = Unit*;
+    using result_type = bool;
 
-    private:
-        Unit* _source;
-        bool _playerOnly;
+    NonTankTargetSelector(Unit* source, bool playerOnly = true)
+        : _source(source), _playerOnly(playerOnly) { }
+
+    bool operator()(Unit const* target) const;
+
+private:
+    Unit* _source;
+    bool _playerOnly;
 };
 
 TC_GAME_API void SortByDistanceTo(Unit* reference, std::list<Unit*>& targets);

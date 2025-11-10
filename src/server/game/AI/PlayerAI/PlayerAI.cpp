@@ -653,8 +653,12 @@ Unit* PlayerAI::SelectAttackTarget() const
     return me->GetCharmer() ? me->GetCharmer()->GetVictim() : nullptr;
 }
 
-struct UncontrolledTargetSelectPredicate : public std::unary_function<Unit*, bool>
+struct UncontrolledTargetSelectPredicate
 {
+public:
+    using argument_type = Unit*;
+    using result_type = bool;
+
     bool operator()(Unit const* target) const
     {
         return !target->HasBreakableByDamageCrowdControlAura();

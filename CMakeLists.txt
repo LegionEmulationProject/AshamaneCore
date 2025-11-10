@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -8,8 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-# We require CMake >= 3.2
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.24)
 
 # add this options before PROJECT keyword
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
@@ -18,18 +17,12 @@ set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 # Set projectname (must be done AFTER setting configurationtypes)
 project(AshamaneCore)
 
-# CMake policies (can not be handled elsewhere)
-cmake_policy(SET CMP0005 NEW)
-if(POLICY CMP0043)
-  cmake_policy(SET CMP0043 NEW) # Disable 'Ignore COMPILE_DEFINITIONS_<Config> properties'
+if(POLICY CMP0144)
+  cmake_policy(SET CMP0144 NEW) # find_package() uses upper-case <PACKAGENAME>_ROOT variables
 endif()
 
-if(POLICY CMP0054)
-  cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted - prevents intepreting if (SOME_STRING_VARIABLE MATCHES "MSVC") as if (SOME_STRING_VARIABLE MATCHES "1")
-endif()
-
-if(POLICY CMP0074)
-  cmake_policy(SET CMP0074 NEW) # find_package() uses <PackageName>_ROOT variables
+if(POLICY CMP0153)
+  cmake_policy(SET CMP0153 NEW) # The exec_program() command should not be called
 endif()
 
 # Set RPATH-handing (CMake parameters)
@@ -44,6 +37,9 @@ list(APPEND CMAKE_MODULE_PATH
   "${CMAKE_SOURCE_DIR}/dep/cotire/CMake")
 
 # build in Release-mode by default if not explicitly set
+if(CMAKE_GENERATOR STREQUAL "Ninja Multi-Config")
+  set(CMAKE_DEFAULT_BUILD_TYPE "RelWithDebInfo" CACHE INTERNAL "")
+endif()
 if( NOT CMAKE_BUILD_TYPE )
   set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 endif()
@@ -71,8 +67,11 @@ find_package(PCHSupport)
 find_package(MySQL)
 
 if(NOT WITHOUT_GIT)
-  find_package(Git)
+  find_package(Git 1.7)
 endif()
+
+# find mysql client binary (needed by genrev)
+find_package(MySQL OPTIONAL_COMPONENTS binary)
 
 # Find revision ID and hash of the sourcetree
 include(cmake/genrev.cmake)
@@ -85,3 +84,9 @@ add_subdirectory(dep)
 
 # add core sources
 add_subdirectory(src)
+
+# Catch cmakefile messes with our settings we explicitly leave up to the user
+# restore user preference
+  if (NOT WITH_SOURCE_TREE STREQUAL "hierarchical-folders")
+    set_property(GLOBAL PROPERTY USE_FOLDERS OFF)
+  endif()

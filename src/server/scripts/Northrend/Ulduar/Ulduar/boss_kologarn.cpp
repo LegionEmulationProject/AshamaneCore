@@ -363,9 +363,12 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
 };
 
 // predicate function to select non main tank target
-class StoneGripTargetSelector : public std::unary_function<Unit*, bool>
+class StoneGripTargetSelector
 {
     public:
+    using argument_type = Unit*;
+    using result_type = bool;
+
         StoneGripTargetSelector(Creature* me, Unit const* victim) : _me(me), _victim(victim) { }
 
         bool operator()(WorldObject* target)
