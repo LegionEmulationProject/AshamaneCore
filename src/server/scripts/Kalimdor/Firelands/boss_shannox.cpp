@@ -20,6 +20,7 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "ScriptMgr.h"
+#include "Unit.h"
 
 enum ScriptTexts
 {
@@ -113,11 +114,11 @@ enum Other
 
 enum AreaIds
 {
-    AREA_1          = 5764, // Логово Бет'тилак
-    AREA_2          = 5821, // Порочный путь
-    AREA_3          = 5766, // Каменный Венец
-    AREA_4          = 5791, // Гряда Древнего Пламени
-    AREA_5          = 5765, // Огненный портал
+    AREA_1          = 5764, // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ'пїЅпїЅпїЅпїЅпїЅ
+    AREA_2          = 5821, // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+    AREA_3          = 5766, // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+    AREA_4          = 5791, // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    AREA_5          = 5765, // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 };
 
 const Position dogPos[2] =
@@ -499,7 +500,7 @@ class npc_shannox_riplimb : public CreatureScript
                         events.Reset();
                         me->SetReactState(REACT_PASSIVE);
                         me->AttackStop();
-                        me->RemoveMovementImpairingAuras();
+                        me->RemoveMovementImpairingAuras(true);
                         me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, false);
                         DoCast(me, SPELL_DOGGED_DETERMINATION, true);
                         break;
@@ -530,7 +531,7 @@ class npc_shannox_riplimb : public CreatureScript
                         me->RemoveAurasDueToSpell(SPELL_DOGGED_DETERMINATION);
                         me->RemoveAurasDueToSpell(SPELL_FETCH_SPEAR);
                         me->GetMotionMaster()->MovementExpired();
-                        me->RemoveMovementImpairingAuras();
+                        me->RemoveMovementImpairingAuras(true);
                         me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
                         me->SetReactState(REACT_AGGRESSIVE);
                         events.ScheduleEvent(EVENT_LIMB_RIP, 5000);

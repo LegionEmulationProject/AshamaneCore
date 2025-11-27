@@ -1655,7 +1655,7 @@ public:
                 return;
 
             if (caster->HasAura(SPELL_PRIEST_LEAP_OF_FAITH_GLYPH))
-                GetHitUnit()->RemoveMovementImpairingAuras();
+                GetHitUnit()->RemoveMovementImpairingAuras(true);
 
             GetHitUnit()->CastSpell(caster, SPELL_PRIEST_LEAP_OF_FAITH_EFFECT, true);
         }

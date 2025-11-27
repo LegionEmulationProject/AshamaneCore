@@ -43,28 +43,13 @@ endif()
 
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
 
-if (WITH_CPR)
     target_link_libraries(worldserver
       PRIVATE
         trinity-core-interface
       PUBLIC
         scripts
         game
-        readline
-        duktape
-        dukglue
-        ${CPR_LIBRARIES})
-else()
-    target_link_libraries(worldserver
-      PRIVATE
-        trinity-core-interface
-      PUBLIC
-        scripts
-        game
-        readline
-        duktape
-        dukglue)
-endif()
+        readline)
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -72,22 +57,11 @@ CollectIncludeDirectories(
   # Exclude
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
-if (WITH_CPR)
     target_include_directories(worldserver
       PUBLIC
         ${PUBLIC_INCLUDES}
-        ${DUKGLUE_HEADERS}
-        ${CPR_INCLUDE_DIRS}
       PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR})
-else()
-    target_include_directories(worldserver
-      PUBLIC
-        ${PUBLIC_INCLUDES}
-        ${DUKGLUE_HEADERS}
-      PRIVATE
-        ${CMAKE_CURRENT_BINARY_DIR})
-endif()
 
 set_target_properties(worldserver
     PROPERTIES
