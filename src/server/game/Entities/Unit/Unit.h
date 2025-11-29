@@ -1935,11 +1935,6 @@ class TC_GAME_API Unit : public WorldObject
         // Movement info
         Movement::MoveSpline * movespline;
 
-        // Part of Evade mechanics
-        time_t GetLastDamagedTime() const { return _lastDamagedTime; }
-        void UpdateLastDamagedTime(SpellInfo const* spellProto);
-        void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
-
         void SaveDamageHistory(uint32 damage);
         uint32 GetDamageOverLastSeconds(uint32 seconds) const;
 
@@ -2100,15 +2095,12 @@ class TC_GAME_API Unit : public WorldObject
         uint16 _movementAnimKitId;
         uint16 _meleeAnimKitId;
 
-        time_t _lastDamagedTime; // Part of Evade mechanics
-        std::map<time_t, uint32> _damageTakenHistory;
-
         SpellHistory* _spellHistory;
 
         TaskScheduler _scheduler;
 
         uint32 _lastUpdatePower[MAX_POWERS_PER_CLASS];
-
+        std::map<time_t, uint32> _damageTakenHistory;
         std::unordered_map<ObjectGuid, WorldPackets::Movement::MovementForce> _movementForces;
 
         uint32 m_currentPetBattleId;

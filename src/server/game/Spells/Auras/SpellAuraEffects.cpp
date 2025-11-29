@@ -3057,8 +3057,8 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
         if (GetId() == 53111) // Devour Humanoid
         {
             target->Kill(caster);
-            if (caster->IsCreature())
-                caster->ToCreature()->RemoveCorpse();
+            if (caster->GetTypeId() == TYPEID_UNIT)
+                caster->ToCreature()->DespawnOrUnsummon();
         }
 
         if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT))
