@@ -3969,6 +3969,11 @@ Conversation* Map::GetConversation(ObjectGuid const& guid)
     return _objectsStore.Find<Conversation>(guid);
 }
 
+Player* Map::GetPlayer(ObjectGuid const& guid)
+{
+    return ObjectAccessor::GetPlayer(this, guid);
+}
+
 Corpse* Map::GetCorpse(ObjectGuid const& guid)
 {
     return _objectsStore.Find<Corpse>(guid);

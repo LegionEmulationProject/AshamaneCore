@@ -1915,6 +1915,9 @@ void Player::RemoveFromWorld()
         StopCastingBindSight();
         UnsummonPetTemporaryIfAny();
         ClearComboPoints();
+        ObjectGuid lootGuid = GetLootGUID();
+        if (!lootGuid.IsEmpty())
+            m_session->DoLootRelease(lootGuid);
         if (Area* zone = GetZone())
         {
             sOutdoorPvPMgr->HandlePlayerLeaveZone(this, zone);
@@ -25818,7 +25821,7 @@ bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
     if (!player || IsAlive())
         player = this;
 
-    if (player->GetMap()->IsDungeon())
+    if (pRewardSource->GetMap()->IsDungeon())
         return true;
 
     return pRewardSource->GetDistance(player) <= sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE);
