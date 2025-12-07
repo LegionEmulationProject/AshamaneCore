@@ -1663,6 +1663,21 @@ void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
     areaid = GetAreaId();
 }
 
+bool WorldObject::IsInWorldPvpZone() const
+{
+    switch (GetZoneId())
+    {
+    case 4197: // Wintergrasp
+    case 5095: // Tol Barad
+    case 6941: // Ashran
+        return true;
+        break;
+    default:
+        return false;
+        break;
+    }
+}
+
 InstanceScript* WorldObject::GetInstanceScript() const
 {
     Map* map = GetMap();
