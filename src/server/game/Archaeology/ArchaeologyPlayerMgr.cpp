@@ -18,8 +18,11 @@
 #include "AchievementMgr.h"
 #include "ArchaeologyMgr.h"
 #include "ArchaeologyPlayerMgr.h"
+#include "DatabaseEnv.h"
 #include "MiscPackets.h"
 #include "ObjectMgr.h"
+
+
 
 ArchaeologyPlayerMgr::ArchaeologyPlayerMgr(Player* player) : m_player(player) { }
 
@@ -85,7 +88,7 @@ void ArchaeologyPlayerMgr::LoadArchaeologyHistory(PreparedQueryResult result)
 
 void ArchaeologyPlayerMgr::SaveArchaeologyDigSites(SQLTransaction& trans)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ARCHAEOLOGY_DIGSITES);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ARCHAEOLOGY_DIGSITES);
     stmt->setUInt64(0, GetPlayer()->GetGUID().GetCounter());
     trans->Append(stmt);
     std::vector<uint32> digsites = GetPlayer()->GetDynamicValues(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE);
@@ -94,7 +97,7 @@ void ArchaeologyPlayerMgr::SaveArchaeologyDigSites(SQLTransaction& trans)
     {
         uint16 digsiteId = digsites[i];
         Digsite digsite = GetDigsitePosition(i);
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARCHAEOLOGY_DIGSITE);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARCHAEOLOGY_DIGSITE);
 
         stmt->setUInt64(0, GetPlayer()->GetGUID().GetCounter());
         stmt->setUInt16(1, digsiteId);
@@ -108,7 +111,7 @@ void ArchaeologyPlayerMgr::SaveArchaeologyDigSites(SQLTransaction& trans)
 
 void ArchaeologyPlayerMgr::SaveArchaeologyBranchs(SQLTransaction& trans)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ARCHAEOLOGY_BRANCHS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ARCHAEOLOGY_BRANCHS);
     stmt->setUInt64(0, GetPlayer()->GetGUID().GetCounter());
     trans->Append(stmt);
 
@@ -118,7 +121,7 @@ void ArchaeologyPlayerMgr::SaveArchaeologyBranchs(SQLTransaction& trans)
         {
             uint16 projectId = GetPlayer()->GetUInt16Value(PLAYER_FIELD_RESEARCHING_1 + i / 2, i % 2);
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARCHAEOLOGY_BRANCH);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARCHAEOLOGY_BRANCH);
             stmt->setUInt64(0, GetPlayer()->GetGUID().GetCounter());
             stmt->setUInt16(1, projectId);
             trans->Append(stmt);
@@ -128,7 +131,7 @@ void ArchaeologyPlayerMgr::SaveArchaeologyBranchs(SQLTransaction& trans)
 
 void ArchaeologyPlayerMgr::SaveArchaeologyHistory(SQLTransaction& trans)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ARCHAEOLOGY_HISTORY);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ARCHAEOLOGY_HISTORY);
     stmt->setUInt64(0, GetPlayer()->GetGUID().GetCounter());
     trans->Append(stmt);
 

@@ -83,7 +83,7 @@ bool Garrison::LoadFromDB()
 {
     ObjectGuid::LowType lowGuid = _owner->GetGUID().GetCounter();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GARRISON);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GARRISON);
     stmt->setUInt64(0, lowGuid);
     stmt->setUInt8(1, _garrisonType);
     PreparedQueryResult garrisonStmt = CharacterDatabase.Query(stmt);
@@ -241,7 +241,7 @@ void Garrison::SaveToDB(SQLTransaction& trans)
 {
     DeleteFromDB(trans);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON);
     stmt->setUInt64(0, _owner->GetGUID().GetCounter());
     stmt->setUInt8(1, _garrisonType);
     stmt->setUInt32(2, _siteLevel->ID);
@@ -319,7 +319,7 @@ void Garrison::DeleteFromDB(SQLTransaction& trans)
 
 void Garrison::DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType guid, GarrisonType garrType)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON);
     stmt->setUInt64(0, guid);
     stmt->setUInt8(1, garrType);
     trans->Append(stmt);

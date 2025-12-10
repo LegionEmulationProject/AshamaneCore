@@ -1276,7 +1276,7 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
     // update in DB
     SQLTransaction trans = WorldDatabase.BeginTransaction();
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
     stmt->setUInt64(0, m_spawnId);
     trans->Append(stmt);
 
@@ -1690,7 +1690,7 @@ void Creature::DeleteFromDB()
 
     SQLTransaction trans = WorldDatabase.BeginTransaction();
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
     stmt->setUInt64(0, m_spawnId);
     trans->Append(stmt);
 
@@ -3194,7 +3194,7 @@ void Creature::ReLoad(bool skipDB)
     PreparedQueryResult result;
     if (!skipDB)
     {
-        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
+        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
         stmt->setUInt32(0, entry);
         result = WorldDatabase.Query(stmt);
 

@@ -670,4 +670,6 @@ public:
     void DoPrepareStatements() override;
 };
 
+using CharacterDatabasePreparedStatement = PreparedStatement<CharacterDatabaseConnection>;
+
 #endif

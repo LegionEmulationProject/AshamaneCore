@@ -18,6 +18,7 @@
 
 #include "Creature.h"
 #include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "GameObject.h"
 #include "GarrisonMgr.h"
 #include "Log.h"
@@ -39,7 +40,7 @@ bool WodGarrison::LoadFromDB()
 
     ObjectGuid::LowType lowGuid = _owner->GetGUID().GetCounter();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GARRISON_BLUEPRINTS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GARRISON_BLUEPRINTS);
     stmt->setUInt64(0, lowGuid);
     stmt->setUInt8(1, _garrisonType);
     PreparedQueryResult blueprints = CharacterDatabase.Query(stmt);
@@ -98,7 +99,7 @@ void WodGarrison::SaveToDB(SQLTransaction& trans)
 
     for (uint32 building : _knownBuildings)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_BLUEPRINTS);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_BLUEPRINTS);
         stmt->setUInt64(0, _owner->GetGUID().GetCounter());
         stmt->setUInt8(1, _garrisonType);
         stmt->setUInt32(2, building);
@@ -110,7 +111,7 @@ void WodGarrison::SaveToDB(SQLTransaction& trans)
         Plot const& plot = p.second;
         if (plot.BuildingInfo.PacketInfo)
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_BUILDINGS);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_BUILDINGS);
             stmt->setUInt64(0, _owner->GetGUID().GetCounter());
             stmt->setUInt8(1, _garrisonType);
             stmt->setUInt32(2, plot.BuildingInfo.PacketInfo->GarrPlotInstanceID);

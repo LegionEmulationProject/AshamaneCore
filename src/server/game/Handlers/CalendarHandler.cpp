@@ -257,7 +257,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPackets::Calendar::CalendarEve
     else
     {
         // Invitee offline, get data from database
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
         stmt->setString(0, calendarEventInvite.Name);
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
         {
