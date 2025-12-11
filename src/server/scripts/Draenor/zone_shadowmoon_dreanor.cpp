@@ -51,7 +51,7 @@ enum
     NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT = 79757,
 };
 
-// 79206 - Prophète Velen - Shadowmoon start
+// 79206 - Prophï¿½te Velen - Shadowmoon start
 class npc_velen_shadowmoon_begin : public CreatureScript
 {
 public:
@@ -86,11 +86,6 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_velen_shadowmoon_beginAI(creature);
-    }
-
     struct npc_velen_shadowmoon_beginAI : public npc_escortAI
     {
         npc_velen_shadowmoon_beginAI(Creature* creature) : npc_escortAI(creature) { }
@@ -109,7 +104,7 @@ public:
             SetDespawnAtFar(false);
         }
 
-        void LastWaypointReached() override
+        void LastWaypointReached()
         {
             me->DespawnOrUnsummon();
             me->SetFacingTo(5.631830f);
@@ -120,7 +115,7 @@ public:
     };
 };
 
-// 79206 - Prophète Velen - Shadowmoon start
+// 79206 - Prophï¿½te Velen - Shadowmoon start
 class npc_velen_shadowmoon_follower : public CreatureScript
 {
 public:
@@ -383,7 +378,7 @@ struct areatrigger_aqualir_submerge : AreaTriggerAI
     }
 };
 
-//## Gara - suite de quêtes cachées chasseur
+//## Gara - suite de quï¿½tes cachï¿½es chasseur
 
 enum GaraQuestLineEnum
 {
@@ -783,7 +778,7 @@ Position VoidRealmEventPos[] =
 #define SAY_OMRA_11 "She is being swallowed by the void! You must help her! There is only one way, tame her, now! Maybe you can find a way to reverse the process, and put her soul at rest, as you have done mine !"
 #define SAY_OMRA_12 "You've done it... thank you. Goodbye, Gara, my soul is at peace now. I hope... that you find this peace some day, too. I am so sorry, my dearest Gara."
 
-// 88707 - Gara invoquée dans le vide
+// 88707 - Gara invoquï¿½e dans le vide
 class npc_void_gara : public CreatureScript
 {
 public:

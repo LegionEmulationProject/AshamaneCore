@@ -116,7 +116,7 @@ struct npc_kyle_the_frenzied : public ScriptedAI
         {
             // Wait 15 seconds then resume path
             if (WaypointMovementGenerator<Creature>* move = dynamic_cast<WaypointMovementGenerator<Creature>*>(me->GetMotionMaster()->top()))
-                move->GetTrackerTimer().Reset(15000);
+                //move->GetTrackerTimer().Reset(15000);
             Talk(0);
             me->GetScheduler().Schedule(4s, [this](TaskContext /*context*/)
             {
