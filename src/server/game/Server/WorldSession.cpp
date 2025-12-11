@@ -819,7 +819,7 @@ void WorldSession::SendTutorialsData()
     SendPacket(packet.Write());
 }
 
-void WorldSession::SaveTutorialsData(SQLTransaction& trans)
+void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction& trans)
 {
     if (!(_tutorialsChanged & TUTORIALS_FLAG_CHANGED))
         return;
@@ -1525,7 +1525,7 @@ void WorldSession::LoadRecoveries()
         else
             loc.WorldRelocate(1, 1569.96f, -4397.41f, 16.05f, 0.543025f);
 
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         Player::SavePositionInDB(loc, 0, newChar.GetGUID(), trans);
 
         newChar.CleanupsBeforeDelete();

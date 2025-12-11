@@ -53,7 +53,7 @@ void InstanceScenario::SaveToDB()
         return;
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     for (auto iter = _criteriaProgress.begin(); iter != _criteriaProgress.end(); ++iter)
     {
         if (!iter->second.Changed)
@@ -98,7 +98,7 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (result)
     {
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         time_t now = time(nullptr);
 
         std::vector<CriteriaTree const*> criteriaTrees;

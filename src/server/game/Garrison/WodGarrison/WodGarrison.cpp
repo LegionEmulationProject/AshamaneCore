@@ -93,7 +93,7 @@ bool WodGarrison::LoadFromDB()
     return true;
 }
 
-void WodGarrison::SaveToDB(SQLTransaction& trans)
+void WodGarrison::SaveToDB(CharacterDatabaseTransaction& trans)
 {
     Garrison::SaveToDB(trans);
 
@@ -203,8 +203,7 @@ void WodGarrison::TeleportOwnerAndPlayMovie() const
 
 void WodGarrison::Delete()
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    DeleteFromDB(trans);
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     CharacterDatabase.CommitTransaction(trans);
 
     Garrison::Delete();

@@ -381,7 +381,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     SetState(ITEM_CHANGED, owner);                          // save new time in database
 }
 
-void Item::SaveToDB(SQLTransaction& trans)
+void Item::SaveToDB(CharacterDatabaseTransaction& trans)
 {
     bool isInTransaction = bool(trans);
     if (!isInTransaction)
@@ -904,14 +904,14 @@ void Item::CheckArtifactRelicSlotUnlock(Player const* owner)
 }
 
 /*static*/
-void Item::DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid)
+void Item::DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
     stmt->setUInt64(0, itemGuid);
     trans->Append(stmt);
 }
 
-void Item::DeleteFromDB(SQLTransaction& trans)
+void Item::DeleteFromDB(CharacterDatabaseTransaction& trans)
 {
     DeleteFromDB(trans, GetGUID().GetCounter());
 
@@ -921,14 +921,14 @@ void Item::DeleteFromDB(SQLTransaction& trans)
 }
 
 /*static*/
-void Item::DeleteFromInventoryDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid)
+void Item::DeleteFromInventoryDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
     stmt->setUInt64(0, itemGuid);
     trans->Append(stmt);
 }
 
-void Item::DeleteFromInventoryDB(SQLTransaction& trans)
+void Item::DeleteFromInventoryDB(CharacterDatabaseTransaction& trans)
 {
     DeleteFromInventoryDB(trans, GetGUID().GetCounter());
 }
@@ -1580,7 +1580,7 @@ void Item::RemoveFromObjectUpdate()
 
 void Item::SaveRefundDataToDB()
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
     stmt->setUInt64(0, GetGUID().GetCounter());
@@ -1596,7 +1596,7 @@ void Item::SaveRefundDataToDB()
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void Item::DeleteRefundDataFromDB(SQLTransaction* trans)
+void Item::DeleteRefundDataFromDB(CharacterDatabaseTransaction* trans)
 {
     if (trans)
     {
@@ -1607,7 +1607,7 @@ void Item::DeleteRefundDataFromDB(SQLTransaction* trans)
     }
 }
 
-void Item::SetNotRefundable(Player* owner, bool changestate /*= true*/, SQLTransaction* trans /*= nullptr*/, bool addToCollection /*= true*/)
+void Item::SetNotRefundable(Player* owner, bool changestate /*= true*/, CharacterDatabaseTransaction* trans /*= nullptr*/, bool addToCollection /*= true*/)
 {
     if (!HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
         return;
@@ -2049,7 +2049,7 @@ void Item::ItemContainerSaveLootToDB()
     if (loot.isLooted()) // no money and no loot
         return;
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     loot.containerID = GetGUID(); // Save this for when a LootItem is removed
 
