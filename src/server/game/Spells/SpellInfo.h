@@ -606,6 +606,7 @@ class TC_GAME_API SpellInfo
         bool IsRangedWeaponSpell() const;
         bool IsAutoRepeatRangedSpell() const;
         bool HasInitialAggro() const;
+        bool HasHitDelay() const;
 
         WeaponAttackType GetAttackType() const;
 
