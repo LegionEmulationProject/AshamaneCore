@@ -644,6 +644,16 @@ bool SmartAIMgr::IsAnimKitValid(SmartScriptHolder const& e, uint32 entry)
     return true;
 }
 
+bool SmartAIMgr::IsSpellVisualKitValid(SmartScriptHolder const& e, uint32 entry)
+{
+    if (!sSpellVisualKitStore.LookupEntry(entry))
+    {
+        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses non-existent SpellVisualKit entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
+        return false;
+    }
+    return true;
+}
+
 bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 {
     if (e.event.type >= SMART_EVENT_END)
@@ -1085,6 +1095,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid AnimKit type %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.animKit.type);
                 return false;
             }
+            break;
+        case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
+            if (e.action.spellVisualKit.spellVisualKitId && !IsSpellVisualKitValid(e, e.action.spellVisualKit.spellVisualKitId))
+                return false;
             break;
         case SMART_ACTION_FAIL_QUEST:
         case SMART_ACTION_OFFER_QUEST:
@@ -1633,7 +1647,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT:
         case SMART_ACTION_SET_COUNTER:
         case SMART_ACTION_REMOVE_ALL_GAMEOBJECTS:
-        case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
         case SMART_ACTION_PLAY_SPELL_VISUAL:
         case SMART_ACTION_PLAY_ORPHAN_SPELL_VISUAL:
         case SMART_ACTION_CANCEL_VISUAL:
