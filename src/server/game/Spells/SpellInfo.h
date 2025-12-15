@@ -546,6 +546,8 @@ class TC_GAME_API SpellInfo
         bool HasOnlyDamageEffects() const;
         bool HasTarget(uint32 target) const;
         bool CasterCanTurnDuringCast() const;
+        bool HasTargetType(::Targets target) const;
+        bool HasTargetType(uint32 difficulty, ::Targets target) const;
 
         bool HasAttribute(SpellAttr0 attribute) const { return !!(Attributes & attribute); }
         bool HasAttribute(SpellAttr1 attribute) const { return !!(AttributesEx & attribute); }
