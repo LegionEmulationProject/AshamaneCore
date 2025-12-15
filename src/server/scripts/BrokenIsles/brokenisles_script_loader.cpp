@@ -50,6 +50,9 @@ void AddSC_class_hall_shaman();
 void AddSC_class_hall_warlock();
 void AddSC_class_hall_warrior();
 
+// TrinityCore
+void AddSC_orderhall_warrior();
+
 // Professions
 void AddSC_legion_profession_blacksmithing();
 
@@ -210,6 +213,8 @@ void AddBrokenIslesScripts()
     AddSC_class_hall_shaman();
     AddSC_class_hall_warlock();
     AddSC_class_hall_warrior();
+    // TrinityCore
+    AddSC_orderhall_warrior();
 
     // Professions
     AddSC_legion_profession_blacksmithing();
