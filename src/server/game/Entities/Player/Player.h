@@ -1421,7 +1421,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool CanAddQuest(Quest const* quest, bool msg) const;
         bool CanCompleteQuest(uint32 quest_id);
         bool CanCompleteRepeatableQuest(Quest const* quest);
-        bool CanRewardQuest(Quest const* quest, bool msg);
+        bool CanRewardQuest(Quest const* quest, bool msg) const;
         bool CanRewardQuest(Quest const* quest, uint32 reward, bool msg);
         void AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver);
         void AddQuest(Quest const* quest, Object* questGiver);
@@ -1450,9 +1450,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool SatisfyQuestNextChain(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestPrevChain(Quest const* qInfo, bool msg);
         bool SatisfyQuestDay(Quest const* qInfo, bool msg) const;
-        bool SatisfyQuestWeek(Quest const* qInfo, bool msg);
-        bool SatisfyQuestMonth(Quest const* qInfo, bool msg);
-        bool SatisfyQuestSeasonal(Quest const* qInfo, bool msg);
+        bool SatisfyQuestWeek(Quest const* qInfo, bool msg) const;
+        bool SatisfyQuestMonth(Quest const* qInfo, bool msg) const;
+        bool SatisfyQuestSeasonal(Quest const* qInfo, bool msg) const;
         bool GiveQuestSourceItem(Quest const* quest);
         bool TakeQuestSourceItem(uint32 questId, bool msg);
         bool GetQuestRewardStatus(uint32 quest_id) const;
