@@ -37,12 +37,12 @@ bool ClassHall::LoadFromDB()
 
     return true;
 }
-
+/*
 void ClassHall::SaveToDB(CharacterDatabaseTransaction& trans)
 {
     Garrison::SaveToDB(trans);
 }
-
+*/
 bool ClassHall::Create(uint32 garrSiteId)
 {
     if (!Garrison::Create(garrSiteId))

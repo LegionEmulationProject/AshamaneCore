@@ -32,7 +32,7 @@ public:
     explicit ClassHall(Player* owner);
 
     bool LoadFromDB() override;
-    void SaveToDB(CharacterDatabaseTransaction& trans);
+    // void SaveToDB(CharacterDatabaseTransaction& trans);
     
     bool Create(uint32 garrSiteId) override;
     void Delete() override;

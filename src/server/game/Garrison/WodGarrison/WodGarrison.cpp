@@ -92,14 +92,14 @@ bool WodGarrison::LoadFromDB()
 
     return true;
 }
-
+/*
 void WodGarrison::SaveToDB(CharacterDatabaseTransaction& trans)
 {
     Garrison::SaveToDB(trans);
 
     for (uint32 building : _knownBuildings)
     {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_BLUEPRINTS);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_BLUEPRINTS);    
         stmt->setUInt64(0, _owner->GetGUID().GetCounter());
         stmt->setUInt8(1, _garrisonType);
         stmt->setUInt32(2, building);
@@ -122,7 +122,7 @@ void WodGarrison::SaveToDB(CharacterDatabaseTransaction& trans)
         }
     }
 }
-
+*/
 bool WodGarrison::Create(uint32 garrSiteId)
 {
     if (!Garrison::Create(garrSiteId))
