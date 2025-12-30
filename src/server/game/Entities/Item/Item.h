@@ -94,6 +94,7 @@ struct BonusData
     int32 RelicType;
     int32 RequiredLevelOverride;
     bool HasItemLevelBonus;
+    uint32 Suffix;
     bool HasFixedLevel;
 
     void Initialize(ItemTemplate const* proto);
@@ -103,6 +104,7 @@ struct BonusData
 private:
     struct
     {
+        int32 SuffixPriority;
         int32 AppearanceModPriority;
         int32 ScalingStatDistributionPriority;
         bool HasQualityBonus;
@@ -139,6 +141,8 @@ class TC_GAME_API Item : public Object
 
         virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owner);
 
+        std::string GetNameForLocaleIdx(LocaleConstant locale) const override;
+
         ItemTemplate const* GetTemplate() const;
         BonusData const* GetBonus() const { return &_bonusData; }
 
@@ -153,16 +157,16 @@ class TC_GAME_API Item : public Object
         bool IsBattlenetAccountBound() const { return (GetTemplate()->GetFlags2() & ITEM_FLAG2_BNET_ACCOUNT_TRADE_OK) != 0; }
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
-        virtual void SaveToDB(SQLTransaction& trans);
+        virtual void SaveToDB(CharacterDatabaseTransaction& trans);
         virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry, Player const* owner = nullptr);
         void LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceId, uint32 artifactTier, std::vector<ItemDynamicFieldArtifactPowers>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
         void CheckArtifactRelicSlotUnlock(Player const* owner);
 
         void AddBonuses(uint32 bonusListID);
 
-        static void DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
-        virtual void DeleteFromDB(SQLTransaction& trans);
-        static void DeleteFromInventoryDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
+        static void DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid);
+        virtual void DeleteFromDB(CharacterDatabaseTransaction& trans);
+        static void DeleteFromInventoryDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid);
 
         // Lootable items and their contents
         void ItemContainerSaveLootToDB();
@@ -172,9 +176,9 @@ class TC_GAME_API Item : public Object
         void ItemContainerDeleteLootMoneyFromDB();
         void ItemContainerDeleteLootMoneyAndLootItemsFromDB();
 
-        void DeleteFromInventoryDB(SQLTransaction& trans);
+        void DeleteFromInventoryDB(CharacterDatabaseTransaction& trans);
         void SaveRefundDataToDB();
-        void DeleteRefundDataFromDB(SQLTransaction* trans);
+        void DeleteRefundDataFromDB(CharacterDatabaseTransaction* trans);
 
         Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return NULL; }
         const Bag* ToBag() const { if (IsBag()) return reinterpret_cast<const Bag*>(this); else return NULL; }
@@ -284,7 +288,7 @@ class TC_GAME_API Item : public Object
         void SetFixedLevel(uint8 level);
 
         // Item Refund system
-        void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = nullptr, bool addToCollection = true);
+        void SetNotRefundable(Player* owner, bool changestate = true, CharacterDatabaseTransaction* trans = nullptr, bool addToCollection = true);
         void SetRefundRecipient(ObjectGuid const& guid) { m_refundRecipient = guid; }
         void SetPaidMoney(uint64 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }

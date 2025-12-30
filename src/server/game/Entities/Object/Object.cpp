@@ -26,6 +26,7 @@
 #include "Common.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScenario.h"
 #include "Item.h"
@@ -292,6 +293,11 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     data->AddUpdateBlock(buf);
 }
 
+void Object::BuildDestroyUpdateBlock(UpdateData* data) const
+{
+    data->AddDestroyObject(GetGUID());
+}
+
 void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
 {
     data->AddOutOfRangeGUID(GetGUID());
@@ -302,7 +308,7 @@ void Object::DestroyForPlayer(Player* target) const
     ASSERT(target);
 
     UpdateData updateData(target->GetMapId());
-    BuildOutOfRangeUpdateBlock(&updateData);
+    BuildDestroyUpdateBlock(&updateData);
     WorldPacket packet;
     updateData.BuildPacket(&packet);
     target->SendDirectMessage(&packet);
@@ -496,7 +502,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         if (go && go->ToTransport())                                    // ServerTime
             *data << uint32(go->GetGOValue()->Transport.PathProgress);
         else
-            *data << uint32(getMSTime());
+            *data << uint32(GameTime::GetGameTimeMS());
     }
 
     if (VehicleCreate)
@@ -1663,6 +1669,21 @@ void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
     areaid = GetAreaId();
 }
 
+bool WorldObject::IsInWorldPvpZone() const
+{
+    switch (GetZoneId())
+    {
+    case 4197: // Wintergrasp
+    case 5095: // Tol Barad
+    case 6941: // Ashran
+        return true;
+        break;
+    default:
+        return false;
+        break;
+    }
+}
+
 InstanceScript* WorldObject::GetInstanceScript() const
 {
     Map* map = GetMap();
@@ -2471,7 +2492,7 @@ void WorldObject::AddObjectToRemoveList()
     map->AddObjectToRemoveList(this);
 }
 
-TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= NULL*/, uint32 duration /*= 0*/, Unit* summoner /*= NULL*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/, bool visibleBySummonerOnly /*= false*/, Spell const* summonSpell /*= nullptr*/)
+TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties /*= nullptr*/, uint32 duration /*= 0*/, Unit* summoner /*= nullptr*/, uint32 spellId /*= 0*/, uint32 vehId /*= 0*/, bool visibleBySummonerOnly /*= false*/, Spell const* summonSpell /*= nullptr*/)
 {
     uint32 mask = UNIT_MASK_SUMMON;
     if (properties)
@@ -2690,7 +2711,7 @@ Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint3
     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
     Creature* summon = SummonCreature(WORLD_TRIGGER, x, y, z, ang, summonType, duration);
     if (!summon)
-        return NULL;
+        return nullptr;
 
     //summon->SetName(GetName());
     if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT)
@@ -3042,7 +3063,7 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
 void WorldObject::GetClosePoint(float &x, float &y, float &z, float size, float distance2d /*= 0*/, float angle /*= 0*/) const
 {
     // angle calculated from current orientation
-    GetNearPoint(NULL, x, y, z, size, distance2d, GetOrientation() + angle);
+    GetNearPoint(nullptr, x, y, z, size, distance2d, GetOrientation() + angle);
 }
 
 Position WorldObject::GetNearPosition(float dist, float angle)

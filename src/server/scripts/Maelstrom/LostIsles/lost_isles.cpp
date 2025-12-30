@@ -746,7 +746,11 @@ struct npc_warchief_revenge_cyclone : public npc_escortAI
                 break;
         }
     }
+
+    // REQUIRED to satisfy npc_escortAI
+    void WaypointReached(uint32 /*pointId*/) override {}
 };
+
 
 enum UpUpAndAway
 {

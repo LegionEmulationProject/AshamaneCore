@@ -38,6 +38,7 @@
 #include "SocialMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <sstream>
 
 namespace lfg
 {
@@ -102,9 +103,9 @@ void LFGMgr::_SaveToDB(ObjectGuid guid, uint32 db_guid)
     if (!guid.IsParty())
         return;
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
     stmt->setUInt32(0, db_guid);
     trans->Append(stmt);
 
@@ -1449,7 +1450,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
    @param[in]     guid Group guid
    @param[in]     dungeonId Dungeonid
 */
-void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId)
+void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* currMap)
 {
     uint32 gDungeonId = GetDungeon(gguid);
     if (gDungeonId != dungeonId)
@@ -1493,7 +1494,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId)
         }
 
         Player* player = ObjectAccessor::FindPlayer(guid);
-        if (!player)
+        if (!player || player->FindMap() != currMap)
         {
             TC_LOG_DEBUG("lfg.dungeon.finish", "Group: %s, Player: %s not found in world", gguid.ToString().c_str(), guid.ToString().c_str());
             continue;
@@ -1668,6 +1669,22 @@ LfgDungeonSet const& LFGMgr::GetSelectedDungeons(ObjectGuid guid)
 {
     TC_LOG_TRACE("lfg.data.player.dungeons.selected.get", "Player: %s, Selected Dungeons: %s", guid.ToString().c_str(), ConcatenateDungeons(PlayersStore[guid].GetSelectedDungeons()).c_str());
     return PlayersStore[guid].GetSelectedDungeons();
+}
+
+uint32 LFGMgr::GetSelectedRandomDungeon(ObjectGuid guid)
+{
+    if (GetState(guid) != LFG_STATE_NONE)
+    {
+        LfgDungeonSet const& dungeons = GetSelectedDungeons(guid);
+        if (!dungeons.empty())
+        {
+            LFGDungeonData const* dungeon = GetLFGDungeon(*dungeons.begin());
+            if (dungeon && dungeon->type == LFG_TYPE_RANDOM)
+                return *dungeons.begin();
+        }
+    }
+
+    return 0;
 }
 
 LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)

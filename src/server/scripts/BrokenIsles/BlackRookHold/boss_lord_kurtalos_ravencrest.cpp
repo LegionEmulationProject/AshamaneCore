@@ -185,7 +185,7 @@ struct npc_kurtalos_whirling_blade : public ScriptedAI
         me->SetSpeed(MOVE_RUN, 2.0f);
     }
 
-    void SetGUID(ObjectGuid guid, int32 /*id*/) override
+    void SetGUID(ObjectGuid guid, int32 /*id*/)
     {
         Unit* target = ObjectAccessor::GetUnit(*me, guid);
         if (!target)
@@ -195,11 +195,21 @@ struct npc_kurtalos_whirling_blade : public ScriptedAI
         }
 
         me->GetMotionMaster()->Clear();
-        path.nodes.clear();
 
-        path.nodes.push_back(WaypointNode(1, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()));
-        path.nodes.push_back(WaypointNode(2, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation()));
-        me->GetMotionMaster()->MovePath(path, true);
+        // Build simplified Position path
+        std::vector<Position> points;
+        points.reserve(2);
+
+        points.emplace_back(me->GetPosition());
+        points.emplace_back(target->GetPosition());
+
+        // Move along this 2-point path
+        me->GetMotionMaster()->MoveSmoothPath(
+            1,                   // pointId (any id)
+            points.data(),       // pointer to Position array
+            points.size(),       // count
+            true                 // walk = true
+        );
     }
 private:
     WaypointPath path;

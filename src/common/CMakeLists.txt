@@ -78,24 +78,6 @@ target_include_directories(common
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
-if (WITH_CPR)
-    target_link_libraries(common
-      PRIVATE
-        process
-        trinity-core-interface
-      PUBLIC
-        boost
-        fmt
-        g3dlib
-        Detour
-        sfmt
-        utf8cpp
-        openssl
-        valgrind
-        threads
-        jemalloc
-        ${CPR_LIBRARIES})
-else()
     target_link_libraries(common
       PRIVATE
         process
@@ -111,7 +93,6 @@ else()
         valgrind
         threads
         jemalloc)
-endif()
 
 add_dependencies(common revision_data.h)
 

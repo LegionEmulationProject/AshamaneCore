@@ -4567,6 +4567,8 @@ enum CorpseDynFlags
     CORPSE_DYNFLAG_LOOTABLE        = 0x0001
 };
 
+#define PLAYER_CORPSE_LOOT_ENTRY 1
+
 enum WeatherType
 {
     WEATHER_TYPE_FINE       = 0,
@@ -5256,6 +5258,14 @@ enum DiminishingLevels
     DIMINISHING_LEVEL_IMMUNE        = 3,
     DIMINISHING_LEVEL_4             = 3,
     DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4
+};
+
+enum WeaponAttackType : uint8
+{
+    BASE_ATTACK   = 0,
+    OFF_ATTACK    = 1,
+    RANGED_ATTACK = 2,
+    MAX_ATTACK
 };
 
 enum TokenResult
