@@ -16048,7 +16048,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     }
 
     if (quest->IsWorldQuest())
-        sWorldQuestMgr->RewardQuestForPlayer(this, quest->ID);
+        sWorldQuestMgr->RewardQuestForPlayer(this, quest->_id);
 
     // honor reward
     if (uint32 honor = quest->CalculateHonorGain(getLevel()))
@@ -16316,10 +16316,10 @@ bool Player::SatisfyQuestLog(bool msg) const
 bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
 {
     // No previous quest (might be first quest in a series)
-    if (qInfo->prevQuests.empty())
+    if (qInfo->PrevQuests.empty())
         return true;
 
-    for (Quest::PrevQuests::const_iterator iter = qInfo->prevQuests.begin(); iter != qInfo->prevQuests.end(); ++iter)
+    for (auto iter = qInfo->PrevQuests.begin(); iter != qInfo->PrevQuests.end(); ++iter)
     {
         uint32 prevId = abs(*iter);
 
@@ -16624,10 +16624,10 @@ bool Player::SatisfyQuestNextChain(Quest const* qInfo, bool msg) const
 bool Player::SatisfyQuestPrevChain(Quest const* qInfo, bool msg)
 {
     // No previous quest in chain
-    if (qInfo->prevChainQuests.empty())
+    if (qInfo->PrevChainQuests.empty())
         return true;
 
-    for (Quest::PrevChainQuests::const_iterator iter = qInfo->prevChainQuests.begin(); iter != qInfo->prevChainQuests.end(); ++iter)
+    for (auto iter = qInfo->PrevChainQuests.begin(); iter != qInfo->PrevChainQuests.end(); ++iter)
     {
         QuestStatusMap::const_iterator itr = m_QuestStatus.find(*iter);
 
