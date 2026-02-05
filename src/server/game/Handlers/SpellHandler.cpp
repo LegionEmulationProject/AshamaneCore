@@ -199,6 +199,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPackets::Spells::OpenItem& packet)
             item->SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid::Empty);
             item->SetEntry(entry);
             item->SetUInt32Value(ITEM_FIELD_FLAGS, flags);
+            item->SetMaxDurability(item->GetTemplate()->MaxDurability);
             item->SetState(ITEM_CHANGED, player);
         }
         else
