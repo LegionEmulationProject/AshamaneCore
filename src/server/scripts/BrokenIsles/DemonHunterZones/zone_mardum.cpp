@@ -248,7 +248,7 @@ public:
             if (TempSummon* personalCreature = player->SummonCreature(_insideNpc, creature->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 4000, 0, true))
             {
                 float x, y, z;
-                personalCreature->GetClosePoint(x, y, z, personalCreature->GetObjectSize() / 3, 50.0f);
+                personalCreature->GetClosePoint(x, y, z, personalCreature->GetCombatReach() / 3, 50.0f);
                 personalCreature->GetMotionMaster()->MovePoint(0, x, y, z);
 
                 // TODO : personalCreature->Talk(0);

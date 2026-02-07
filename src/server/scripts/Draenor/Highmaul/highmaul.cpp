@@ -1982,9 +1982,9 @@ class npc_highmaul_highmaul_conscript : public CreatureScript
                             Position pos;
 
                             me->GetContactPoint(target, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-                            pos = target->GetFirstCollisionPosition(target->GetObjectSize(), l_O);
+                            pos = target->GetFirstCollisionPosition(target->GetCombatReach(), l_O);
                             me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
-                            me->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
+                            me->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetCombatReach());
 
                             me->CastSpell(me, eSpells::ShieldCharge, true);
                         }

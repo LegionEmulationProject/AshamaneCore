@@ -1172,7 +1172,7 @@ public:
         {
             Unit* caster = GetCaster();
             float x, y, z;
-            caster->GetClosePoint(x, y, z, caster->GetObjectSize() / 2, frand(0, 3), frand(0, 2 * float(M_PI)));
+            caster->GetClosePoint(x, y, z, caster->GetCombatReach() / 2, frand(0, 3), frand(0, 2 * float(M_PI)));
             caster->CastSpell(x, y, z, SPELL_OOKSPLOSIONS_TRIGGERED, true);
         }
 
