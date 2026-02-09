@@ -495,7 +495,6 @@ class TC_GAME_API Quest
         uint32 _id = 0;
         uint32 _type = 0;
         int32  _level = 0;
-        int32  _scalingFactionGroup = 0;
         int32  _maxScalingLevel = 0;
         uint32 _packageID = 0;
         int32  _minLevel = 0;
