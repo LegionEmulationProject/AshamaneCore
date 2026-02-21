@@ -60,7 +60,13 @@ private:
     float m_orientation;
 
 public:
-    bool operator==(Position const &a);
+    Position& operator=(Position const& loc)
+    {
+        Relocate(loc);
+        return *this;
+    }
+
+    bool operator==(Position const &a) const;
 
     inline bool operator!=(Position const &a)
     {
@@ -271,9 +277,6 @@ public:
 
     WorldLocation(uint32 mapId, Position const& position)
         : Position(position), m_mapId(mapId) { }
-
-    WorldLocation(WorldLocation const& loc)
-        : Position(loc), m_mapId(loc.GetMapId()) { }
 
     void WorldRelocate(WorldLocation const& loc)
     {
