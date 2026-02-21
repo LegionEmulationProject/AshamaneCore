@@ -91,4 +91,12 @@ enum EOASpellIds
     SPELL_SKYBOX_HURRICANE      = 212615,
 };
 
+template <class AI, class T>
+inline AI* GetEyeOfAzsharaAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, EoAScriptName);
+}
+
+#define RegisterEyeOfAzsharaCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetEyeOfAzsharaAI)
+
 #endif // EYE_OF_AZSHARA_H_
