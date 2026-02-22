@@ -482,8 +482,7 @@ class TC_GAME_API Quest
         void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
 
         std::vector<uint32> DependentPreviousQuests;
-        std::vector<uint32> PrevChainQuests;
-        std::array<WorldPacket, TOTAL_LOCALES> QueryData;
+        WorldPacket QueryData[TOTAL_LOCALES];
 
     private:
         uint32 _rewChoiceItemsCount = 0;
