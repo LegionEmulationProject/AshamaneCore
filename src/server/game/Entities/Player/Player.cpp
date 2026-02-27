@@ -94,6 +94,7 @@
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "PetPackets.h"
+#include "PoolMgr.h"
 #include "PhasingHandler.h"
 #include "QueryHolder.h"
 #include "QuestDef.h"
@@ -15390,7 +15391,7 @@ bool Player::CanCompleteQuest(uint32 quest_id)
         if (!qInfo)
             return false;
 
-        if (!qInfo->IsRepeatable() && m_RewardedQuests.find(quest_id) != m_RewardedQuests.end())
+        if (!qInfo->IsRepeatable() && GetQuestRewardStatus(quest_id))
             return false;                                   // not allow re-complete quest
 
         // auto complete quest
@@ -15861,10 +15862,10 @@ uint32 Player::GetQuestMoneyReward(Quest const* quest) const
 
 uint32 Player::GetQuestXPReward(Quest const* quest)
 {
-    bool rewarded = (m_RewardedQuests.find(quest->GetQuestId()) != m_RewardedQuests.end());
+    bool rewarded = IsQuestRewarded(quest->GetQuestId()) && !quest->IsDFQuest();
 
     // Not give XP in case already completed once repeatable quest
-    if (rewarded && !quest->IsDFQuest())
+    if (rewarded)
         return 0;
 
     float questXpRate = GetPersonnalXpRate() ? GetPersonnalXpRate(): sWorld->getRate(RATE_XP_QUEST);
@@ -16023,7 +16024,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                     SendNewItem(item, quest->RewardItemCount[i], true, false);
                 }
                 else if (quest->IsDFQuest())
-                    SendItemRetrievalMail(quest->RewardItemId[i], quest->RewardItemCount[i]);
+                    SendItemRetrievalMail(itemId, quest->RewardItemCount[i]);
             }
         }
     }
@@ -16104,14 +16105,6 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (quest->CanIncreaseRewardedQuestCounters())
         SetRewardedQuest(quest_id);
 
-    RemoveActiveQuest(quest, false);
-
-    // StoreNewItem, mail reward, etc. save data directly to the database
-    // to prevent exploitable data desynchronisation we save the quest status to the database too
-    // (to prevent rewarding this quest another time while rewards were already given out)
-    CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
-    _SaveQuestStatus(trans);
-
     SendQuestReward(quest, questGiver ? questGiver->ToCreature() : nullptr, XP, !announce);
 
     // cast spells after mark quest complete (some spells have quest completed state requirements in spell_area data)
@@ -16146,6 +16139,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         UpdateCriteria(CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE, quest->GetZoneOrSort());
     UpdateCriteria(CRITERIA_TYPE_COMPLETE_QUEST_COUNT);
     UpdateCriteria(CRITERIA_TYPE_COMPLETE_QUEST, quest->GetQuestId());
+
+    // make full db save
+    SaveToDB(false);
 
     if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
         SetQuestCompletedBit(questBit, true);
@@ -16197,13 +16193,15 @@ void Player::FailQuest(uint32 questId)
 {
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
     {
-        // Already complete quests shouldn't turn failed.
-        if (GetQuestStatus(questId) == QUEST_STATUS_COMPLETE && !quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED))
-            return;
+        QuestStatus qStatus = GetQuestStatus(questId);
 
-        // You can't fail a quest if you don't have it, or if it's already rewarded.
-        if (GetQuestStatus(questId) == QUEST_STATUS_NONE || GetQuestStatus(questId) == QUEST_STATUS_REWARDED)
-            return;
+        // we can only fail incomplete quest or...
+        if (qStatus != QUEST_STATUS_INCOMPLETE)
+        {
+            // completed timed quest with no requirements
+            if (qStatus != QUEST_STATUS_COMPLETE || !quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED) || !quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_COMPLETED_AT_START))
+                return;
+        }
 
         SetQuestStatus(questId, QUEST_STATUS_FAILED);
 
@@ -16587,7 +16585,7 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg) const
         }
 
         // alternative quest already started or completed - but don't check rewarded states if both are repeatable
-        if (GetQuestStatus(exclude_Id) != QUEST_STATUS_NONE || (!(qInfo->IsRepeatable() && Nquest->IsRepeatable()) && (m_RewardedQuests.find(exclude_Id) != m_RewardedQuests.end())))
+        if (GetQuestStatus(exclude_Id) != QUEST_STATUS_NONE || (!(qInfo->IsRepeatable() && Nquest->IsRepeatable()) && GetQuestRewardStatus(exclude_Id)))
         {
             if (msg)
             {
@@ -16760,7 +16758,7 @@ bool Player::GetQuestRewardStatus(uint32 quest_id) const
 
         // for repeatable quests: rewarded field is set after first reward only to prevent getting XP more than once
         if (!qInfo->IsRepeatable())
-            return m_RewardedQuests.find(quest_id) != m_RewardedQuests.end();
+            return IsQuestRewarded(quest_id);
 
         return false;
     }
@@ -16775,19 +16773,8 @@ QuestStatus Player::GetQuestStatus(uint32 quest_id) const
         if (itr != m_QuestStatus.end())
             return itr->second.Status;
 
-        if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
-        {
-            if (qInfo->IsSeasonal() && !qInfo->IsRepeatable())
-            {
-                uint16 eventId = sGameEventMgr->GetEventIdForQuest(qInfo);
-                auto seasonalQuestItr = m_seasonalquests.find(eventId);
-                if (seasonalQuestItr == m_seasonalquests.end() || seasonalQuestItr->second.find(quest_id) == seasonalQuestItr->second.end())
-                    return QUEST_STATUS_NONE;
-            }
-
-            if (!qInfo->IsRepeatable() && m_RewardedQuests.find(quest_id) != m_RewardedQuests.end())
-                return QUEST_STATUS_REWARDED;
-        }
+        if (GetQuestRewardStatus(quest_id))
+            return QUEST_STATUS_REWARDED;
     }
     return QUEST_STATUS_NONE;
 }
@@ -16807,7 +16794,22 @@ std::string Player::GetQuestStatusString(QuestStatus status) const
 bool Player::CanShareQuest(uint32 quest_id) const
 {
     Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
-    return qInfo && qInfo->HasFlag(QUEST_FLAGS_SHARABLE) && IsActiveQuest(quest_id);
+    if (qInfo && qInfo->HasFlag(QUEST_FLAGS_SHARABLE))
+    {
+        QuestStatusMap::const_iterator itr = m_QuestStatus.find(quest_id);
+        if (itr != m_QuestStatus.end())
+        {
+            if (itr->second.Status != QUEST_STATUS_INCOMPLETE)
+                return false;
+
+            // in pool and not currently available (wintergrasp weekly, dalaran weekly) - can't share
+            if (sPoolMgr->IsPartOfAPool<Quest>(quest_id) && !sPoolMgr->IsSpawnedObject<Quest>(quest_id))
+                return false;
+
+            return true;
+        }
+    }
+    return false;
 }
 
 void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= true*/)
@@ -16863,9 +16865,17 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
     if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId))
         SetQuestCompletedBit(questBit, false);
 
-    if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
-        for (QuestObjective const& obj : quest->GetObjectives())
-            m_questObjectiveCriteriaMgr->RemoveCompletedObjective(&obj);
+    // Remove seasonal quest also
+    Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
+    if (qInfo->IsSeasonal())
+    {
+        uint16 eventId = qInfo->_eventIdForQuest;
+        if (m_seasonalquests.find(eventId) != m_seasonalquests.end())
+        {
+            m_seasonalquests[eventId].erase(questId);
+            m_SeasonalQuestChanged = true;
+        }
+    }
 
     if (update)
         SendQuestUpdate(questId);
@@ -21674,13 +21684,18 @@ void Player::_SaveWeeklyQuestStatus(CharacterDatabaseTransaction& trans)
 
 void Player::_SaveSeasonalQuestStatus(CharacterDatabaseTransaction& trans)
 {
-    if (!m_SeasonalQuestChanged || m_seasonalquests.empty())
+    if (!m_SeasonalQuestChanged)
         return;
 
     // we don't need transactions here.
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_QUESTSTATUS_SEASONAL);
     stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
+
+    m_SeasonalQuestChanged = false;
+
+    if (m_seasonalquests.empty())
+        return;
 
     for (SeasonalEventQuestMap::const_iterator iter = m_seasonalquests.begin(); iter != m_seasonalquests.end(); ++iter)
     {
@@ -21697,8 +21712,6 @@ void Player::_SaveSeasonalQuestStatus(CharacterDatabaseTransaction& trans)
             trans->Append(stmt);
         }
     }
-
-    m_SeasonalQuestChanged = false;
 }
 
 void Player::_SaveMonthlyQuestStatus(CharacterDatabaseTransaction& trans)
