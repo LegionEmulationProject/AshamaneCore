@@ -1334,8 +1334,8 @@ class TC_GAME_API Unit : public WorldObject
         std::unordered_map<ObjectGuid, WorldPackets::Movement::MovementForce> const& GetMovementForces() const { return _movementForces; }
 
         void SetInFront(WorldObject const* target);
-        void SetFacingTo(float ori, bool force = false);
-        void SetFacingToObject(WorldObject const* object, bool force = false);
+        void SetFacingTo(float const ori, bool force = true);
+        void SetFacingToObject(WorldObject const* object, bool force = true);
 
         void SendChangeCurrentVictimOpcode(HostileReference* pHostileReference);
         void SendClearThreatListOpcode();
