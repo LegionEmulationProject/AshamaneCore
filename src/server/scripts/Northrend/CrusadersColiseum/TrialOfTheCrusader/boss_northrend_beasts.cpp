@@ -299,9 +299,12 @@ class boss_gormok : public CreatureScript
         }
 };
 
-class SnobolledTargetSelector : public std::unary_function<Unit*, bool>
+class SnobolledTargetSelector
 {
 public:
+    using argument_type = Unit*;
+    using result_type = bool;
+
     SnobolledTargetSelector(Unit const* /*unit*/) { }
 
     bool operator()(Unit* unit) const

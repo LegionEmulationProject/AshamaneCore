@@ -83,8 +83,12 @@ enum Events
 };
 
 // predicate function to select not charmed target
-struct NotCharmedTargetSelector : public std::unary_function<Unit*, bool>
+struct NotCharmedTargetSelector
 {
+public:
+    using argument_type = Unit*;
+    using result_type = bool;
+
     NotCharmedTargetSelector() {}
 
     bool operator()(Unit const* target) const

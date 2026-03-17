@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
+ * Copyright (C) 2025 Legion Emulation Project <https://github.com/LegionEmulationProject>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,57 +30,47 @@ public:
 
     void OnUpdateArea(Player* player, Area* newArea, Area* /*oldArea*/) override
     {
+        if (!player || !newArea)
+            return;
+        
         if (player->GetZoneId() != TanaanZones::ZoneTanaanJungle)
             return;
 
         switch (newArea->GetId())
         {
             case TanaanZones::AreaTheDarkPortal:
-            {
                 player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneLoomingArmy);
                 player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneSoulTrain);
                 break;
-            }
             case TanaanZones::AreaHearthBlood:
-            {
                 player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneCuriousHatchets);
                 break;
-            }
             case TanaanZones::AreaBleedingAltar:
-            {
                 player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneEyeOfKilrogg);
                 player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneBloodBowl);
                 break;
-            }
             case TanaanZones::AreaKargatharProvingGrounds:
-            {
                 if (player->GetQuestStatus(TanaanQuests::QuestAPotentialAlly) != QUEST_STATUS_COMPLETE &&
                     player->GetQuestStatus(TanaanQuests::QuestAPotentialAlly) != QUEST_STATUS_REWARDED &&
                     player->GetQuestStatus(TanaanQuests::QuestAPotentialAllyHorde) != QUEST_STATUS_COMPLETE &&
                     player->GetQuestStatus(TanaanQuests::QuestAPotentialAllyHorde) != QUEST_STATUS_REWARDED)
                     player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneRingOfFire);
                 break;
-            }
             case TanaanZones::AreaUmbralHalls:
-            {
                 player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneUmbralHallsPortals);
                 player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneKelidanVisual1);
                 player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneKelidanVisual2);
                 break;
-            }
             case TanaanZones::AreaBlackRockQuarry:
-            {
                 if (player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) == QUEST_STATUS_INCOMPLETE)
                 {
                     player->AddAura(TanaanPhases::PhaseBlackrockKhadgarRock, player);
                     player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneKhadgarAtDam);
-
                     player->SummonCreature(TanaanCreatures::NpcLadyLiadrinBlackrockSummon, *player);
                     player->SummonCreature(TanaanCreatures::NpcCordanaFelsong, *player);
                     player->SummonCreature(player->GetTeamId() == TEAM_ALLIANCE ? TanaanCreatures::NpcQiana: TanaanCreatures::NpcOlin, *player);
                 }
                 break;
-            }
             default:
                 break;
         }
@@ -94,6 +85,9 @@ public:
 
     void OnObjectiveValidate(Player* player, uint32 questId, uint32 objectiveId) override
     {
+        if (!player)
+            return;
+
         if (questId == TanaanQuests::QuestThePortalPower && objectiveId == TanaanQuestObjectives::ObjEnterGulDanPrison)
             player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneGulDanReavel);
     }

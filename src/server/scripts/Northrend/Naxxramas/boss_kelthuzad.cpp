@@ -196,8 +196,12 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
         }
 };
 
-struct ManaUserTargetSelector : public std::unary_function<Unit*, bool>
+struct ManaUserTargetSelector
 {
+public:
+    using argument_type = Unit*;
+    using result_type = bool;
+
     bool operator()(Unit const* target) const
     {
         return target->GetTypeId() == TYPEID_PLAYER && target->GetPowerType() == POWER_MANA;

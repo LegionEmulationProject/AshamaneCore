@@ -358,9 +358,12 @@ enum Misc
     DATA_VILE                   = 45814622
 };
 
-class NecroticPlagueTargetCheck : public std::unary_function<Unit*, bool>
+class NecroticPlagueTargetCheck
 {
-    public:
+public:
+    using argument_type = Unit*;
+    using result_type = bool;
+
         NecroticPlagueTargetCheck(Unit const* obj, uint32 notAura1 = 0, uint32 notAura2 = 0)
             : _sourceObj(obj), _notAura1(notAura1), _notAura2(notAura2)
         {

@@ -917,9 +917,12 @@ public:
 
 };
 
-struct NonAlreadyAmberPrisoner : public std::unary_function<Unit*, bool>
+struct NonAlreadyAmberPrisoner
 {
     public:
+    using argument_type = Unit*;
+    using result_type = bool;
+
         NonAlreadyAmberPrisoner() { }
         bool operator()(Unit const* target) const
         {

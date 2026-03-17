@@ -118,9 +118,11 @@ const Position addsPos[9] =
     {59.665f, 406.437f, 111.0f, 5.02f}
 };
 
-struct PositionSelector : public std::unary_function<Unit*, bool>
+struct PositionSelector
 {
-    public:
+public:
+    using argument_type = Unit*;
+    using result_type = bool;
 
         PositionSelector(bool b, uint32 spellId) : _b(b), _spellId(spellId) {}
 

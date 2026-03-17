@@ -277,6 +277,11 @@ struct SmartEvent
 
         struct
         {
+            uint32 id;
+        } questObjective;
+
+        struct
+        {
             uint32 emote;
             uint32 cooldownMin;
             uint32 cooldownMax;
@@ -568,6 +573,8 @@ enum SMART_ACTION
     SMART_ACTION_PLAY_ANIMKIT                       = 128,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim, 4 = spellVisualKit)
     SMART_ACTION_SCENE_PLAY                         = 129,    // sceneId
     SMART_ACTION_SCENE_CANCEL                       = 130,    // sceneId
+    SMART_ACTION_CREATE_CONVERSATION                = 143,    // conversation_template.id
+    
     // 131 - 135 : 3.3.5 reserved
     SMART_ACTION_PLAY_CINEMATIC                     = 135,    // reserved for future uses
 
@@ -1206,6 +1213,11 @@ struct SmartAction
             uint32 spellId;
             uint32 triggered;
         } castOffSet;
+
+        struct
+        {
+            uint32 id;
+        } conversation;        
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1392,7 +1404,7 @@ enum SmartScriptType
     SMART_SCRIPT_TYPE_AREATRIGGER = 2, //done
     SMART_SCRIPT_TYPE_EVENT = 3, //
     SMART_SCRIPT_TYPE_GOSSIP = 4, //
-    SMART_SCRIPT_TYPE_QUEST = 5, //
+    SMART_SCRIPT_TYPE_QUEST = 5, //done
     SMART_SCRIPT_TYPE_SPELL = 6, //
     SMART_SCRIPT_TYPE_TRANSPORT = 7, //
     SMART_SCRIPT_TYPE_INSTANCE = 8, //

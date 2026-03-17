@@ -987,9 +987,12 @@ class spell_garalon_crush_trigger: public SpellScriptLoader
 };
 
 // Target check for Pheromones  Taunt / Attack Me + Broken Leg spells.
-class BossCheck : public std::unary_function<Unit*, bool>
+class BossCheck
 {
     public:
+    using argument_type = Unit*;
+    using result_type = bool;
+    
         explicit BossCheck(Unit* _caster) : caster(_caster) { }
 
         bool operator()(WorldObject* object)
