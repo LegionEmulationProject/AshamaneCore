@@ -92,8 +92,8 @@ struct boss_ymiron_maw : public BossAI
     {
         BossAI::Reset();
 
-        events.ScheduleEvent(EVENT_SLASH, 3.5 * IN_MILLISECONDS);
-        events.ScheduleEvent(EVENT_SCREAMS, 5.9 * IN_MILLISECONDS);
+        events.ScheduleEvent(EVENT_SLASH, 3.5 * AsUnderlyingType(IN_MILLISECONDS));
+        events.ScheduleEvent(EVENT_SCREAMS, 5.9 * AsUnderlyingType(IN_MILLISECONDS));
         events.ScheduleEvent(EVENT_WINDS, 15 * IN_MILLISECONDS);
         events.ScheduleEvent(EVENT_BANE, 21 * IN_MILLISECONDS);
 
@@ -179,7 +179,7 @@ struct boss_ymiron_maw : public BossAI
             {
                 case EVENT_SLASH:
                     DoCastVictim(SPELL_SLASH);
-                    events.ScheduleEvent(EVENT_SLASH, 14.6 * IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_SLASH, 14.6 * AsUnderlyingType(IN_MILLISECONDS));
                     break;
 
                 case EVENT_SCREAMS:
@@ -197,9 +197,9 @@ struct boss_ymiron_maw : public BossAI
                 case EVENT_BANE:
                     DoCast(SPELL_BANE);
                     Talk(YELL_BANE);
-                    events.ScheduleEvent(EVENT_BANE, 49.5 * IN_MILLISECONDS);
+                    events.ScheduleEvent(EVENT_BANE, 49500);
                     if(isHeroicOrMythic)
-                        events.ScheduleEvent(EVENT_FALLEN, 67.4 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_FALLEN, 67.4 * AsUnderlyingType(IN_MILLISECONDS));
                     break;
 
                 case EVENT_FALLEN:

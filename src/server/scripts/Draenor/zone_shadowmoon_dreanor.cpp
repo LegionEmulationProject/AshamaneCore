@@ -33,7 +33,7 @@
 #include "TemporarySummon.h"
 #include "WodGarrison.h"
 
-enum
+enum PreGarrisonQuests
 {
     QUEST_FINDING_A_FOOTHOLD                = 34582,
     QUEST_FOR_THE_ALLIANCE                  = 34583,
@@ -41,130 +41,11 @@ enum
     QUEST_ESTABLISH_YOUR_GARRISON           = 34586,
 };
 
-enum
+enum PreGarrisonNPCs
 {
-    NPC_VELEN_FOLLOWER_MARAAD               = 79218,
-    NPC_VELEN_FOLLOWER_YREL                 = 79219,
-
     NPC_FINDING_A_FOOTHOLD_KILL_CREDIT      = 79697,
     NPC_FOR_THE_ALLIANCE_PORTAL_KILL_CREDIT = 79433,
     NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT = 79757,
-};
-
-// 79206 - Prophète Velen - Shadowmoon start
-class npc_velen_shadowmoon_begin : public CreatureScript
-{
-public:
-    npc_velen_shadowmoon_begin() : CreatureScript("npc_velen_shadowmoon_begin") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_FINDING_A_FOOTHOLD)
-        {
-            if (TempSummon* waypointVelen = player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
-            {
-                waypointVelen->AI()->SetGUID(player->GetGUID());
-            }
-
-            if (Creature* normalMaraad = creature->FindNearestCreature(NPC_VELEN_FOLLOWER_MARAAD, 50.0f))
-            {
-                if (TempSummon* waypointMaraad = player->SummonCreature(NPC_VELEN_FOLLOWER_MARAAD, normalMaraad->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
-                {
-                    waypointMaraad->AI()->SetGUID(player->GetGUID());
-                }
-            }
-
-            if (Creature* normalYrel = creature->FindNearestCreature(NPC_VELEN_FOLLOWER_YREL, 50.0f))
-            {
-                if (TempSummon* waypointYrel = player->SummonCreature(NPC_VELEN_FOLLOWER_YREL, normalYrel->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
-                {
-                    waypointYrel->AI()->SetGUID(player->GetGUID());
-                }
-            }
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_velen_shadowmoon_beginAI(creature);
-    }
-
-    struct npc_velen_shadowmoon_beginAI : public npc_escortAI
-    {
-        npc_velen_shadowmoon_beginAI(Creature* creature) : npc_escortAI(creature) { }
-
-        ObjectGuid playerGuid;
-
-        void Reset() override
-        {
-            playerGuid = ObjectGuid::Empty;
-        }
-
-        void SetGUID(ObjectGuid guid, int32 /*id*/) override
-        {
-            playerGuid = guid;
-            Start(false, true, guid);
-            SetDespawnAtFar(false);
-        }
-
-        void LastWaypointReached() override
-        {
-            me->DespawnOrUnsummon();
-            me->SetFacingTo(5.631830f);
-
-            if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
-                player->ForceCompleteQuest(QUEST_FINDING_A_FOOTHOLD);
-        }
-    };
-};
-
-// 79206 - Prophète Velen - Shadowmoon start
-class npc_velen_shadowmoon_follower : public CreatureScript
-{
-public:
-    npc_velen_shadowmoon_follower() : CreatureScript("npc_velen_shadowmoon_follower") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_velen_shadowmoon_followerAI(creature);
-    }
-
-    struct npc_velen_shadowmoon_followerAI : public npc_escortAI
-    {
-        npc_velen_shadowmoon_followerAI(Creature* creature) : npc_escortAI(creature) { }
-
-        void SetGUID(ObjectGuid guid, int32 /*id*/) override
-        {
-            Start(true, true, guid);
-        }
-
-        void WaypointReached(uint32 pointId) override
-        {
-            switch (pointId)
-            {
-                case 12:
-                {
-                    if (me->GetEntry() == NPC_VELEN_FOLLOWER_MARAAD)
-                    {
-                        me->SetFacingTo(4.966650f);
-                        me->DespawnOrUnsummon();
-                    }
-                    break;
-                }
-                case 13:
-                {
-                    if (me->GetEntry() == NPC_VELEN_FOLLOWER_YREL)
-                    {
-                        me->SetFacingTo(6.268840f);
-                        me->DespawnOrUnsummon();
-                    }
-                    break;
-                }
-            }
-        }
-    };
 };
 
 class npc_baros_pre_garrison : public CreatureScript
@@ -383,7 +264,7 @@ struct areatrigger_aqualir_submerge : AreaTriggerAI
     }
 };
 
-//## Gara - suite de quêtes cachées chasseur
+//## Gara - suite de quï¿½tes cachï¿½es chasseur
 
 enum GaraQuestLineEnum
 {
@@ -605,7 +486,7 @@ public:
                             Omra->SetSpeed(MOVE_RUN, 0.4f);
                             Omra->GetMotionMaster()->MovePoint(1, BurialEventPos[1], true);
                         }
-                        events.ScheduleEvent(EVENT_SOUL_EFFIGY_02, 4.5 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_SOUL_EFFIGY_02, 4.5 * AsUnderlyingType(IN_MILLISECONDS));
 
                         break;
                     }
@@ -646,7 +527,7 @@ public:
                         if (TempSummon* Omra = GetOmra())
                             Omra->Say(SAY_OMRA_04, LANG_UNIVERSAL, Omra);
 
-                        events.ScheduleEvent(EVENT_SOUL_EFFIGY_06, 7.5 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_SOUL_EFFIGY_06, 7.5 * AsUnderlyingType(IN_MILLISECONDS));
 
                         break;
                     }
@@ -783,7 +664,7 @@ Position VoidRealmEventPos[] =
 #define SAY_OMRA_11 "She is being swallowed by the void! You must help her! There is only one way, tame her, now! Maybe you can find a way to reverse the process, and put her soul at rest, as you have done mine !"
 #define SAY_OMRA_12 "You've done it... thank you. Goodbye, Gara, my soul is at peace now. I hope... that you find this peace some day, too. I am so sorry, my dearest Gara."
 
-// 88707 - Gara invoquée dans le vide
+// 88707 - Gara invoquï¿½e dans le vide
 class npc_void_gara : public CreatureScript
 {
 public:
@@ -1149,8 +1030,6 @@ public:
 
 void AddSC_shadowmoon_draenor()
 {
-    new npc_velen_shadowmoon_begin();
-    new npc_velen_shadowmoon_follower();
     new npc_baros_pre_garrison();
     new npc_aqualir();
 

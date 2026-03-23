@@ -1646,7 +1646,7 @@ class spell_mage_blizzard : public SpellScript
         if (caster->HasSpell(SPELL_MAGE_BLIZZARD_RANK_2))
         {
             if (caster->GetSpellHistory()->HasCooldown(SPELL_MAGE_FROZEN_ORB))
-                caster->GetSpellHistory()->ModifyCooldown(SPELL_MAGE_FROZEN_ORB, -0.5 * IN_MILLISECONDS);
+                caster->GetSpellHistory()->ModifyCooldown(SPELL_MAGE_FROZEN_ORB, -0.5 * AsUnderlyingType(IN_MILLISECONDS));
         }
 
         // Fingers of Frost
