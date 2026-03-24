@@ -402,10 +402,11 @@ bool SmartAI::IsEscortInvokerInRange()
     ObjectList* targets = GetScript()->GetTargetList(SMART_ESCORT_TARGETS);
     if (targets)
     {
+        float checkDist = me->GetInstanceScript() ? SMART_ESCORT_MAX_PLAYER_DIST * 2 : SMART_ESCORT_MAX_PLAYER_DIST;
         if (targets->size() == 1 && GetScript()->IsPlayer((*targets->begin())))
         {
             Player* player = (*targets->begin())->ToPlayer();
-            if (me->GetDistance(player) <= SMART_ESCORT_MAX_PLAYER_DIST)
+            if (me->GetDistance(player) <= checkDist)
                         return true;
 
             if (Group* group = player->GetGroup())
@@ -413,21 +414,16 @@ bool SmartAI::IsEscortInvokerInRange()
                 for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 {
                     Player* groupGuy = groupRef->GetSource();
-                    if (groupGuy->IsInMap(player) && me->GetDistance(groupGuy) <= SMART_ESCORT_MAX_PLAYER_DIST)
+                    if (groupGuy->IsInMap(player) && me->GetDistance(groupGuy) <= checkDist)
                         return true;
                 }
             }
         }
         else
         {
-            for (ObjectList::iterator iter = targets->begin(); iter != targets->end(); ++iter)
-            {
-                if (GetScript()->IsPlayer((*iter)))
-                {
-                    if (me->GetDistance((*iter)->ToPlayer()) <= SMART_ESCORT_MAX_PLAYER_DIST)
-                        return true;
-                }
-            }
+            for (WorldObject* target : *targets)
+                if (target->IsPlayer() && me->GetDistance(target) <= checkDist)
+                    return true;
         }
     }
     return true;//escort targets were not set, ignore range check
