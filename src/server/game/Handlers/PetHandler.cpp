@@ -520,7 +520,7 @@ void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
     ObjectGuid petguid = packet.RenameData.PetGUID;
 
     std::string name = packet.RenameData.NewName;
-    DeclinedName const* declinedname = std::to_address(packet.RenameData.DeclinedNames);
+    DeclinedName const* declinedname = packet.RenameData.DeclinedNames.has_value() ? &(*packet.RenameData.DeclinedNames) : nullptr;
 
     Pet* pet = ObjectAccessor::GetPet(*_player, petguid);
                                                             // check it!

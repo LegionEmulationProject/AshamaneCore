@@ -318,13 +318,26 @@ class DateResultValueConverter : public BaseDatabaseResultValueConverter
         switch (source.time_type)
         {
             case MYSQL_TIMESTAMP_DATE:
-                return sys_days(year(source.year) / month(source.month) / day(source.day));
+            {
+                std::tm t = {};
+                t.tm_year = source.year - 1900;
+                t.tm_mon = source.month - 1;
+                t.tm_mday = source.day;
+                time_t tt = mktime(&t);
+                return std::chrono::system_clock::from_time_t(tt);
+            }
             case MYSQL_TIMESTAMP_DATETIME:
-                return sys_days(year(source.year) / month(source.month) / day(source.day))
-                    + hours(source.hour)
-                    + minutes(source.minute)
-                    + seconds(source.second)
-                    + microseconds(source.second_part);
+            {
+                std::tm t = {};
+                t.tm_year = source.year - 1900;
+                t.tm_mon = source.month - 1;
+                t.tm_mday = source.day;
+                t.tm_hour = source.hour;
+                t.tm_min = source.minute;
+                t.tm_sec = source.second;
+                time_t tt = mktime(&t);
+                return std::chrono::system_clock::from_time_t(tt) + std::chrono::microseconds(source.second_part);
+            }
             default:
                 break;
         }

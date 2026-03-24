@@ -27,6 +27,8 @@ EndScriptData */
 #include "oculus.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "ScriptMgr.h"
+#include <random>
 
 enum Spells
 {
@@ -102,7 +104,7 @@ class boss_urom : public CreatureScript
                 for (uint8 i = 0; i < 3; ++i)
                     group[i] = i;
 
-                std::random_shuffle(group, group + 3);
+                std::shuffle(group, group + 3, std::mt19937{std::random_device{}()});
             }
 
             void Initialize()

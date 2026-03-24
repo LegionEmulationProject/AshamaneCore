@@ -34,8 +34,11 @@ namespace Trinity
         using type = find_type_end;
     };
 
+    template<typename T>
+    struct type_identity { using type = T; };
+
     template<template<typename...> typename Check, typename T1, typename... Ts>
-    struct find_type_if<Check, T1, Ts...> : std::conditional_t<Check<T1>::value, std::type_identity<T1>, find_type_if<Check, Ts...>>
+    struct find_type_if<Check, T1, Ts...> : std::conditional_t<Check<T1>::value, type_identity<T1>, find_type_if<Check, Ts...>>
     {
     };
 

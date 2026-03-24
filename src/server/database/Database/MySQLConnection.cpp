@@ -452,9 +452,9 @@ void MySQLConnection::StartWorkerThread(Trinity::Asio::IoContext* context)
 {
     boost::asio::executor_work_guard executorWorkGuard = boost::asio::make_work_guard(context->get_executor()); // construct guard before thread starts running
 
-    m_workerThread = std::make_unique<WorkerThread>(WorkerThread{
-        .ThreadHandle = std::thread([context] { context->run(); }),
-        .WorkGuard = std::move(executorWorkGuard)
+     m_workerThread = std::make_unique<WorkerThread>(WorkerThread{
+        std::thread([context] { context->run(); }),
+        std::move(executorWorkGuard)
     });
 }
 

@@ -92,7 +92,7 @@ public:
 };
 
 template<>
-class PrimitiveResultValueConverter<char const*, std::type_identity_t> : public BaseDatabaseResultValueConverter
+class PrimitiveResultValueConverter<char const*, Trinity::type_identity> : public BaseDatabaseResultValueConverter
 {
 public:
     uint8 GetUInt8(char const* /*data*/, uint32 /*size*/, QueryResultFieldMetadata const* meta) const override { LogTruncation("Field::GetUInt8", meta); return 0; }
@@ -109,7 +109,7 @@ public:
     char const* GetCString(char const* data, uint32 /*size*/, QueryResultFieldMetadata const* /*meta*/) const override { return data; }
 };
 
-using StringResultValueConverter = PrimitiveResultValueConverter<char const*, std::type_identity_t>;
+using StringResultValueConverter = PrimitiveResultValueConverter<char const*, Trinity::type_identity>;
 
 class NotImplementedResultValueConverter : public BaseDatabaseResultValueConverter
 {
