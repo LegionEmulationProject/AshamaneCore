@@ -16,7 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-# include "highmaul.h"
+#include "highmaul.h"
+#include <random>
 
 Position const g_MaggotSpawnPos[eHighmaulDatas::MaxMaggotToKill] =
 {
@@ -400,7 +401,7 @@ class boss_the_butcher : public CreatureScript
                 if (action == eAction::MaggotKilled)
                 {
                     std::vector<uint8> l_Indexes = { 0, 1, 2, 3, 4, 5 };
-                    std::random_shuffle(l_Indexes.begin(), l_Indexes.end());
+                    std::shuffle(l_Indexes.begin(), l_Indexes.end(), std::mt19937{std::random_device{}()});
 
                     for (uint8 l_I : l_Indexes)
                     {

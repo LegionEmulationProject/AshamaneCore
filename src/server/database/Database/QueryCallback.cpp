@@ -93,15 +93,36 @@ bool QueryCallback::InvokeIfReady()
         return false;
     };
 
-    return std::visit([&]<typename Result>(std::future<Result>&& future)
+    struct Visitor
     {
-        if (future.valid() && future.wait_for(0s) == std::future_status::ready)
+        QueryCallback& self;
+        std::function<bool()>& checkStateAndReturnCompletion;
+
+        bool operator()(std::future<QueryResult>&& future)
         {
-            std::future<Result> f(std::move(future));
-            std::function<void(QueryCallback&, Result)> cb(std::get<std::function<void(QueryCallback&, Result)>>(std::move(_callbacks.front())));
-            cb(*this, f.get());
-            return checkStateAndReturnCompletion();
+            if (future.valid() && future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            {
+                std::future<QueryResult> f(std::move(future));
+                std::function<void(QueryCallback&, QueryResult)> cb(std::get<std::function<void(QueryCallback&, QueryResult)>>(std::move(self._callbacks.front())));
+                cb(self, f.get());
+                return checkStateAndReturnCompletion();
+            }
+            return false;
         }
-        return false;
-    }, std::move(_query));
+
+        bool operator()(std::future<PreparedQueryResult>&& future)
+        {
+            if (future.valid() && future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+            {
+                std::future<PreparedQueryResult> f(std::move(future));
+                std::function<void(QueryCallback&, PreparedQueryResult)> cb(std::get<std::function<void(QueryCallback&, PreparedQueryResult)>>(std::move(self._callbacks.front())));
+                cb(self, f.get());
+                return checkStateAndReturnCompletion();
+            }
+            return false;
+        }
+    };
+    std::function<bool()> checkFn = checkStateAndReturnCompletion;
+    Visitor v{*this, checkFn};
+    return std::visit(v, std::move(_query));
 }

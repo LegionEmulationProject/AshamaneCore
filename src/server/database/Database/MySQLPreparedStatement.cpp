@@ -160,17 +160,16 @@ void MySQLPreparedStatement::SetParameter(uint8 index, SystemTimePoint value)
     delete param->length;
     param->length = new unsigned long(len);
 
-    std::chrono::year_month_day ymd(time_point_cast<std::chrono::days>(value));
-    std::chrono::hh_mm_ss hms(duration_cast<std::chrono::microseconds>(value - std::chrono::sys_days(ymd)));
-
+    time_t tt = std::chrono::system_clock::to_time_t(value);
+    tm* t = gmtime(&tt);
     MYSQL_TIME* time = reinterpret_cast<MYSQL_TIME*>(static_cast<char*>(param->buffer));
-    time->year = static_cast<int32>(ymd.year());
-    time->month = static_cast<uint32>(ymd.month());
-    time->day = static_cast<uint32>(ymd.day());
-    time->hour = hms.hours().count();
-    time->minute = hms.minutes().count();
-    time->second = hms.seconds().count();
-    time->second_part = hms.subseconds().count();
+    time->year = t->tm_year + 1900;
+    time->month = t->tm_mon + 1;
+    time->day = t->tm_mday;
+    time->hour = t->tm_hour;
+    time->minute = t->tm_min;
+    time->second = t->tm_sec;
+    time->second_part = 0;
 }
 
 void MySQLPreparedStatement::SetParameter(uint8 index, std::string const& value)

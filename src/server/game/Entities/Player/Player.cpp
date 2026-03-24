@@ -28729,7 +28729,7 @@ void Player::SendGarrisonInfo() const
             {
                 garrisonInfo.Plots.push_back(&plot->PacketInfo);
                 if (plot->BuildingInfo.PacketInfo)
-                    garrisonInfo.Buildings.push_back(std::to_address(plot->BuildingInfo.PacketInfo));
+                    garrisonInfo.Buildings.push_back(plot->BuildingInfo.PacketInfo.has_value() ? &(*plot->BuildingInfo.PacketInfo) : nullptr);
             }
         }
 
