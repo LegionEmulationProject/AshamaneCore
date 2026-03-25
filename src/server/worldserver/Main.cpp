@@ -381,11 +381,11 @@ void ShutdownCLIThread(std::thread* cliThread)
             // if CancelSynchronousIo fails with ERROR_NOT_FOUND then there was nothing to cancel, proceed with shutdown
             if (errorCode != ERROR_NOT_FOUND)
             {
-                LPSTR errorBuffer;
+                LPSTR errorBuffer = nullptr;
                 DWORD numCharsWritten = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
                     nullptr, errorCode, 0, (LPTSTR)&errorBuffer, 0, nullptr);
                 if (!numCharsWritten)
-                    errorBuffer = "Unknown error";
+                    errorBuffer = (LPSTR)"Unknown error";
 
                 TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", uint32(errorCode), errorBuffer);
 
@@ -641,3 +641,4 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, s
 
     return vm;
 }
+

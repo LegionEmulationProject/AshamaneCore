@@ -357,7 +357,7 @@ public:
                 Creature* ionar = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_IONAR));
                 if (ionar && ionar->IsAlive())
                 {
-                    if (me->GetDistance(ionar) > DATA_MAX_SPARK_DISTANCE)
+                    if (me->GetDistance(ionar) > static_cast<float>(DATA_MAX_SPARK_DISTANCE))
                     {
                         Position pos = ionar->GetPosition();
 
