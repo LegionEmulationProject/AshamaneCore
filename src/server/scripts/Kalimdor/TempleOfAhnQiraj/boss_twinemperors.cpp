@@ -303,8 +303,8 @@ struct boss_twinemperorsAI : public ScriptedAI
         if (me->CanCreatureAttack(who))
         {
             float attackRadius = me->GetAttackDistance(who);
-            if (attackRadius < PULL_RANGE)
-                attackRadius = PULL_RANGE;
+            if (attackRadius < static_cast<float>(PULL_RANGE))
+                attackRadius = static_cast<float>(PULL_RANGE);
             if (me->IsWithinDistInMap(who, attackRadius) && me->GetDistanceZ(who) <= /*CREATURE_Z_ATTACK_RANGE*/7 /*there are stairs*/)
             {
                 //if (who->HasStealthAura())

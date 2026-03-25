@@ -165,7 +165,7 @@ class WheatyExceptionReport
         static BOOL _GetProcessorName(TCHAR* sProcessorName, DWORD maxcount);
 
         // Helper functions
-        static LPTSTR GetExceptionString(DWORD dwCode);
+        static LPCTSTR GetExceptionString(DWORD dwCode);
         static BOOL GetLogicalAddress(PVOID addr, PTSTR szModule, DWORD len,
             DWORD& section, DWORD_PTR& offset);
 
@@ -175,7 +175,7 @@ class WheatyExceptionReport
 
         static bool FormatSymbolValue(PSYMBOL_INFO, STACKFRAME64 *, char * pszBuffer, unsigned cbBuffer);
 
-        static char * DumpTypeIndex(char *, DWORD64, DWORD, DWORD_PTR, bool &, const char*, char*, bool, bool);
+        static char * DumpTypeIndex(char *, DWORD64, DWORD, DWORD_PTR, bool &, const char*, const char*, bool, bool);
 
         static void FormatOutputValue(char * pszCurrBuffer, BasicType basicType, DWORD64 length, PVOID pAddress, size_t bufferSize, size_t countOverride = 0);
 
@@ -214,3 +214,4 @@ class WheatyExceptionReport
 extern WheatyExceptionReport g_WheatyExceptionReport;       //  global instance of class
 #endif                                                      // _WIN32
 #endif                                                      // _WHEATYEXCEPTIONREPORT_
+

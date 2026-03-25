@@ -42,8 +42,8 @@ struct BIODeleter
     }
 };
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma warning(push)
+#pragma warning(disable:4996)  // deprecated declarations
 
 CHECK_AND_DECLARE_FUNCTION_TYPE(PEM_read, PEM_read_bio_RSAPublicKey, PEM_read_bio_RSAPrivateKey);
 CHECK_AND_DECLARE_FUNCTION_TYPE(RSA_encrypt, RSA_public_encrypt, RSA_private_encrypt);
@@ -141,4 +141,4 @@ namespace Crypto
 }
 }
 
-#pragma GCC diagnostic pop
+#pragma warning(pop)
