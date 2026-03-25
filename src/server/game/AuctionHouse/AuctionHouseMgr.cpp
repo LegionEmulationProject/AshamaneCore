@@ -76,14 +76,15 @@ AuctionHouseObject* AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
 uint64 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count)
 {
     uint32 MSV = pItem->GetTemplate()->GetSellPrice();
+    float depositRate = static_cast<float>(static_cast<uint32>(sWorld->getRate(RATE_AUCTION_DEPOSIT)));
 
     if (MSV <= 0)
-        return AH_MINIMUM_DEPOSIT * sWorld->getRate(RATE_AUCTION_DEPOSIT);
+        return (uint64)(static_cast<float>(AH_MINIMUM_DEPOSIT) * depositRate);
 
     float multiplier = CalculatePct(float(entry->DepositRate), 3);
     uint32 timeHr = (((time / 60) / 60) / 12);
-    uint64 deposit = uint64(MSV * multiplier * sWorld->getRate(RATE_AUCTION_DEPOSIT));
-    float remainderbase = float(MSV * multiplier * sWorld->getRate(RATE_AUCTION_DEPOSIT)) - deposit;
+    uint64 deposit = uint64(MSV * multiplier * depositRate);
+    float remainderbase = float(MSV * multiplier * depositRate) - deposit;
 
     deposit *= timeHr * count;
 
@@ -100,8 +101,8 @@ uint64 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
     TC_LOG_DEBUG("auctionHouse", "Deposit:    " UI64FMTD, deposit);
     TC_LOG_DEBUG("auctionHouse", "Deposit rm: %f", remainderbase * count);
 
-    if (deposit < AH_MINIMUM_DEPOSIT * sWorld->getRate(RATE_AUCTION_DEPOSIT))
-        return AH_MINIMUM_DEPOSIT * sWorld->getRate(RATE_AUCTION_DEPOSIT);
+    if (deposit < (uint64)(static_cast<float>(AH_MINIMUM_DEPOSIT) * depositRate))
+        return (uint64)(static_cast<float>(AH_MINIMUM_DEPOSIT) * depositRate);
     else
         return deposit;
 }
@@ -981,3 +982,4 @@ std::string AuctionEntry::BuildAuctionMailBody(uint64 lowGuid, uint64 bid, uint6
     strm << ':' << deposit << ':' << cut;
     return strm.str();
 }
+

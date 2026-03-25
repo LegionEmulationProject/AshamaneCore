@@ -530,7 +530,7 @@ class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks
     }
 
     template<typename T>
-    static void VisitObjectsToSwapOnMap(Map* map, std::unordered_set<uint32> const& idsToRemove, T visitor)
+    static void VisitObjectsToSwapOnMap(Map* map, std::unordered_set<uint32> const& idsToRemove, T&& visitor)
     {
         auto evaluator = [&](std::unordered_map<ObjectGuid, ObjectType*>& objects)
         {
@@ -543,7 +543,7 @@ class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks
             }
         };
 
-        AIFunctionMapWorker<typename std::decay<decltype(evaluator)>::type> worker(std::move(evaluator));
+        AIFunctionMapWorker<decltype(evaluator)> worker(evaluator);
         TypeContainerVisitor<decltype(worker), MapStoredObjectTypesContainer> containerVisitor(worker);
 
         containerVisitor.Visit(map->GetObjectsStore());

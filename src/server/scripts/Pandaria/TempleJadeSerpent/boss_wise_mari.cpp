@@ -340,7 +340,7 @@ class boss_wase_mari : public CreatureScript
 
                             Talk(TEXT_PHASE_SWITCH);
                             ThreatContainer::StorageType const& threatlist = me->getThreatManager().getThreatList();
-                            if (threatlist.empty());
+                            if (threatlist.empty())
                                 return;
                                 
                             me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
