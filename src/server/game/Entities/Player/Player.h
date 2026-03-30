@@ -2522,6 +2522,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void DeleteFromPlayerPetDataStore(uint32 petNumber);
         void AddToPlayerPetDataStore(PlayerPetData* playerPetData);
 
+        // BattlePay
+        uint32 GetBattlePayCredits() const;
+        bool HasBattlePayCredits(uint32 count) const;
+        bool UpdateBattlePayCredits(uint64 price) const;
+        bool ModifyBattlePayCredits(uint64 credits) const;
+        void SendBattlePayMessage(uint32 bpaymessageID, std::string name, uint32 value = 0) const;
+
         ArchaeologyPlayerMgr& GetArchaeologyMgr() { return m_archaeologyPlayerMgr; }
 
         bool MeetPlayerCondition(uint32 conditionId) const;

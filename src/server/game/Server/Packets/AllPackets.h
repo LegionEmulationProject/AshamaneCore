@@ -29,6 +29,7 @@
 #include "BattlegroundPackets.h"
 #include "BattlenetPackets.h"
 #include "BattlePetPackets.h"
+#include "BattlePayPackets.h"
 #include "BlackMarketPackets.h"
 #include "CalendarPackets.h"
 #include "ChallengeModePackets.h"

@@ -19838,6 +19838,75 @@ void Player::AddToPlayerPetDataStore(PlayerPetData* playerPetData)
     PlayerPetDataStore.push_back(playerPetData);
 }
 
+void Player::SendBattlePayMessage(uint32 bpaymessageID, std::string name, uint32 value) const
+{
+       std::ostringstream msg;
+    if (bpaymessageID == 1)
+        msg << "The purchase '" << name << "' was successful!";
+    if (bpaymessageID == 2)
+        msg << "Remaining credits: " << GetBattlePayCredits() << " .";
+    if (bpaymessageID == 3)
+        msg << "You have now '" << value << "' credits.";
+    if (bpaymessageID == 10)
+        msg << "You cannot purchase '" << name << "' . Contact a game master to find out more.";
+    if (bpaymessageID == 11)
+        msg << "Your bags are too full to add : " << name << " .";
+    if (bpaymessageID == 12)
+        msg << "You have already purchased : " << name << " .";
+    if (bpaymessageID == 20)
+        msg << "The battle pay credits have been updated for the character '" << name << "' ! Available credits:" << value << " .";
+    if (bpaymessageID == 21)
+        msg << "You must enter an amount !";
+
+    ChatHandler(GetSession()).SendSysMessage(msg.str().c_str()); 
+}
+
+uint32 Player::GetBattlePayCredits() const
+{
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
+    stmt->setUInt32(0, GetSession()->GetBattlenetAccountId());
+    PreparedQueryResult result_don = LoginDatabase.Query(stmt);
+
+    if (!result_don)
+        return 0;
+
+    Field* fields = result_don->Fetch();
+    uint32 credits = fields[0].GetUInt32();
+
+    return credits;
+}
+
+bool Player::HasBattlePayCredits(uint32 count) const
+{
+    if (GetBattlePayCredits() >= count)
+        return true;
+
+    ChatHandler chH = ChatHandler(GetSession());
+    chH.PSendSysMessage(20000, count);
+    return false;
+}
+
+bool Player::UpdateBattlePayCredits(uint64 price) const
+{
+    uint64 calcCredit = GetBattlePayCredits() - price;
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
+    stmt->setUInt64(0, calcCredit);
+    stmt->setUInt32(1, GetSession()->GetBattlenetAccountId());
+    LoginDatabase.Execute(stmt);
+
+    return true;
+}
+
+bool Player::ModifyBattlePayCredits(uint64 credits) const
+{
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
+    stmt->setUInt64(0, credits);
+    stmt->setUInt32(1, GetSession()->GetBattlenetAccountId());
+    LoginDatabase.Execute(stmt);
+    SendBattlePayMessage(3, "", credits);
+    return true;
+}
+
 void Player::_LoadQuestStatus(PreparedQueryResult result)
 {
     uint16 slot = 0;

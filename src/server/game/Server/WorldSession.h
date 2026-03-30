@@ -36,6 +36,7 @@
 #include <unordered_set>
 
 class BattlePetMgr;
+class BattlepayManager;
 class BigNumber;
 class BlackMarketEntry;
 class CollectionMgr;
@@ -70,6 +71,12 @@ enum LfgTeleportResult : uint8;
 namespace rbac
 {
 class RBACData;
+}
+
+namespace Battlepay
+{
+    struct Purchase;
+    enum Error : uint32;
 }
 
 namespace WorldPackets
@@ -161,6 +168,23 @@ namespace WorldPackets
         class BattlePetSetFlags;
         class BattlePetSummon;
         class CageBattlePet;
+    }
+
+    namespace BattlePay
+    {
+        class DistributionAssignToTarget;
+        class StartPurchase;
+        class PurchaseProduct;
+        class ConfirmPurchaseResponse;
+        class GetProductList;
+        class GetPurchaseListQuery;
+        class UpdateVasPurchaseStates;
+        class BattlePayAckFailedResponse;
+        class BattlePayBattlePetDelivered;
+        class BattlePayQueryClassTrialResult;
+        class BattlePayTrialBoostCharacter;
+        class BattlePayPurchaseDetailsResponse;
+        class BattlePayPurchaseUnkResponse;
     }
 
     namespace BlackMarket
@@ -1816,6 +1840,22 @@ class TC_GAME_API WorldSession
         void HandleArtifactSetAppearance(WorldPackets::Artifact::ArtifactSetAppearance& artifactSetAppearance);
         void HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmArtifactRespec& confirmArtifactRespec);
 
+        // BattlePay
+        void HandleBattlePayDistributionAssign(WorldPackets::BattlePay::DistributionAssignToTarget& packet);
+        void HandleBattlePayStartPurchase(WorldPackets::BattlePay::StartPurchase& packet);
+        void HandleBattlePayPurchaseProduct(WorldPackets::BattlePay::PurchaseProduct& packet);
+        void HandleBattlePayConfirmPurchase(WorldPackets::BattlePay::ConfirmPurchaseResponse& packet);
+        void HandleBattlePayAckFailedResponse(WorldPackets::BattlePay::BattlePayAckFailedResponse& packet);
+        void HandleGetPurchaseListQuery(WorldPackets::BattlePay::GetPurchaseListQuery& packet);
+        void HandleBattlePayQueryClassTrialResult(WorldPackets::BattlePay::BattlePayQueryClassTrialResult& packet);
+        void HandleBattlePayTrialBoostCharacter(WorldPackets::BattlePay::BattlePayTrialBoostCharacter& packet);
+        void HandleBattlePayPurchaseUnkResponse(WorldPackets::BattlePay::BattlePayPurchaseUnkResponse& packet);
+        void HandleBattlePayPurchaseDetailsResponse(WorldPackets::BattlePay::BattlePayPurchaseDetailsResponse& packet);
+        void HandleUpdateVasPurchaseStates(WorldPackets::BattlePay::UpdateVasPurchaseStates& packet);
+        void HandleGetProductList(WorldPackets::BattlePay::GetProductList& packet);
+        void SendDisplayPromo(int32 promotionID = 0);
+        void SendMakePurchase(ObjectGuid targetCharacter, uint32 clientToken, uint32 productID, WorldSession* session);
+
         // Scenario
         void HandleQueryScenarioPOI(WorldPackets::Scenario::QueryScenarioPOI& queryScenarioPOI);
 
@@ -1840,6 +1880,9 @@ class TC_GAME_API WorldSession
         uint64 GetConnectToInstanceKey() const { return _instanceConnectKey.Raw; }
 
         void LoadRecoveries();
+
+    public:
+        BattlepayManager* GetBattlePayMgr() const { return _battlePayMgr.get(); }
 
     public:
         QueryCallbackProcessor& GetQueryProcessor() { return _queryProcessor; }
@@ -1924,6 +1967,8 @@ class TC_GAME_API WorldSession
 
         // Warden
         Warden* _warden;                                    // Remains NULL if Warden system is not enabled by config
+
+        std::shared_ptr<BattlepayManager> _battlePayMgr;
 
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue

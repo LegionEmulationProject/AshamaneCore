@@ -40,6 +40,7 @@
 #    CURRENCIES SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
 #    METRIC SETTINGS
+#    BATTLE PAY
 #
 ###################################################################################################
 
@@ -1260,14 +1261,6 @@ Account.PasswordChangeSecurity = 0
 #        Default:     1222964635
 
 BirthdayTime = 1222964635
-
-#
-#   FeatureSystem.BpayStore.Enabled
-#        Description: Not yet implemented
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-FeatureSystem.BpayStore.Enabled = 0
 
 #
 #   FeatureSystem.CharacterUndelete.Enabled
@@ -4118,3 +4111,60 @@ Metric.OverallStatusInterval = 1
 
 #
 ###################################################################################################
+
+
+
+
+###################################################################################################
+
+# BattlePay
+#
+#   FeatureSystem.BattlePay.Enabled
+#        Description: Enables the BattlePay feature system. 
+#                     Provides core support for in-game shop functionality.
+#        Default:     0 - Disabled
+#                     1 - Enabled
+
+FeatureSystem.BattlePay.Enabled = 1
+
+#   FeatureSystem.BattlePay.Available
+#        Description: Controls whether BattlePay services are available to players.
+#                     Useful for maintenance mode or staged rollouts.
+#        Default:     0 - Disabled
+#                     1 - Enabled
+
+
+FeatureSystem.BattlePay.Available = 1
+
+#   BattlePay.Enabled
+#        Description: Activates the BattlePay system, allowing in-game purchases
+#                     through the configured shop database and services.
+#        Default:     0 - Disabled
+#                     1 - Enabled
+
+BattlePay.Enabled = 1
+
+#   BattlePay.Currency
+#        Description: Defines the currency used for BattlePay transactions.
+#                     Match this to your target market or regional settings.
+#        Default:	USD = 1,
+#					GBP = 2,
+#					KRW = 3,
+#					EUR = 4,
+#					RUB = 5,
+#					ARS = 8,
+#					CLP = 9,
+#					MXN = 10,
+#					BRL = 11,
+#					AUD = 12,
+#					CPT = 14,
+#					TPT = 15,
+#					BETA = 16,
+#					JPY = 28,
+#					CAD = 29,
+#					NZD = 30
+
+BattlePay.Currency = 1
+
+#
+##################################################################################################

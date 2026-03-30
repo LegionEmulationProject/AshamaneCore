@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "AuthenticationPackets.h"
 #include "BattlenetRpcErrorCodes.h"
+#include "BattlePayMgr.h"
 #include "CharacterTemplateDataStore.h"
 #include "ClientConfigPackets.h"
 #include "ObjectMgr.h"
@@ -38,6 +39,7 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
         response.SuccessInfo->AccountExpansionLevel = GetAccountExpansion();
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
         response.SuccessInfo->VirtualRealmAddress = realm.Id.GetAddress();
+        response.SuccessInfo->CurrencyID = GetBattlePayMgr()->GetShopCurrency();
         response.SuccessInfo->Time = int32(time(nullptr));
 
         // Send current home realm. Also there is no need to send it later in realm queries.
@@ -94,10 +96,11 @@ void WorldSession::SendSetTimeZoneInformation()
 void WorldSession::SendFeatureSystemStatusGlueScreen()
 {
     WorldPackets::System::FeatureSystemStatusGlueScreen features;
-    features.BpayStoreAvailable = false;
+    features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BATTLE_PAY_ENABLED);
+    features.BpayStoreAvailable = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BATTLE_PAY_AVAILABLE);
     features.BpayStoreDisabledByParentalControls = false;
     features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
-    features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
+
 
     SendPacket(features.Write());
 }

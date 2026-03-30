@@ -27,6 +27,7 @@
 #include "BattlePet.h"
 #include "BattlePetDataStore.h"
 #include "BattlePetMgr.h"
+#include "BattlePayMgr.h"
 #include "BattlegroundMgr.h"
 #include "BattlenetPackets.h"
 #include "CharacterPackets.h"
@@ -149,6 +150,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, uint32 battlenetAccoun
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
 
+    _battlePayMgr = std::make_shared<BattlepayManager>(this);
     m_Socket[CONNECTION_TYPE_REALM] = sock;
     _instanceConnectKey.Raw = UI64LIT(0);
 }
@@ -1081,6 +1083,7 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder const& hol
 
     SendSetTimeZoneInformation();
     SendFeatureSystemStatusGlueScreen();
+    SendDisplayPromo();
     SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
     SendAvailableHotfixes(int32(sWorld->getIntConfig(CONFIG_HOTFIX_CACHE_VERSION)));
     SendTutorialsData();
