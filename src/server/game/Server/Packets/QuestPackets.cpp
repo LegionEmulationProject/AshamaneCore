@@ -631,6 +631,13 @@ WorldPacket const* WorldPackets::Quest::QueryQuestRewardResponse::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Quest::DisplayQuestPopup::Write()
+{
+    _worldPacket << QuestID;
+
+    return &_worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::PlayerChoiceResponseRewardEntry const& playerChoiceResponseRewardEntry)
 {
     data << playerChoiceResponseRewardEntry.Item;
