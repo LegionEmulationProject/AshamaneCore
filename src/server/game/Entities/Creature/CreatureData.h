@@ -558,8 +558,11 @@ struct CreatureAddon
 {
     uint32 path_id;
     uint32 mount;
-    uint32 bytes1;
-    uint32 bytes2;
+    uint8 sheath_state = 1;        // 0=unarmed, 1=melee (default), 2=ranged, 3=shield
+    uint8 stand_state = 0;
+    uint8 anim_tier = 0;
+    uint8 pvp_flags = 0;
+    uint32 emote_state = 0;
     uint32 emote;
     uint16 aiAnimKit;
     uint16 movementAnimKit;
