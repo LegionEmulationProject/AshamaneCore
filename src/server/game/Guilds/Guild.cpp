@@ -1663,6 +1663,12 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
         return;
     }
 
+    if (pInvitee->GetTeamId() == TEAM_NEUTRAL && !pInvitee->IsGameMaster())
+    {
+        SendCommandResult(session, GUILD_COMMAND_INVITE_PLAYER, ERR_GUILD_NOT_ALLIED, name);
+        return;
+    }
+
     Player* player = session->GetPlayer();
     // Do not show invitations from ignored players
     if (pInvitee->GetSocial()->HasIgnore(player->GetGUID()))
