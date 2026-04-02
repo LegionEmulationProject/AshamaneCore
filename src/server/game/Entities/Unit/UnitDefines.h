@@ -43,7 +43,9 @@ enum UnitStandStateType : uint8
     UNIT_STAND_STATE_SIT_HIGH_CHAIR    = 6,
     UNIT_STAND_STATE_DEAD              = 7,
     UNIT_STAND_STATE_KNEEL             = 8,
-    UNIT_STAND_STATE_SUBMERGED         = 9
+    UNIT_STAND_STATE_SUBMERGED         = 9,
+
+    MAX_UNIT_STAND_STATE
 };
 
 // byte flag value (UNIT_FIELD_BYTES_1, 2)
@@ -95,10 +97,10 @@ enum SheathState : uint8
 {
     SHEATH_STATE_UNARMED  = 0,                              // non prepared weapon
     SHEATH_STATE_MELEE    = 1,                              // prepared melee weapon
-    SHEATH_STATE_RANGED   = 2                               // prepared ranged weapon
+    SHEATH_STATE_RANGED   = 2,                              // prepared ranged weapon   
+    
+    MAX_SHEATH_STATE
 };
-
-#define MAX_SHEATH_STATE    3
 
 // byte (1 from 0..3) of UNIT_FIELD_BYTES_2
 enum UnitPVPStateFlags : uint8
