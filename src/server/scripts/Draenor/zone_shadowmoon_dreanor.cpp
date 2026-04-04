@@ -48,6 +48,26 @@ enum PreGarrisonNPCs
     NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT = 79757,
 };
 
+enum ShadowmoonPreGarrisonSpells
+{	
+	SPELL_TRIGGER_MULTI_SPELL_GARRISON_INTRO = 160856,
+};
+
+class quest_finding_a_foothold : public QuestScript
+{
+public:
+	quest_finding_a_foothold() : QuestScript("quest_finding_a_foothold") { }
+		
+	void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus oldStatus, QuestStatus newStatus) override
+	{
+		if (newStatus == QUEST_STATUS_INCOMPLETE && oldStatus == QUEST_STATUS_NONE)
+		{
+            PhasingHandler::OnConditionChange(player);
+			player->CastSpell(nullptr, SPELL_TRIGGER_MULTI_SPELL_GARRISON_INTRO, false);
+		}
+	}
+};
+
 class npc_baros_pre_garrison : public CreatureScript
 {
 public:
@@ -1030,6 +1050,7 @@ public:
 
 void AddSC_shadowmoon_draenor()
 {
+    new quest_finding_a_foothold();
     new npc_baros_pre_garrison();
     new npc_aqualir();
 
