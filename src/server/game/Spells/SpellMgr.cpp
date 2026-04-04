@@ -1060,8 +1060,8 @@ void SpellMgr::LoadSpellTargetPositions()
 
     mSpellTargetPositions.clear();                                // need for reload case
 
-    //                                               0   1            2      3          4          5
-    QueryResult result = WorldDatabase.Query("SELECT ID, EffectIndex, MapID, PositionX, PositionY, PositionZ FROM spell_target_position");
+    //                                               0   1            2      3          4          5          6
+    QueryResult result = WorldDatabase.Query("SELECT ID, EffectIndex, MapID, PositionX, PositionY, PositionZ, Orientation FROM spell_target_position");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell target coordinates. DB table `spell_target_position` is empty.");
@@ -1110,11 +1110,16 @@ void SpellMgr::LoadSpellTargetPositions()
             continue;
         }
 
-        // target facing is in degrees for 6484 & 9268... (blizz sucks)
-        if (effect->PositionFacing > 2 * M_PI)
-            st.target_Orientation = effect->PositionFacing * float(M_PI) / 180;
+            if (!fields[6].IsNull())
+            st.target_Orientation = fields[6].GetFloat();
         else
-            st.target_Orientation = effect->PositionFacing;
+        {
+            // target facing is in degrees for 6484 & 9268... (blizz sucks)
+            if (spellInfo->GetEffect(effIndex)->PositionFacing > 2 * float(M_PI))
+                st.target_Orientation = spellInfo->GetEffect(effIndex)->PositionFacing * float(M_PI) / 180;
+            else
+                st.target_Orientation = spellInfo->GetEffect(effIndex)->PositionFacing;
+        }
 
         if (effect->TargetA.GetTarget() == TARGET_DEST_DB || effect->TargetB.GetTarget() == TARGET_DEST_DB)
         {
@@ -3718,6 +3723,17 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(7); // 10yd
     });
     // ENDOF THE WANDERING ISLE SPELLS
+
+    // Finding a Foothold
+    ApplySpellFix({
+        160815, // Summon Velen
+        160855, // Summon Maraad
+        160857, // Summon Yrel
+        160859, // Summon Khadgar
+    }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+    });
 
     // BlackRook Hold - Bloodthirsty Leap
     ApplySpellFix({ 225963 }, [](SpellInfo* spellInfo)
