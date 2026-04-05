@@ -43,7 +43,8 @@
 #include "SpellScript.h"
 
 #define NPC_WOLF    49871
-
+#define BROTHER_PAXTON_SPELL_RENEW 93094
+#define NPC_PAXTON 951
 class npc_stormwind_infantry : public CreatureScript
 {
 public:
@@ -66,6 +67,19 @@ public:
             wolfTarget = ObjectGuid::Empty;
             me->SetSheath(SHEATH_STATE_MELEE);
             waitTime = urand(0, 2000);
+
+            me->GetScheduler().Schedule(Seconds(urand(20, 30)), [this](TaskContext task)
+                {
+                    Creature* paxton = me->FindNearestCreature(NPC_PAXTON, 10.0f, true);
+                    
+                    if (paxton)
+                    {
+                        Talk(0);
+                        paxton->SetFacingToObject(me);
+                        paxton->CastSpell(me, BROTHER_PAXTON_SPELL_RENEW, true);
+                    }
+                    task.Repeat(Seconds(urand(20, 30)));
+                });
         }
 
         void DamageTaken(Unit* doneBy, uint32& damage) override
@@ -172,6 +186,8 @@ public:
 
             _clicker = Clicker;
             Player* player = _clicker->ToPlayer();
+            ObjectGuid playerGUID = player->GetGUID();
+
             if (player->HasItemCount(PAXTON_PRAYER_BOOK, 1, false))
             {
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
@@ -179,12 +195,14 @@ public:
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
 
-                me->GetScheduler().Schedule(Milliseconds(1000), [this](TaskContext /*task*/)
+                me->GetScheduler().Schedule(Milliseconds(1000), [this, playerGUID](TaskContext /*task*/)
                     {
-                        if (_clicker)
-                            me->SetFacingToObject(_clicker);
-
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                        {
+                            me->SetFacingToObject(player);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+                            Talk(0);
+                        }
                     });
 
                 me->GetScheduler().Schedule(Milliseconds(3000), [this](TaskContext /*task*/)
@@ -198,15 +216,15 @@ public:
         {
             npc_escortAI::MoveInLineOfSight(who);
 
+            if (me->GetStandState() == UNIT_STAND_STATE_STAND)
+                return;
+
             if (!who || !who->IsPlayer())
                 return;
 
             Player* player = who->ToPlayer();
 
-            if (!player)
-                return;
-
-            if (player->HasItemCount(PAXTON_PRAYER_BOOK, 1, false))
+            if (player && player->HasItemCount(PAXTON_PRAYER_BOOK, 1, false))
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             else
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
