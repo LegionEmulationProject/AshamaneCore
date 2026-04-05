@@ -141,6 +141,7 @@ public:
 
 #define SPELL_HEAL          93072
 #define SPELL_HEAL_VISUAL   93097
+#define PAXTON_PRAYER_BOOK  65733
 
 class npc_stormwind_injured_soldier : public CreatureScript
 {
@@ -160,7 +161,7 @@ public:
         {
             _clicker = nullptr;
 
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
             me->SetStandState(UNIT_STAND_STATE_DEAD);
         }
 
@@ -170,22 +171,45 @@ public:
                 return;
 
             _clicker = Clicker;
-            me->CastSpell(me, SPELL_HEAL_VISUAL, true);
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-
-            me->GetScheduler().Schedule(Milliseconds(1000), [this](TaskContext /*task*/)
+            Player* player = _clicker->ToPlayer();
+            if (player->HasItemCount(PAXTON_PRAYER_BOOK, 1, false))
             {
-                if (_clicker)
-                    me->SetFacingToObject(_clicker);
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->CastSpell(me, SPELL_HEAL_VISUAL, true);
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->SetStandState(UNIT_STAND_STATE_STAND);
 
-                me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-            });
+                me->GetScheduler().Schedule(Milliseconds(1000), [this](TaskContext /*task*/)
+                    {
+                        if (_clicker)
+                            me->SetFacingToObject(_clicker);
 
-            me->GetScheduler().Schedule(Milliseconds(3000), [this](TaskContext /*task*/)
-            {
-                Start(false, true);
-            });
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+                    });
+
+                me->GetScheduler().Schedule(Milliseconds(3000), [this](TaskContext /*task*/)
+                    {
+                        Start(false, true);
+                    });
+            }
+        }
+
+        void MoveInLineOfSight(Unit* who) override
+        {
+            npc_escortAI::MoveInLineOfSight(who);
+
+            if (!who || !who->IsPlayer())
+                return;
+
+            Player* player = who->ToPlayer();
+
+            if (!player)
+                return;
+
+            if (player->HasItemCount(PAXTON_PRAYER_BOOK, 1, false))
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            else
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         }
 
         void WaypointReached(uint32 waypointId) override
