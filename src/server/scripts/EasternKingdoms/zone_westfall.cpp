@@ -437,80 +437,153 @@ public:
 ## npc_westplains_drifter
 ######*/
 
-enum edrifter
+enum eDrifter
 {
     CREDIT_SAY1 = 42414,
     CREDIT_SAY2 = 42415,
     CREDIT_SAY3 = 42416,
     CREDIT_SAY4 = 42417,
 
-    QUEST_MURDER_WAS_THE_CASE_THAT_THEY_GAVE_ME = 26209
+    SPELL_SPAWN_RAGAMUFFIN = 79171,
+
+    QUEST_MURDER_WAS_THE_CASE_THAT_THEY_GAVE_ME = 26209,
+
+    TALK_HOSTILE = 4,
+    TALK_RANDOM_START = 5,
+    TALK_RANDOM_END = 8
 };
 
-#define GOSSIP_COST 2
-#define GOSSIP_HELLO_DRIFTER1 "Did you see who killed the Furlbrows?"
-#define GOSSIP_HELLO_DRIFTER2 "Maybe a couple copper will loosen your tongue. Now tell me, did you see who killed the Furlbrows?"
+struct npc_westplains_drifterAI : public ScriptedAI
+{
+    npc_westplains_drifterAI(Creature* creature)
+        : ScriptedAI(creature), summons(me) {
+    }
+
+    SummonList summons;
+    uint8 summonIndex = 0;
+
+    void JustSummoned(Creature* summon) override
+    {
+        summons.Summon(summon);
+
+        Position pos = me->GetPosition();
+        float offset = 3.0f;
+
+        Position square[4] =
+        {
+            { pos.GetPositionX() + offset, pos.GetPositionY() + offset, pos.GetPositionZ() },
+            { pos.GetPositionX() - offset, pos.GetPositionY() + offset, pos.GetPositionZ() },
+            { pos.GetPositionX() - offset, pos.GetPositionY() - offset, pos.GetPositionZ() },
+            { pos.GetPositionX() + offset, pos.GetPositionY() - offset, pos.GetPositionZ() }
+        };
+
+        if (summonIndex < 4)
+        {
+            summon->NearTeleportTo(square[summonIndex]);
+            ++summonIndex;
+        }
+    }
+
+    void JustDied(Unit*) override
+    {
+        summonIndex = 0;
+
+        for (uint8 i = 0; i < 4; ++i)
+            me->CastSpell(me, SPELL_SPAWN_RAGAMUFFIN, true);
+
+        me->GetScheduler().Schedule(Milliseconds(400), [this](TaskContext)
+            {
+                Position pos = me->GetPosition();
+                float offset = 2.0f;
+
+                Position inner[4] =
+                {
+                    { pos.GetPositionX() + offset, pos.GetPositionY(), pos.GetPositionZ() },
+                    { pos.GetPositionX() - offset, pos.GetPositionY(), pos.GetPositionZ() },
+                    { pos.GetPositionX(), pos.GetPositionY() + offset, pos.GetPositionZ() },
+                    { pos.GetPositionX(), pos.GetPositionY() - offset, pos.GetPositionZ() }
+                };
+
+                uint8 i = 0;
+
+                for (ObjectGuid const& guid : summons)
+                {
+                    Creature* child = ObjectAccessor::GetCreature(*me, guid);
+                    if (!child || !child->IsAlive())
+                        continue;
+
+                    if (i >= 4)
+                        break;
+
+                    child->GetMotionMaster()->MovePoint(i, inner[i]);
+
+                    child->GetScheduler().Schedule(Milliseconds(2000), [child, this](TaskContext)
+                        {
+                            if (!child || !child->IsAlive())
+                                return;
+
+                            child->StopMoving();
+                            child->SetFacingToObject(me);
+
+                            if (child->AI())
+                                child->AI()->Talk(urand(0, 2));
+
+                            child->DespawnOrUnsummon(5000);
+                        });
+
+                    ++i;
+                }
+            });
+    }
+};
 
 class npc_westplains_drifter : public CreatureScript
 {
 public:
-    npc_westplains_drifter() : CreatureScript("npc_westplains_drifter") { }
+    npc_westplains_drifter() : CreatureScript("npc_westplains_drifter") {}
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_westplains_drifterAI(creature);
+    }
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        if (player->GetQuestStatus(26209) == QUEST_STATUS_INCOMPLETE)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HELLO_DRIFTER1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        if (player->GetQuestStatus(26209) == QUEST_STATUS_INCOMPLETE)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HELLO_DRIFTER2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+        if (player->GetQuestStatus(QUEST_MURDER_WAS_THE_CASE_THAT_THEY_GAVE_ME) == QUEST_STATUS_INCOMPLETE)
+        {
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Did you see who killed the Furlbrows?", GOSSIP_SENDER_MAIN, 1);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Maybe a couple copper will loosen your tongue...", GOSSIP_SENDER_MAIN, 2);
+        }
 
         SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        CloseGossipMenuFor(player);
+
+        if (action == 1)
         {
-            switch (rand() % 7)
-            { // Say needs moved to creature_texts
-            case 0:
-                {
-                    creature->Say("Listen, pal. I don't want any trouble, ok? I didn't see who murdered 'em, but I sure heard it! Lots of yelling. Human voices... you dig? Now get out of here before I change my mind about beating you up and takin' your shoes.", LANG_UNIVERSAL);
-                    player->KilledMonsterCredit(CREDIT_SAY1);
-                    creature->SetStandState(UNIT_STAND_STATE_STAND);
-                    creature->DespawnOrUnsummon(5000);
-                    break;
-                }
-            case 1:
-                {
-                    creature->Say("I didn't see who killed 'm, bub/sis, but I got a whiff. Smelled rich, kinda like you. Damn shame too. Furlbrows were a fixture around here. Nice people, always willin' to share a meal or a patch of dirt.", LANG_UNIVERSAL);
-                    player->KilledMonsterCredit(CREDIT_SAY2);
-                    creature->SetStandState(UNIT_STAND_STATE_STAND);
-                    creature->DespawnOrUnsummon(5000);
-                    break;
-                }
-            case 2:
-                {
-                    creature->Say("Who killed the Furlbrows? I'll tell you who killed the Furlbrows: KING VARIAN WRYNN. THAT'S WHO! And he's killin' the rest of us too. One bum at a time. The only thing I can tell you is that I saw some gnolls leavin' the place a few hours before the law arrived.", LANG_UNIVERSAL);
-                    player->KilledMonsterCredit(CREDIT_SAY3);
-                    creature->SetStandState(UNIT_STAND_STATE_STAND);
-                    creature->DespawnOrUnsummon(5000);
-                    break;
-                }
-            case 3:
-                {
-                    creature->Say("Between you, me, and the tree, murlocs killed the Furlbrows. Yep, saw 'em with my own two eyes. Think they'd been casin' the joint for days, maybe months. They left in a hurry once they got wind of 'Johnny Law' and the idiot brigade over there...", LANG_UNIVERSAL);
-                    player->KilledMonsterCredit(CREDIT_SAY4);
-                    creature->SetStandState(UNIT_STAND_STATE_STAND);
-                    creature->DespawnOrUnsummon(5000);
-                    break;
-                } CloseGossipMenuFor(player);
+            uint8 roll = urand(0, 4);
+
+            if (roll < 4)
+            {
+                creature->AI()->Talk(roll);
+                player->KilledMonsterCredit(CREDIT_SAY1 + roll);
+                creature->DespawnOrUnsummon(5000);
+            }
+            else
+            {
+                creature->AI()->Talk(TALK_HOSTILE);
+                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                creature->SetReactState(REACT_AGGRESSIVE);
+                creature->AI()->AttackStart(player);
             }
         }
 
-        if (action == GOSSIP_ACTION_INFO_DEF + 2)
+        if (action == 2)
         {
             if (!player->HasEnoughMoney(uint64(2)))
             {
@@ -520,66 +593,21 @@ public:
             else
             {
                 player->ModifyMoney(-2);
-                switch (rand() % 7)
-                {
-                case 0:
-                    {
-                        creature->Say("Listen, pal. I don't want any trouble, ok? I didn't see who murdered 'em, but I sure heard it! Lots of yelling. Human voices... you dig? Now get out of here before I change my mind about beating you up and takin' your shoes.", LANG_UNIVERSAL);
-                        player->KilledMonsterCredit(CREDIT_SAY1);
-                        creature->DespawnOrUnsummon(5000);
-                        break;
-                    }
-                case 1:
-                    {
-                        creature->Say("I didn't see who killed 'm, bub/sis, but I got a whiff. Smelled rich, kinda like you. Damn shame too. Furlbrows were a fixture around here. Nice people, always willin' to share a meal or a patch of dirt.", LANG_UNIVERSAL);
-                        player->KilledMonsterCredit(CREDIT_SAY2);
-                        creature->DespawnOrUnsummon(5000);
-                        break;
-                    }
-                case 2:
-                    {
-                        creature->Say("Who killed the Furlbrows? I'll tell you who killed the Furlbrows: KING VARIAN WRYNN. THAT'S WHO! And he's killin' the rest of us too. One bum at a time. The only thing I can tell you is that I saw some gnolls leavin' the place a few hours before the law arrived.", LANG_UNIVERSAL);
-                        player->KilledMonsterCredit(CREDIT_SAY3);
-                        creature->DespawnOrUnsummon(5000);
-                        break;
-                    }
-                case 3:
-                    {
-                        creature->Say("Between you, me, and the tree, murlocs killed the Furlbrows. Yep, saw 'em with my own two eyes. Think they'd been casin' the joint for days, maybe months. They left in a hurry once they got wind of 'Johnny Law' and the idiot brigade over there...", LANG_UNIVERSAL);
-                        player->KilledMonsterCredit(CREDIT_SAY4);
-                        creature->DespawnOrUnsummon(5000);
-                        break;
-                    }
-                case 4:
-                    {
-                        creature->Say("I wonder if it's possible to eat rocks? Got plenty of rocks around here. Just imagine it! I'd be the richest person in the world for making that discovery!", LANG_UNIVERSAL);
-                        creature->SetReactState(REACT_AGGRESSIVE);
-                        creature->AI()->AttackStart(player);
-                        break;
-                    }
-                case 5:
-                    {
-                        creature->Say("Looks like I found us a savory and clean piece of dirt! Tonight we eat like kings, Mr. Penguin! Of course I'll share it with you! You're my best friend!", LANG_UNIVERSAL);
-                        creature->SetReactState(REACT_AGGRESSIVE);
-                        creature->AI()->AttackStart(player);
-                        break;
-                    }
-                case 6:
-                    {
-                        creature->Say("HAHAHAH! Good one, Mr. Penguin! GOOD ONE!", LANG_UNIVERSAL);
-                        creature->SetReactState(REACT_AGGRESSIVE);
-                        creature->AI()->AttackStart(player);
-                        break;
-                    }
-                case 7:
-                    {
-                        creature->Say("What happened to me? I used to be the king of Stormwind!", LANG_UNIVERSAL);
-                        creature->SetReactState(REACT_AGGRESSIVE);
-                        creature->AI()->AttackStart(player);
-                        break;
 
-                        CloseGossipMenuFor(player);
-                    }
+                uint8 roll = urand(0, 7);
+
+                if (roll < 4)
+                {
+                    creature->AI()->Talk(roll);
+                    player->KilledMonsterCredit(CREDIT_SAY1 + roll);
+                    creature->DespawnOrUnsummon(5000);
+                }
+                else
+                {
+                    creature->AI()->Talk(urand(TALK_RANDOM_START, TALK_RANDOM_END));
+                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    creature->SetReactState(REACT_AGGRESSIVE);
+                    creature->AI()->AttackStart(player);
                 }
             }
         }

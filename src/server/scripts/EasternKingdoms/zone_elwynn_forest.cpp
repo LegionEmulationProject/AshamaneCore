@@ -212,7 +212,7 @@ public:
                         {
                             me->SetFacingToObject(player);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-                            Talk(SAY_INJURED_SOLDIER_FIRST_LINE);
+                            Talk(SAY_INJURED_SOLDIER_FIRST_LINE, player);
                         }
                     });
 
