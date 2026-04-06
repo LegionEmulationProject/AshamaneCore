@@ -42,9 +42,16 @@
 #include "Player.h"
 #include "SpellScript.h"
 
-#define NPC_WOLF    49871
-#define BROTHER_PAXTON_SPELL_RENEW 93094
-#define NPC_PAXTON 951
+
+enum StormwindInfantry
+{
+    NPC_WOLF  = 49871,
+    NPC_PAXTON =  951,
+    SAY_INFANTRY_FIRST_LINE = 0,
+
+    SPELL_BROTHER_PAXTON_RENEW =  93094
+};
+
 class npc_stormwind_infantry : public CreatureScript
 {
 public:
@@ -74,9 +81,9 @@ public:
                     
                     if (paxton)
                     {
-                        Talk(0);
+                        Talk(SAY_INFANTRY_FIRST_LINE);
                         paxton->SetFacingToObject(me);
-                        paxton->CastSpell(me, BROTHER_PAXTON_SPELL_RENEW, true);
+                        paxton->CastSpell(me, SPELL_BROTHER_PAXTON_RENEW, true);
                     }
                     task.Repeat(Seconds(urand(20, 30)));
                 });
@@ -152,10 +159,14 @@ public:
 /*######
 ## npc_stormwind_injured_soldier
 ######*/
+enum InjuredSoldier
+{
+    SPELL_HEAL        = 93072,
+    SPELL_HEAL_VISUAL = 93097,
+    ITEM_PAXTON_PRAYER_BOOK = 65733,
 
-#define SPELL_HEAL          93072
-#define SPELL_HEAL_VISUAL   93097
-#define PAXTON_PRAYER_BOOK  65733
+    SAY_INJURED_SOLDIER_FIRST_LINE = 0,
+};
 
 class npc_stormwind_injured_soldier : public CreatureScript
 {
@@ -188,7 +199,7 @@ public:
             Player* player = _clicker->ToPlayer();
             ObjectGuid playerGUID = player->GetGUID();
 
-            if (player->HasItemCount(PAXTON_PRAYER_BOOK, 1, false))
+            if (player->HasItemCount(ITEM_PAXTON_PRAYER_BOOK, 1, false))
             {
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 me->CastSpell(me, SPELL_HEAL_VISUAL, true);
@@ -201,7 +212,7 @@ public:
                         {
                             me->SetFacingToObject(player);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-                            Talk(0);
+                            Talk(SAY_INJURED_SOLDIER_FIRST_LINE);
                         }
                     });
 
@@ -224,7 +235,7 @@ public:
 
             Player* player = who->ToPlayer();
 
-            if (player && player->HasItemCount(PAXTON_PRAYER_BOOK, 1, false))
+            if (player && player->HasItemCount(ITEM_PAXTON_PRAYER_BOOK, 1, false))
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             else
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
