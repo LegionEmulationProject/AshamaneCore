@@ -1,0 +1,1 @@
+UPDATE `scene_template` SET `ScriptName`='scene_battle_for_brokenshore_alliance' WHERE SceneId=1335;
