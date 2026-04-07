@@ -49,7 +49,10 @@ enum StormwindInfantry
     NPC_PAXTON =  951,
     SAY_INFANTRY_FIRST_LINE = 0,
 
-    SPELL_BROTHER_PAXTON_RENEW =  93094
+    SPELL_BROTHER_PAXTON_RENEW =  93094,
+    SPELL_BROTHER_PAXTON_FLASH_HEAL =  17843,
+    SPELL_BROTHER_PAXTON_PENANCE =  47750,
+    SPELL_BROTHER_PAXTON_PRAYER_OF_HEALING =  93091,
 };
 
 class npc_stormwind_infantry : public CreatureScript
@@ -75,17 +78,75 @@ public:
             me->SetSheath(SHEATH_STATE_MELEE);
             waitTime = urand(0, 2000);
 
-            me->GetScheduler().Schedule(Seconds(urand(20, 30)), [this](TaskContext task)
+            me->GetScheduler().Schedule(Seconds(urand(25, 70)), [this](TaskContext task)
                 {
-                    Creature* paxton = me->FindNearestCreature(NPC_PAXTON, 10.0f, true);
-                    
-                    if (paxton)
+                   
+                    Talk(SAY_INFANTRY_FIRST_LINE);
+
+                    // Find Paxton
+                    if (Creature* paxton = me->FindNearestCreature(NPC_PAXTON, 10.0f, true))
                     {
-                        Talk(SAY_INFANTRY_FIRST_LINE);
-                        paxton->SetFacingToObject(me);
-                        paxton->CastSpell(me, SPELL_BROTHER_PAXTON_RENEW, true);
+                        if (!paxton->HasUnitState(UNIT_STATE_CASTING))
+                        {
+                            ObjectGuid infantryGUID = me->GetGUID();
+                            paxton->GetScheduler().Schedule(Milliseconds(urand(500, 1200)), [paxton, infantryGUID](TaskContext /*task*/)
+                                {
+                                    if (!paxton)
+                                        return;
+
+                                    if (Creature* target = ObjectAccessor::GetCreature(*paxton, infantryGUID))
+                                    {
+                                        paxton->SetFacingToObject(target);
+
+                                        if (CreatureAI* ai = paxton->AI())
+                                        {
+                                            ai->Talk(SAY_INFANTRY_FIRST_LINE);            
+                                        }
+
+                                        paxton->StopMoving();
+
+                                        switch (urand(0, 3))
+                                        {
+                                        case 0:
+                                            paxton->CastSpell(target, SPELL_BROTHER_PAXTON_RENEW, false);
+                                            break;
+                                        case 1:
+                                            paxton->CastSpell(target, SPELL_BROTHER_PAXTON_FLASH_HEAL, false);
+                                            break;
+                                        case 2:
+                                            paxton->CastSpell(target, SPELL_BROTHER_PAXTON_PENANCE, false);
+                                            break;
+                                        case 3:
+                                            paxton->CastSpell(target, SPELL_BROTHER_PAXTON_PRAYER_OF_HEALING, false);
+                                            break;
+                                        }
+
+                                        paxton->GetScheduler().Schedule(Milliseconds(200), [paxton](TaskContext task)
+                                            {
+                                                if (!paxton)
+                                                    return;
+
+                                                if (paxton->HasUnitState(UNIT_STATE_CASTING))
+                                                {
+                                                    task.Repeat(Milliseconds(200));
+                                                    return;
+                                                }
+
+                                                // Cast done wait 1.3s to resume motion
+                                                paxton->GetScheduler().Schedule(Milliseconds(1300), [paxton](TaskContext /*task*/)
+                                                    {
+                                                        if (!paxton)
+                                                            return;
+
+                                                        paxton->GetMotionMaster()->Initialize();
+                                                    });
+                                            });
+                                    }
+                                });
+                        }
                     }
-                    task.Repeat(Seconds(urand(20, 30)));
+
+                    task.Repeat(Seconds(urand(25, 70)));
                 });
         }
 
