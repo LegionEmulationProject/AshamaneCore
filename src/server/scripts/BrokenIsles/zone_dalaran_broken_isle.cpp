@@ -224,33 +224,72 @@ public:
     }
 };
 
+enum DownToAzsuna
+{
+    QUEST_PARADISE_LOST                = 39718,
+    QUEST_DOWN_TO_AZSUNA               = 41220,
+    SAY_KHADGAR_FIRST_LINE             = 0,
+    SAY_KHADGAR_SECOND_LINE            = 1,
+
+    SPELL_TAXI_DALARAN_AZSUNA_ALLIANCE = 205098,
+    SPELL_TAXI_DALARAN_AZSUNA_HORDE    = 205203,
+};
+
 class npc_archmage_khadgar_86563 : public CreatureScript
 {
 public:
     npc_archmage_khadgar_86563() : CreatureScript("npc_archmage_khadgar_86563") { }
 
-    enum eNpc
-    {   
-        QUEST_DOWN_TO_AZSUNA = 41220,
-        SPELL_TAXI_DALARAN_AZSUNA_ALLIANCE = 205098,
-        SPELL_TAXI_DALARAN_AZSUNA_HORDE = 205203,
+    struct npc_archmage_khadgar_86563AI : public ScriptedAI
+    {
+        npc_archmage_khadgar_86563AI(Creature* creature) : ScriptedAI(creature) { }
+
+        bool KhadgarSayLine = false;
+
+        void MoveInLineOfSight(Unit* who) override
+        {
+            ScriptedAI::MoveInLineOfSight(who);
+
+            if (!who)
+                return;
+
+            if (Player* player = who->ToPlayer())
+            {
+                if (player->GetQuestStatus(QUEST_PARADISE_LOST) == QUEST_STATUS_COMPLETE)
+                {
+                    if (me->IsWithinDistInMap(player, 35.0f))
+                    {
+                        if (KhadgarSayLine)
+                            return;
+
+                        Talk(SAY_KHADGAR_FIRST_LINE, player);
+                        KhadgarSayLine = true;
+                    }
+                }
+            }
+        }
     };
 
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) override
     {
         if (player->HasQuest(QUEST_DOWN_TO_AZSUNA) || player->GetQuestStatus(QUEST_DOWN_TO_AZSUNA) == QUEST_STATUS_INCOMPLETE)
-            player->CastSpell(player, player->IsInAlliance() ? SPELL_TAXI_DALARAN_AZSUNA_ALLIANCE : SPELL_TAXI_DALARAN_AZSUNA_HORDE, true); // KillCredit & SendTaxi
+            player->CastSpell(player, player->IsInAlliance() ? SPELL_TAXI_DALARAN_AZSUNA_ALLIANCE : SPELL_TAXI_DALARAN_AZSUNA_HORDE, true);
 
         return true;
     }
 
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) override
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_DOWN_TO_AZSUNA)
         {
-            creature->AI()->Talk(1);
+            creature->AI()->Talk(SAY_KHADGAR_SECOND_LINE, player);
         }
         return true;
+    }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_archmage_khadgar_86563AI(creature);
     }
 };
 
