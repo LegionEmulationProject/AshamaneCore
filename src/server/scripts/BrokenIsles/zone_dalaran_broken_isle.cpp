@@ -254,7 +254,7 @@ public:
     }
 };
 
-void AddSC_dalaran_legion()
+void AddSC_zone_dalaran_broken_isle()
 {
     // new OnLegionArrival();
     new On110Arrival();

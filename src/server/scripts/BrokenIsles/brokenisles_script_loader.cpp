@@ -22,7 +22,7 @@
 void AddSC_legion_portal_at_scripts();
 
 // Zones
-void AddSC_dalaran_legion();
+void AddSC_zone_dalaran_broken_isle();
 void AddSC_azsuna();
 void AddSC_highmountain();
 void AddSC_stormheim();
@@ -183,7 +183,7 @@ void AddBrokenIslesScripts()
     AddSC_legion_portal_at_scripts();
 
     // Zones
-    AddSC_dalaran_legion();
+    AddSC_zone_dalaran_broken_isle();
     AddSC_azsuna();
     AddSC_highmountain();
     AddSC_stormheim();
