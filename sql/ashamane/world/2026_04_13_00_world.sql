@@ -1,0 +1,1 @@
+UPDATE `gameobject_template` SET `name`='Spiked Ball' WHERE `entry`=232505;
