@@ -142,6 +142,7 @@ enum OnSlaughtsEnd
     SPELL_HANSEL_EVENT_AURA = 167689,
 
     SAY_THAELIN_FIRST_LINE = 0,
+    SAY_HANSEL_FIRST_LINE = 0,
 
     SCENE_DETONATION = 937,
 };
@@ -183,6 +184,43 @@ class npc_thaelin_darkanvil_78568 : public CreatureScript
         }
 };
 
+class npc_hansel_heavyhands_78569 : public CreatureScript
+{
+    public:
+        npc_hansel_heavyhands_78569() : CreatureScript("npc_hansel_heavyhands_78569") {}
+    
+        struct npc_hansel_heavyhands_78569AI : public ScriptedAI
+        {
+            npc_hansel_heavyhands_78569AI(Creature* creature) : ScriptedAI(creature) { }
+
+            bool eventTriggered;
+    
+            void MoveInLineOfSight(Unit* unit) override
+            {
+                if (Player* player = unit->ToPlayer())
+                {
+                    if (!me->IsWithinDistInMap(player, 15.0f))
+                        return;
+
+                    if (!eventTriggered)
+                    {
+                        if (player->GetQuestStatus(QUEST_ONSLAUGHTS_END) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            eventTriggered = true;
+                            Talk(SAY_HANSEL_FIRST_LINE, player);
+                            player->GetSceneMgr().PlaySceneByPackageId(SCENE_DETONATION);
+                        }
+                    }
+                }
+            }
+        };
+    
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_hansel_heavyhands_78569AI(p_Creature);
+        }
+};
+
 /// 237670/237667 - Dark Portal
 class go_platform_tanaan : public GameObjectScript
 {
@@ -214,5 +252,6 @@ void AddSC_assault_on_the_dark_portal()
 {
     new npc_archmage_khadgar_78558();
     new npc_thaelin_darkanvil_78568();
+    new npc_hansel_heavyhands_78569();
     new go_platform_tanaan();
 }
