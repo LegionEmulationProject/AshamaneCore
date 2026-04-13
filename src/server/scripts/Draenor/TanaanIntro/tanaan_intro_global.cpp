@@ -130,33 +130,8 @@ public:
     }
 };
 
-/// 237670/237667 - Dark Portal
-class go_platform_tanaan : public GameObjectScript
-{
-public:
-    go_platform_tanaan() : GameObjectScript("go_platform_tanaan") { }
-
-    struct go_platform_tanaanAI : public GameObjectAI
-    {
-        go_platform_tanaanAI(GameObject* p_Go) : GameObjectAI(p_Go) { }
-
-        void Reset() override
-        {
-            go->SetGoState(GO_STATE_ACTIVE);
-            go->SetLootState(GO_ACTIVATED);
-        }
-
-    };
-
-    GameObjectAI* GetAI(GameObject* p_Go) const override
-    {
-        return new go_platform_tanaanAI(p_Go);
-    }
-};
-
 void AddSC_tanaan_intro_global()
 {
     new npc_archmage_khadgar();
     new playerScript_enter_tanaan();
-    new go_platform_tanaan();
 }

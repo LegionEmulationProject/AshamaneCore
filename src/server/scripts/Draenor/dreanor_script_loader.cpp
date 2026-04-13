@@ -20,14 +20,15 @@
 void AddSC_frostfire_ridge();
 void AddSC_shadowmoon_draenor();
 void AddSC_tanaan_jungle();
+void AddSC_assault_on_the_dark_portal();
 
-void AddSC_tanaan_intro_global();
-void AddSC_tanaan_intro_portal();
-void AddSC_tanaan_intro_bleeding_hollow();
-void AddSC_tanaan_intro_shattered_hand();
-void AddSC_tanaan_intro_shadowmoon();
-void AddSC_tanaan_intro_blackrock();
-void AddSC_tanaan_intro_finale();
+// void AddSC_tanaan_intro_global();
+// void AddSC_tanaan_intro_portal();
+// void AddSC_tanaan_intro_bleeding_hollow();
+// void AddSC_tanaan_intro_shattered_hand();
+// void AddSC_tanaan_intro_shadowmoon();
+// void AddSC_tanaan_intro_blackrock();
+// void AddSC_tanaan_intro_finale();
 
 void AddSC_garrison_level_1();
 void AddSC_garrison_level_2();
@@ -79,14 +80,15 @@ void AddDraenorScripts()
     AddSC_frostfire_ridge();
     AddSC_shadowmoon_draenor();
     AddSC_tanaan_jungle();
+    AddSC_assault_on_the_dark_portal();
 
-    AddSC_tanaan_intro_global();
-    AddSC_tanaan_intro_portal();
-    AddSC_tanaan_intro_bleeding_hollow();
-    AddSC_tanaan_intro_shattered_hand();
-    AddSC_tanaan_intro_shadowmoon();
-    AddSC_tanaan_intro_blackrock();
-    AddSC_tanaan_intro_finale();
+    // AddSC_tanaan_intro_global();
+    // AddSC_tanaan_intro_portal();
+    // AddSC_tanaan_intro_bleeding_hollow();
+    // AddSC_tanaan_intro_shattered_hand();
+    // AddSC_tanaan_intro_shadowmoon();
+    // AddSC_tanaan_intro_blackrock();
+    // AddSC_tanaan_intro_finale();
 
     AddSC_garrison_level_1();
     AddSC_garrison_level_2();
