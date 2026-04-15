@@ -215,10 +215,35 @@ class npc_hansel_heavyhands_78569 : public CreatureScript
             }
         };
     
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_hansel_heavyhands_78569AI(p_Creature);
+            return new npc_hansel_heavyhands_78569AI(creature);
         }
+};
+
+// QuestId: 34392
+struct quest_onslaughts_end : public QuestScript
+{
+public:
+    quest_onslaughts_end() : QuestScript("quest_onslaughts_end") { }
+
+    void OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 /*oldAmount*/, int32 /*newAmount*/)
+    { 
+        switch (objective.ID)
+        {
+            case OBJECTIVE_NORTHERN_SPIRE_DISABLED:
+                player->GetSceneMgr().PlaySceneByPackageId(SCENE_CHOGALL_FREED);
+                break;
+
+            case OBJECTIVE_SOUTHERN_SPIRE_DISABLED:
+                player->GetSceneMgr().PlaySceneByPackageId(SCENE_TERRONGOR_FREED);
+                break;
+
+            default:
+                return;
+        
+        }
+    }
 };
 
 /// 237670/237667 - Dark Portal
@@ -253,5 +278,6 @@ void AddSC_assault_on_the_dark_portal()
     new npc_archmage_khadgar_78558();
     new npc_thaelin_darkanvil_78568();
     new npc_hansel_heavyhands_78569();
+    new quest_onslaughts_end();
     new go_platform_tanaan();
 }

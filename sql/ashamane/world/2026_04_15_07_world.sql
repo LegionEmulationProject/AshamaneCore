@@ -1,0 +1,1 @@
+UPDATE `quest_template_addon` SET `ScriptName`='quest_onslaughts_end' WHERE `ID`=34392;
