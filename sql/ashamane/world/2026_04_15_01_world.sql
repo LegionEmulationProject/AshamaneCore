@@ -1,0 +1,2 @@
+SET @CGUID := 500031;
+UPDATE `creature` SET `PhaseId`=3568, `guid`=@CGUID+0, `position_x`=4082.459228515625, `position_y`=-2352.2431640625, `position_z`=95.37371063232421875, `orientation`=1.705520272254943847 WHERE `guid`=1383579;
