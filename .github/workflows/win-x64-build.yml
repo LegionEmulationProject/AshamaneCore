@@ -98,7 +98,7 @@ jobs:
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        path: ${{ steps.strings.outputs.build-output-dir }}/bin/${{ env.CMAKE_BUILD_TYPE }}
+        path: ${{ steps.strings.outputs.build-output-dir }}/bin/
         name: AshamaneCoreMainWin64VS2022
         # Set a custom retention for artifacts
         #retention-days: 7
