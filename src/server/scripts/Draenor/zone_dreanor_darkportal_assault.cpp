@@ -36,6 +36,7 @@ enum AssaultOnTheDarkPortalQuests
 
 enum AssaultOnTheDarkPortalEvents
 {
+    EVENT_KHADGAR_SAY_SECOND_LINE,
     EVENT_KHADGAR_SAY_THIRD_LINE,
 };
 
@@ -65,6 +66,11 @@ enum AssaultOnTheDarkPortalScenes
    SCENE_CHOGALL_FREED                 = 961,
    SCENE_TERRONGOR_FREED               = 962,
    SCENE_GULDAN_FREED                  = 808,
+};
+
+enum AssaultEtc
+{
+    ACTION_KHADGAR_SAY_SECOND_LINE,
 };
 
 class npc_archmage_khadgar_78558 : public CreatureScript
@@ -100,9 +106,9 @@ class npc_archmage_khadgar_78558 : public CreatureScript
 		    {
 			    switch (action)
 			    {
-				    case OBJECTIVE_NORTHERN_SPIRE_DISABLED:
+				    case ACTION_KHADGAR_SAY_SECOND_LINE:
                         Talk(SAY_KHADGAR_SECOND_LINE);
-                        events.ScheduleEvent(EVENT_KHADGAR_SAY_THIRD_LINE, 3s);
+                        events.ScheduleEvent(EVENT_KHADGAR_SAY_SECOND_LINE, 8s);
 					    break;
 				    default:
 					    break;
@@ -119,6 +125,9 @@ class npc_archmage_khadgar_78558 : public CreatureScript
 		    	{
 		    		switch (eventId)
 		    		{
+                        case EVENT_KHADGAR_SAY_SECOND_LINE:
+                            Talk(SAY_KHADGAR_SECOND_LINE);
+                            events.ScheduleEvent(EVENT_KHADGAR_SAY_THIRD_LINE, 3s);
                         case EVENT_KHADGAR_SAY_THIRD_LINE:
                             Talk(SAY_KHADGAR_THIRD_LINE);
                             break;
@@ -145,6 +154,8 @@ enum OnSlaughtsEnd
     SAY_HANSEL_FIRST_LINE = 0,
 
     SCENE_DETONATION = 937,
+
+    NPC_ARCHMAGE_KHADGAR = 78558,
 };
 
 class npc_thaelin_darkanvil_78568 : public CreatureScript
@@ -233,6 +244,8 @@ public:
         {
             case OBJECTIVE_NORTHERN_SPIRE_DISABLED:
                 player->GetSceneMgr().PlaySceneByPackageId(SCENE_CHOGALL_FREED);
+                if (Creature* khadgar = player->FindNearestCreature(NPC_ARCHMAGE_KHADGAR, 200.0f))
+                    khadgar->AI()->DoAction(ACTION_KHADGAR_SAY_SECOND_LINE);
                 break;
 
             case OBJECTIVE_SOUTHERN_SPIRE_DISABLED:
