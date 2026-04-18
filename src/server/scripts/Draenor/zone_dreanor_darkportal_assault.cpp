@@ -246,6 +246,135 @@ public:
     }
 };
 
+enum PortalsPower
+{
+    ACTION_GULDAN_SAY_SECOND_LINE,
+    ACTION_GULDAN_SAY_THIRD_LINE,
+    ACTION_GULDAN_SAY_FOURTH_LINE,
+
+    EVENT_GULDAN_SAY_FIRST_LINE,
+
+    NPC_GULDAN = 78333,
+
+    SAY_GULDAN_FIRST_LINE = 0,
+    SAY_GULDAN_SECOND_LINE = 1,
+    SAY_GULDAN_THIRD_LINE = 2,
+    SAY_GULDAN_FOURTH_LINE = 3,
+
+    SPELL_SCENE_GULDAN_REVEAL   = 163807,
+    SPELL_PORTAL_CREDIT         = 166319,
+};
+
+ // Gul'dan 78333 
+class npc_guldan_78333 : public CreatureScript
+{
+public:
+    npc_guldan_78333() : CreatureScript("npc_guldan_78333") { }
+
+    struct npc_guldan_78333AI : public ScriptedAI
+    {
+        npc_guldan_78333AI(Creature* creature) : ScriptedAI(creature) { }
+
+        bool sceneTriggered = false;
+        EventMap events;
+
+        void MoveInLineOfSight(Unit* who) override
+        {
+            Player* player = who->ToPlayer();
+            if (!player)
+                return;
+
+            if (player->GetDistance2d(me) >= 40.0f)
+                return;
+
+            if (player->GetPositionZ() - 5.0f > me->GetPositionZ())
+                return;
+
+            if (player->GetQuestStatus(QUEST_THE_PORTALS_POWER) == QUEST_STATUS_NONE)
+                return;
+
+            if (player->GetQuestObjectiveCounter(OBJECTIVE_ENTER_GULDANS_PRISON) > 1)
+                return;
+
+            if (!sceneTriggered)
+            {
+                player->CastSpell(player, SPELL_SCENE_GULDAN_REVEAL);
+                player->CastSpell(player, SPELL_PORTAL_CREDIT);
+                sceneTriggered = true;
+                events.ScheduleEvent(EVENT_GULDAN_SAY_FIRST_LINE, 12s);
+            }
+        }
+
+        void DoAction(int32 action) override
+        {
+            switch (action)
+            {
+                case ACTION_GULDAN_SAY_SECOND_LINE:
+                    Talk(SAY_GULDAN_SECOND_LINE);
+                    break;
+                case ACTION_GULDAN_SAY_THIRD_LINE:
+                    Talk(SAY_GULDAN_THIRD_LINE);
+                    break;
+                case ACTION_GULDAN_SAY_FOURTH_LINE:
+                    Talk(SAY_GULDAN_FOURTH_LINE);
+                    break;
+            }
+        }
+
+        void UpdateAI(uint32 const diff) override
+        {
+            events.Update(diff);
+
+            switch (events.ExecuteEvent())
+            {
+                case EVENT_GULDAN_SAY_FIRST_LINE:
+                    Talk(SAY_GULDAN_FIRST_LINE);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_guldan_78333AI(creature);
+    }
+};
+
+struct quest_portals_power : public QuestScript
+{
+public:
+    quest_portals_power() : QuestScript("quest_portals_power") { }
+
+    void OnQuestObjectiveChange(Player* player, Quest const* /*quest*/, QuestObjective const& objective, int32 /*oldAmount*/, int32 /*newAmount*/)
+    {
+        switch (objective.ID)
+        {
+            case OBJECTIVE_BURNING_BLADE_DESTROYED:
+                if (Creature* guldan = player->FindNearestCreature(NPC_GULDAN, 50.0f))
+                guldan->AI()->DoAction(ACTION_GULDAN_SAY_SECOND_LINE);
+                break;
+            case OBJECTIVE_SHATTERED_HAND_DESTROYED:
+                if (Creature* guldan = player->FindNearestCreature(NPC_GULDAN, 50.0f))
+                guldan->AI()->DoAction(ACTION_GULDAN_SAY_THIRD_LINE);
+                break;
+            case OBJECTIVE_BLACKROCK_MARK_DESTROYED:
+                if (Creature* guldan = player->FindNearestCreature(NPC_GULDAN, 50.0f))
+                guldan->AI()->DoAction(ACTION_GULDAN_SAY_FOURTH_LINE);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void OnQuestComplete(Player* player, Quest const* quest)
+    {
+        if (quest->GetQuestId() == QUEST_THE_PORTALS_POWER)
+            player->GetSceneMgr().PlaySceneByPackageId(SCENE_GULDAN_FREED);
+    }
+};
+
 /// 237670/237667 - Dark Portal
 class go_platform_tanaan : public GameObjectScript
 {
@@ -279,5 +408,7 @@ void AddSC_assault_on_the_dark_portal()
     new npc_thaelin_darkanvil_78568();
     new npc_hansel_heavyhands_78569();
     new quest_onslaughts_end();
+    new npc_guldan_78333();
+    new quest_portals_power();
     new go_platform_tanaan();
 }
