@@ -1,0 +1,1 @@
+DELETE FROM `gameobject` WHERE `guid` IN (1250154, 1250155);
