@@ -59,6 +59,7 @@ enum AssaultOnTheDarkPortalQuestObjectives
 	OBJECTIVE_BLACKROCK_MARK_DESTROYED  = 273557,
 
     OBJECTIVE_ENTER_GULDANS_PRISON      = 273930,
+    OBJECTIVE_STASIS_RUNE_DESTROYED     = 273936,
 };
 
 enum AssaultOnTheDarkPortalScenes
@@ -367,24 +368,70 @@ public:
             case OBJECTIVE_BURNING_BLADE_DESTROYED:
                 if (Creature* guldan = player->FindNearestCreature(NPC_GULDAN, 50.0f))
                 guldan->AI()->DoAction(ACTION_GULDAN_SAY_SECOND_LINE);
+                PhasingHandler::OnConditionChange(player);
                 break;
             case OBJECTIVE_SHATTERED_HAND_DESTROYED:
                 if (Creature* guldan = player->FindNearestCreature(NPC_GULDAN, 50.0f))
                 guldan->AI()->DoAction(ACTION_GULDAN_SAY_THIRD_LINE);
+                PhasingHandler::OnConditionChange(player);
                 break;
             case OBJECTIVE_BLACKROCK_MARK_DESTROYED:
                 if (Creature* guldan = player->FindNearestCreature(NPC_GULDAN, 50.0f))
                 guldan->AI()->DoAction(ACTION_GULDAN_SAY_FOURTH_LINE);
+                PhasingHandler::OnConditionChange(player);
+                break;
+            case OBJECTIVE_STASIS_RUNE_DESTROYED:
+                player->GetSceneMgr().PlaySceneByPackageId(SCENE_GULDAN_FREED);
+                PhasingHandler::OnConditionChange(player);
                 break;
             default:
                 break;
         }
     }
+};
 
-    void OnQuestComplete(Player* player, Quest const* quest)
+enum TheCostOfWar
+{
+	SPELL_DARK_PORTAL_RUN_AWAY = 158985,
+};
+
+// 34420 - The Cost of War
+class quest_the_cost_of_war : public QuestScript
+{
+public:
+    quest_the_cost_of_war() : QuestScript("quest_the_cost_of_war") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
-        if (quest->GetQuestId() == QUEST_THE_PORTALS_POWER)
-            player->GetSceneMgr().PlaySceneByPackageId(SCENE_GULDAN_FREED);
+        if (newStatus == QUEST_STATUS_NONE)
+        {
+            player->RemoveAurasDueToSpell(SPELL_DARK_PORTAL_RUN_AWAY);
+            PhasingHandler::OnConditionChange(player);
+        }
+        else if (newStatus == QUEST_STATUS_INCOMPLETE)
+        {
+            player->CastSpell(player, SPELL_DARK_PORTAL_RUN_AWAY);
+            PhasingHandler::OnConditionChange(player);
+        }
+    }
+};
+
+// SceneId: 621
+class scene_the_cost_of_war : public SceneScript
+{
+public:
+    scene_the_cost_of_war() : SceneScript("scene_the_cost_of_war") { }
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+		player->RemoveAurasDueToSpell(SPELL_DARK_PORTAL_RUN_AWAY);
+        PhasingHandler::OnConditionChange(player);
+    }
+
+    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->RemoveAurasDueToSpell(SPELL_DARK_PORTAL_RUN_AWAY);
+        PhasingHandler::OnConditionChange(player);
     }
 };
 
@@ -423,5 +470,7 @@ void AddSC_assault_on_the_dark_portal()
     new quest_onslaughts_end();
     new npc_guldan_78333();
     new quest_portals_power();
+    new quest_the_cost_of_war();
+    new scene_the_cost_of_war();
     new go_platform_tanaan();
 }
