@@ -4343,7 +4343,7 @@ void Spell::SendSpellGo()
                 {
                     castData.RemainingRunes->Cooldowns.push_back(0);
                 }
-            }     
+            }
         }
     }
 
@@ -5165,12 +5165,15 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         // do not allow to cast on hostile targets in sanctuary
         if (!m_caster->IsFriendlyTo(target) && !m_targets.GetUnitTarget()->ToCreature())
         {
-            if (m_caster->IsInSanctuary() || target->IsInSanctuary())
+            if (target && target->ToCreature() && !m_caster->IsFriendlyTo(target))
             {
-                // fix for duels
-                Player* player = m_caster->ToPlayer();
-                if (!player || !player->duel || target != player->duel->opponent)
-                    return SPELL_FAILED_NOTHING_TO_DISPEL;
+                if (m_caster->IsInSanctuary() || target->IsInSanctuary())
+                {
+                    // fix for duels
+                    Player* player = m_caster->ToPlayer();
+                    if (!player || !player->duel || target != player->duel->opponent)
+                        return SPELL_FAILED_NOTHING_TO_DISPEL;
+                }
             }
         }
 
