@@ -224,6 +224,49 @@ public:
     }
 };
 
+enum OrderCampaignDalaranIntro
+{
+    // Quest
+    QUEST_AN_IMPORTANT_MISSION              = 42814,
+    QUEST_A_DESPERATE_PLEA                  = 41052,
+    QUEST_FELSTORMS_PLEA                    = 41035,
+    QUEST_NEEDS_OF_THE_HUNTER               = 40384,
+    QUEST_CALL_OF_THE_UNCROWNED             = 40832,
+    QUEST_PRIESTLY_MATTERS                  = 40705,
+    QUEST_THE_SIXTH                         = 40716,
+    QUEST_AN_URGENT_GATHERING               = 38710,
+    QUEST_A_SUMMONS_FROM_MOONGLADE          = 40643,
+    QUEST_BEFORE_THE_STORM                  = 12103,
+    QUEST_CALL_OF_THE_ILLIDARI_ALTRUIS      = 39047,
+    QUEST_CALL_OF_THE_ILLIDARI_JAYCE        = 39261,
+    QUEST_THE_CALL_TO_WAR                   = 40714,
+
+    // Tracking Quests DH
+    QUEST_A_NEW_DIRECTION_ALTRUIS           = 40375,
+    QUEST_A_NEW_DIRECTION_JAYCE             = 40374,
+
+    // Mage
+    SPELL_MAGE_ORDER_FORMATION              = 195356,
+
+    // Death Knight
+    SPELL_AN_AUDIENCE_WITH_THE_KING         = 200023,
+
+    // Summon Spells
+    SPELL_SUMMON_DALTON_WARRIOR             = 216497,
+    SPELL_SUMMON_EITRIGG_WARRIOR            = 216443,
+    SPELL_SUMMON_SNOWFEATHER_HUNTER         = 196908,
+    SPELL_SUMMON_RAVENHOLDT_COURIER_ROGUE   = 201208,
+    SPELL_A_SUMMON_MESSENGER_PRIEST         = 202051,
+    SPELL_H_SUMMON_MESSENGER_PRIEST         = 226409,
+    SPELL_SUMMON_RYSSTINS_PORTAL_WARLOCK    = 204858,
+    SPELL_SUMMON_RYSSTINS_WARLOCK           = 204860,
+    SPELL_SUMMON_MAXWELL_TYROSUS_PALADIN    = 190886,
+    SPELL_SUMMON_DA_NEL_MONK                = 193978,
+    SPELL_SUMMON_KORVAS_DH                  = 195286,
+	SPELL_SUMMON_ALTRUIS_DH                 = 188458,
+    SPELL_SUMMON_RUNETOTEM_DRUID            = 199277
+};
+
 enum DownToAzsuna
 {
     QUEST_PARADISE_LOST                = 39718,
