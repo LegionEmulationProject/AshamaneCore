@@ -1,0 +1,1 @@
+UPDATE `gameobject_template` SET `name`='Iron Horde Capsule' WHERE `entry`=231763;
