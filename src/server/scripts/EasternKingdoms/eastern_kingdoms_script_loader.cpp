@@ -151,6 +151,7 @@ void AddSC_boss_ironaya();
 void AddSC_uldaman();
 void AddSC_instance_uldaman();
 void AddSC_instance_the_stockade();             //The Stockade
+void AddSC_the_stockade();
 void AddSC_boss_hogger();
 void AddSC_boss_randolph_moloch();
 void AddSC_boss_lord_overheat();
@@ -389,6 +390,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_kiljaeden();
     AddSC_sunwell_plateau();
     AddSC_instance_the_stockade();              //The Stockade
+    AddSC_the_stockade();
     AddSC_boss_hogger();
     AddSC_boss_randolph_moloch();
     AddSC_boss_lord_overheat();
