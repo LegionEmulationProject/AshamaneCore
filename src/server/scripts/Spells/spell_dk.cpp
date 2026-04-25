@@ -1347,6 +1347,57 @@ public:
     }
 };
 
+// Asphyxiate - 108194
+class spell_dk_asphyxiate : public SpellScriptLoader
+{
+public:
+    spell_dk_asphyxiate() : SpellScriptLoader("spell_dk_asphyxiate") { }
+
+    class spell_dk_asphyxiate_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_asphyxiate_AuraScript);
+
+        void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+            {
+                target->AttackStop();
+                target->StopMoving();
+                target->CastStop();
+                target->SetControlled(true, UNIT_STATE_STUNNED);
+            }
+        }
+
+        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                target->SetControlled(false, UNIT_STATE_STUNNED);
+        }
+
+        void Register() override
+        {
+            AfterEffectApply += AuraEffectApplyFn(
+                spell_dk_asphyxiate_AuraScript::HandleApply,
+                EFFECT_0,
+                SPELL_AURA_STRANGULATE,
+                AURA_EFFECT_HANDLE_REAL
+            );
+
+            AfterEffectRemove += AuraEffectRemoveFn(
+                spell_dk_asphyxiate_AuraScript::HandleRemove,
+                EFFECT_0,
+                SPELL_AURA_STRANGULATE,
+                AURA_EFFECT_HANDLE_REAL
+            );
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dk_asphyxiate_AuraScript();
+    }
+};
+
 // Death Siphon - 108196
 class spell_dk_death_siphon : public SpellScriptLoader
 {
@@ -2639,6 +2690,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_anti_magic_shell_self();
     new spell_dk_army_periodic_taunt();
     new spell_dk_army_transform();
+    new spell_dk_asphyxiate();
     new spell_dk_blood_boil();
     new spell_dk_blood_charges();
     new spell_dk_blood_gorged();
