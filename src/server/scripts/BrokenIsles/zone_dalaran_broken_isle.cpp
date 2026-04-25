@@ -276,6 +276,8 @@ enum DownToAzsuna
 
     SPELL_TAXI_DALARAN_AZSUNA_ALLIANCE = 205098,
     SPELL_TAXI_DALARAN_AZSUNA_HORDE    = 205203,
+
+    SPELL_DOWN_TO_AZSUNA_SUMMON_KHADGAR_RAVEN = 205204,
 };
 
 class npc_archmage_khadgar_86563 : public CreatureScript
@@ -336,6 +338,108 @@ public:
     }
 };
 
+class quest_down_to_azsuna : public QuestScript
+{
+public:
+    quest_down_to_azsuna() : QuestScript("quest_down_to_azsuna") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus = QUEST_STATUS_COMPLETE)
+        {
+            player->CastSpell(player, SPELL_DOWN_TO_AZSUNA_SUMMON_KHADGAR_RAVEN, true);
+        }
+    }
+};
+
+enum KhadgarRaven
+{
+    EVENT_SAY_FIRST_LINE,
+    EVENT_SAY_SECOND_LINE,
+    EVENT_SAY_THIRD_LINE,
+    EVENT_SAY_FOURTH_LINE,
+    EVENT_SAY_FIFTH_LINE,
+    EVENT_SAY_SIXTH_LINE,
+    EVENT_DESPAWN,
+
+    SAY_KHADGAR_RAVEN_FIRST_LINE  = 0,
+    SAY_KHADGAR_RAVEN_SECOND_LINE = 1,
+    SAY_KHADGAR_RAVEN_THIRD_LINE  = 2,
+    SAY_KHADGAR_RAVEN_FOURTH_LINE = 3,
+    SAY_KHADGAR_RAVEN_FIFTH_LINE  = 4,
+    SAY_KHADGAR_RAVEN_SIXTH_LINE  = 5,
+};
+
+class npc_archmage_khadgar_103660: public CreatureScript
+{
+public:
+    npc_archmage_khadgar_103660() : CreatureScript("npc_archmage_khadgar_103660") { }
+
+    struct npc_archmage_khadgar_103660AI : public ScriptedAI
+    {
+        npc_archmage_khadgar_103660AI(Creature* creature) : ScriptedAI(creature) { }
+
+        EventMap events;
+
+        void Reset() override
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_SAY_FIRST_LINE, 9484);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_SAY_FIRST_LINE:
+                        Talk(SAY_KHADGAR_RAVEN_FIRST_LINE);
+                        events.ScheduleEvent(EVENT_SAY_SECOND_LINE, 11313); 
+                        break;
+
+                    case EVENT_SAY_SECOND_LINE:
+                        Talk(SAY_KHADGAR_RAVEN_SECOND_LINE);
+                        events.ScheduleEvent(EVENT_SAY_THIRD_LINE, 49538); 
+                        break;
+
+                    case EVENT_SAY_THIRD_LINE:
+                        Talk(SAY_KHADGAR_RAVEN_THIRD_LINE);
+                        events.ScheduleEvent(EVENT_SAY_FOURTH_LINE, 11203);
+                        break;
+
+                    case EVENT_SAY_FOURTH_LINE:
+                        Talk(SAY_KHADGAR_RAVEN_FOURTH_LINE);
+                        events.ScheduleEvent(EVENT_SAY_FIFTH_LINE, 12516);
+                        break;
+
+                    case EVENT_SAY_FIFTH_LINE:
+                        Talk(SAY_KHADGAR_RAVEN_FIFTH_LINE);
+                        events.ScheduleEvent(EVENT_SAY_SIXTH_LINE, 13406);
+                        break;
+
+                    case EVENT_SAY_SIXTH_LINE:
+                        Talk(SAY_KHADGAR_RAVEN_SIXTH_LINE);
+                        events.ScheduleEvent(EVENT_DESPAWN, 5156);
+                        break;
+
+                    case EVENT_DESPAWN:
+                        me->DespawnOrUnsummon();
+                        break;
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_archmage_khadgar_103660AI(creature);
+    }
+};
+
+
 void AddSC_zone_dalaran_broken_isle()
 {
     // new OnLegionArrival();
@@ -345,5 +449,7 @@ void AddSC_zone_dalaran_broken_isle()
     new npc_dalaran_karazhan_khadgar();
     new scene_dalaran_kharazan_teleportion();
     new zone_legion_dalaran_underbelly();
-	 new npc_archmage_khadgar_86563();
+	new npc_archmage_khadgar_86563();
+    new quest_down_to_azsuna();
+    new npc_archmage_khadgar_103660();
 }
