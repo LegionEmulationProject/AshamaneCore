@@ -1,0 +1,1 @@
+UPDATE creature_template SET name = 'Goblin Assassin', faction = 7, npcflag = 0, unit_flags = 0, unit_flags2 = 2048, unit_flags3 = 0, dynamicflags = 4, flags_extra = 0, AIName = 'SmartAI', ScriptName = '' WHERE entry = 50039;
