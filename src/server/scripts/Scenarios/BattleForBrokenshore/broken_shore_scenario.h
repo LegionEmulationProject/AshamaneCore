@@ -47,6 +47,13 @@ enum CreatureIds
     NPC_KROSS           = 90544,
 };
 
+enum GameobjectIds
+{
+    // Transports
+    GO_ALLIANCE_BATTLESHIP  = 251513,
+    GO_HORDE_BATTLESHIP     = 254124,
+};
+
 enum Spells
 {
     SPELL_CANNONBALLS_SCENE_A = 183341,
