@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
  * Copyright (C) 2008-2026 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2025-2026 LegionEmulationProject <https://github.com/LegionEmulationProject>
@@ -37,7 +37,7 @@
 class instance_broken_shore_scenario : public InstanceMapScript
 {
 public:
-    instance_broken_shore_scenario() : InstanceMapScript("scenario_broken_shore_7.0", 1460) {}
+    instance_broken_shore_scenario() : InstanceMapScript("instance_broken_shore_scenario", 1460) {}
 
     struct instance_broken_shore_scenario_InstanceScript : public InstanceScript
     {
