@@ -35,6 +35,7 @@
 #include "TemporarySummon.h"
 #include "SpellHistory.h"
 #include "Containers.h"
+#include "Log.h"
 
 enum DeathKnightSpells
 {
@@ -171,6 +172,8 @@ enum DeathKnightSpells
     SPELL_DK_UNHOLY_VIGOR                       = 196263,
     SPELL_DK_ARMY_OF_THE_DEAD                   = 42651,
     ENTRY_DK_ARMY_OF_THE_DEAD_GHOUL             = 24207,
+    SPELL_DK_DEBILITATING_INFESTATION           = 208278,
+    SPELL_DK_DEBILITATING_INFESTATION_TALENT    = 207316,
 };
 
 // 70656 - Advantage (T10 4P Melee Bonus)
@@ -1610,16 +1613,86 @@ class spell_dk_outbreak : public SpellScript
 {
     PrepareSpellScript(spell_dk_outbreak);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_DK_OUTBREAK_PERIODIC,
+            SPELL_DK_DEBILITATING_INFESTATION
+        });
+    }
+
+    bool HasDebilitatingInfestationTalent(Unit* caster) const
+    {
+        if (!caster)
+            return false;
+
+        // Talent-selected player check.
+        if (Player* player = caster->ToPlayer())
+            if (player->HasSpell(SPELL_DK_DEBILITATING_INFESTATION_TALENT))
+                return true;
+    }
+
     void HandleOnHit(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* target = GetHitUnit())
-            if (!target->HasAura(SPELL_DK_OUTBREAK_PERIODIC, GetCaster()->GetGUID()))
-                GetCaster()->CastSpell(target, SPELL_DK_OUTBREAK_PERIODIC, true);
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (!caster || !target)
+            return;
+
+        if (!target->HasAura(SPELL_DK_OUTBREAK_PERIODIC, caster->GetGUID()))
+            caster->CastSpell(target, SPELL_DK_OUTBREAK_PERIODIC, true);
+
+        if (HasDebilitatingInfestationTalent(caster))
+            caster->CastSpell(target, SPELL_DK_DEBILITATING_INFESTATION, true);
+
+        if (Aura* aura = target->GetAura(SPELL_DK_DEBILITATING_INFESTATION, caster->GetGUID()))
+        {
+            if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
+            {
+                TC_LOG_INFO("server.worldserver",
+                    "Debilitating Infestation amount=%d",
+                    eff->GetAmount());
+            }
+            else
+            {
+                TC_LOG_INFO("server.worldserver",
+                    "Debilitating Infestation aura found but EFFECT_0 missing");
+            }
+        }
+        else
+        {
+            TC_LOG_INFO("server.worldserver",
+                "Debilitating Infestation aura not found on target");
+        }
     }
+
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dk_outbreak::HandleOnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 208278 - Debilitating Infestation
+class spell_dk_debilitating_infestation : public AuraScript
+{
+    PrepareAuraScript(spell_dk_debilitating_infestation);
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        amount = -std::abs(amount);
+        canBeRecalculated = false;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(
+            spell_dk_debilitating_infestation::CalculateAmount,
+            EFFECT_0,
+            SPELL_AURA_MOD_DECREASE_SPEED
+        );
     }
 };
 
@@ -2881,6 +2954,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_icy_touch();
     new spell_dk_marrowrend();
     RegisterSpellScript(spell_dk_outbreak);
+    RegisterAuraScript(spell_dk_debilitating_infestation);
     RegisterAuraScript(aura_dk_outbreak_periodic);
     new spell_dk_pet_geist_transform();
     new spell_dk_pet_skeleton_transform();
