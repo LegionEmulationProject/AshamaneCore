@@ -33,7 +33,8 @@ enum DeathKnightSpells
     SPELL_DK_SUMMON_GARGOYLE_1      = 49206,
     SPELL_DK_SUMMON_GARGOYLE_2      = 50514,
     SPELL_DK_DISMISS_GARGOYLE       = 50515,
-    SPELL_DK_SANCTUARY              = 54661
+    SPELL_DK_SANCTUARY              = 54661,
+    NPC_DK_ARMY_OF_THE_DEAD_GHOUL   = 24207,
 };
 
 class npc_pet_dk_ebon_gargoyle : public CreatureScript
@@ -111,7 +112,141 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
         }
 };
 
+class npc_pet_dk_army_of_the_dead_ghoul : public CreatureScript
+{
+public:
+    npc_pet_dk_army_of_the_dead_ghoul() : CreatureScript("npc_pet_dk_army_of_the_dead_ghoul") { }
+
+    struct npc_pet_dk_army_of_the_dead_ghoulAI : ScriptedAI
+    {
+        npc_pet_dk_army_of_the_dead_ghoulAI(Creature* creature) : ScriptedAI(creature) { }
+
+        float _followAngle = PET_FOLLOW_ANGLE;
+        uint32 _followCheckTimer = 500;
+
+        Unit* GetOwner() const
+        {
+            return me->GetOwner();
+        }
+
+        uint8 GetArmySlot(Unit* owner) const
+        {
+            if (!owner)
+                return 0;
+
+            std::list<TempSummon*> armyGhouls;
+            owner->GetAllMinionsByEntry(armyGhouls, NPC_DK_ARMY_OF_THE_DEAD_GHOUL);
+
+            std::vector<TempSummon*> sortedGhouls;
+            sortedGhouls.reserve(armyGhouls.size());
+
+            for (TempSummon* ghoul : armyGhouls)
+            {
+                if (!ghoul)
+                    continue;
+
+                sortedGhouls.push_back(ghoul);
+            }
+
+            std::sort(sortedGhouls.begin(), sortedGhouls.end(),
+                [](TempSummon* left, TempSummon* right)
+                {
+                    return left->GetGUID().GetCounter() < right->GetGUID().GetCounter();
+                });
+
+            TempSummon* self = me->ToTempSummon();
+            auto itr = std::find(sortedGhouls.begin(), sortedGhouls.end(), self);
+
+            if (itr != sortedGhouls.end())
+                return uint8(std::distance(sortedGhouls.begin(), itr) % 8);
+
+            return 0;
+        }
+
+        void RefreshFollowAngle()
+        {
+            Unit* owner = GetOwner();
+            if (!owner)
+                return;
+
+            constexpr uint8 MAX_ARMY_GHOUL_SLOTS = 8;
+            constexpr float angleStep = float((2.0f * M_PI) / MAX_ARMY_GHOUL_SLOTS);
+
+            uint8 slot = GetArmySlot(owner);
+            _followAngle = PET_FOLLOW_ANGLE + (angleStep * slot);
+
+            if (me->HasUnitTypeMask(UNIT_MASK_MINION))
+            {
+                if (TempSummon* tempSummon = me->ToTempSummon())
+                {
+                    Minion* minion = static_cast<Minion*>(tempSummon);
+                    minion->SetFollowAngle(_followAngle);
+                }
+            }
+        }
+
+        void MoveToOwnerSwarmPosition()
+        {
+            Unit* owner = GetOwner();
+            if (!owner)
+                return;
+
+            if (me->IsInCombat() || me->GetVictim())
+                return;
+
+            RefreshFollowAngle();
+
+            me->GetMotionMaster()->Clear(false);
+            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, _followAngle, MOTION_SLOT_ACTIVE);
+        }
+
+        void InitializeAI() override
+        {
+            ScriptedAI::InitializeAI();
+
+            me->SetReactState(REACT_AGGRESSIVE);
+
+            me->GetScheduler().Schedule(Milliseconds(100), [](TaskContext context)
+            {
+                Unit* unit = context.GetUnit();
+                if (!unit)
+                    return;
+
+                Creature* ghoul = unit->ToCreature();
+                if (!ghoul)
+                    return;
+
+                if (npc_pet_dk_army_of_the_dead_ghoulAI* ai = CAST_AI(npc_pet_dk_army_of_the_dead_ghoulAI, ghoul->AI()))
+                    ai->MoveToOwnerSwarmPosition();
+            });
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (UpdateVictim())
+            {
+                DoMeleeAttackIfReady();
+                return;
+            }
+
+            if (_followCheckTimer <= diff)
+            {
+                MoveToOwnerSwarmPosition();
+                _followCheckTimer = 500;
+            }
+            else
+                _followCheckTimer -= diff;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_pet_dk_army_of_the_dead_ghoulAI(creature);
+    }
+};
+
 void AddSC_deathknight_pet_scripts()
 {
     new npc_pet_dk_ebon_gargoyle();
+    new npc_pet_dk_army_of_the_dead_ghoul();
 }
