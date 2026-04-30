@@ -549,6 +549,24 @@ public:
     }
 };
 
+enum DreadlordsPrize
+{
+    SPELL_MERYL_CLONED        = 223059,
+};
+
+class quest_the_dreadlords_prize : public QuestScript
+{
+public:
+    quest_the_dreadlords_prize() : QuestScript("quest_the_dreadlords_prize") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus = QUEST_STATUS_INCOMPLETE)
+        {
+            player->CastSpell(player, SPELL_MERYL_CLONED, true);
+        }
+    }
+};
 
 void AddSC_zone_dalaran_broken_isle()
 {
@@ -562,6 +580,7 @@ void AddSC_zone_dalaran_broken_isle()
 	new npc_archmage_khadgar_86563();
     new quest_down_to_azsuna();
     new npc_archmage_khadgar_103660();
+    new quest_the_dreadlords_prize();
 
     // Spellscripts
     new spell_dalaran_order_campaign_intro_aura();
