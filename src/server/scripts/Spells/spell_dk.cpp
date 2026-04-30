@@ -170,8 +170,6 @@ enum DeathKnightSpells
     SPELL_DK_PESTILENT_PUSTULES                 = 194917,
     SPELL_DK_CASTIGATOR                         = 207305,
     SPELL_DK_UNHOLY_VIGOR                       = 196263,
-    SPELL_DK_ARMY_OF_THE_DEAD                   = 42651,
-    ENTRY_DK_ARMY_OF_THE_DEAD_GHOUL             = 24207,
     SPELL_DK_DEBILITATING_INFESTATION           = 208278,
     SPELL_DK_DEBILITATING_INFESTATION_TALENT    = 207316,
 };
@@ -375,57 +373,6 @@ static const uint32 ArmyTransforms[6]
     SPELL_DK_ARMY_SKELETON_TRANSFORM,
     SPELL_DK_ARMY_SPIKED_GHOUL_TRANSFORM,
     SPELL_DK_ARMY_SUPER_ZOMBIE_TRANSFORM
-};
-
-// 42651 - Army of the Dead
-class spell_dk_army_of_the_dead : public SpellScriptLoader
-{
-    public:
-        spell_dk_army_of_the_dead() : SpellScriptLoader("spell_dk_army_of_the_dead") { }
-
-        class spell_dk_army_of_the_dead_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_army_of_the_dead_SpellScript);
-
-            void HandleSummon(Creature* summon)
-            {
-                Unit* caster = GetCaster();
-                if (!caster || !summon || summon->GetEntry() != ENTRY_DK_ARMY_OF_THE_DEAD_GHOUL || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
-                    return;
-
-                std::list<TempSummon*> armyGhouls;
-                caster->GetAllMinionsByEntry(armyGhouls, ENTRY_DK_ARMY_OF_THE_DEAD_GHOUL);
-
-                uint32 slot = 0;
-                if (!armyGhouls.empty())
-                    slot = uint32(armyGhouls.size() - 1);
-
-                constexpr float angleStep = float((2.0f * M_PI) / 8.0f);
-                float followAngle = PET_FOLLOW_ANGLE + (angleStep * slot);
-                TempSummon* tempSummon = summon->ToTempSummon();
-                if (!tempSummon)
-                    return;
-
-                Minion* minion = static_cast<Minion*>(tempSummon);
-                minion->SetFollowAngle(followAngle);
-
-                if (!summon->GetVictim())
-                {
-                    summon->GetMotionMaster()->Clear(false);
-                    summon->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, followAngle, MOTION_SLOT_ACTIVE);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectSummon += SpellOnEffectSummonFn(spell_dk_army_of_the_dead_SpellScript::HandleSummon);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_dk_army_of_the_dead_SpellScript();
-        }
 };
 
 // 127517 - Army Transform
@@ -1631,6 +1578,7 @@ class spell_dk_outbreak : public SpellScript
         if (Player* player = caster->ToPlayer())
             if (player->HasSpell(SPELL_DK_DEBILITATING_INFESTATION_TALENT))
                 return true;
+        return false;
     }
 
     void HandleOnHit(SpellEffIndex /*effIndex*/)
@@ -1646,26 +1594,6 @@ class spell_dk_outbreak : public SpellScript
 
         if (HasDebilitatingInfestationTalent(caster))
             caster->CastSpell(target, SPELL_DK_DEBILITATING_INFESTATION, true);
-
-        if (Aura* aura = target->GetAura(SPELL_DK_DEBILITATING_INFESTATION, caster->GetGUID()))
-        {
-            if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
-            {
-                TC_LOG_INFO("server.worldserver",
-                    "Debilitating Infestation amount=%d",
-                    eff->GetAmount());
-            }
-            else
-            {
-                TC_LOG_INFO("server.worldserver",
-                    "Debilitating Infestation aura found but EFFECT_0 missing");
-            }
-        }
-        else
-        {
-            TC_LOG_INFO("server.worldserver",
-                "Debilitating Infestation aura not found on target");
-        }
     }
 
 
@@ -2921,7 +2849,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_anti_magic_shell_self();
     new spell_dk_army_periodic_taunt();
     new spell_dk_army_transform();
-    new spell_dk_army_of_the_dead();
     new spell_dk_asphyxiate();
     new spell_dk_blood_boil();
     new spell_dk_blood_charges();
