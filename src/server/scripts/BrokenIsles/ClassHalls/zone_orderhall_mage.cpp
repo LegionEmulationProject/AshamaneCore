@@ -18,7 +18,15 @@
  */
 
 #include "Conversation.h"
+#include "MotionMaster.h"
+#include "ObjectMgr.h"
+#include "PhasingHandler.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "ScriptMgr.h"
+#include "Chat.h"
 
 enum MageArtifactChoice
 {
@@ -26,6 +34,11 @@ enum MageArtifactChoice
     PLAYER_CHOICE_RESPONSE_ARCANE   = 584,
     PLAYER_CHOICE_RESPONSE_FIRE     = 585,
     PLAYER_CHOICE_RESPONSE_FROST    = 586,   
+};
+
+enum MageCreatureText
+{
+    SAY_MERYL_HURRY                 = 0,
 };
 
 enum MageQuests
@@ -61,12 +74,76 @@ enum MageCreatureIds
     NPC_ALODI          = 102846,
 };
 
-enum MageEtc
+enum MageSpells
 {
-    CONVERSATION_THE_DREADLORDS_PRIZE_END = 1281,
     SPELL_TELE_TO_THE_DREADLORDS_PRIZE = 203241,
+};
+
+enum MageConversations
+{
+    CONVERSATION_THE_DREADLORDS_PRIZE = 3364,
+    CONVERSATION_THE_DREADLORDS_PRIZE_END = 1281,
+};
+
+enum DreadlordsPrize
+{
+    ACTION_QUEST_TAKEN,
+
+    EVENT_QUEST_TAKEN,
+    EVENT_SAY_HURRY,
+    EVENT_MOVE_TO_POS, 
+};
+
+class npc_meryl_felstorm_102700 : public CreatureScript
+{
+public:
+    npc_meryl_felstorm_102700() : CreatureScript("npc_meryl_felstorm_102700") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_meryl_felstorm_102700AI(creature);
+    }
+
+    struct npc_meryl_felstorm_102700AI : public npc_escortAI
+    {
+        npc_meryl_felstorm_102700AI(Creature* creature) : npc_escortAI(creature) {}
+
+        void sQuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_THE_DREADLORDS_PRIZE)
+            {
+                player->SummonCreature(NPC_MERYL_FELSTORM, -843.19965f, 4431.2007f, 742.70355f, 4.810614f, TEMPSUMMON_MANUAL_DESPAWN);
+                {
+                    if (Creature* meryl = player->FindNearestCreature(NPC_MERYL_FELSTORM, 20.0f))
+                    {
+                        meryl->AI()->DoAction(ACTION_QUEST_TAKEN);
+                    }
+                    Conversation::CreateConversation(CONVERSATION_THE_DREADLORDS_PRIZE, player, player->GetPosition(), { player->GetGUID() });
+                }
+            }
+        }
+
+        void DoAction(int32 action) override
+        {
+            switch (action)
+            {
+                case ACTION_QUEST_TAKEN:
+                    Start(false, true);
+                    break;
+            }
+        }
+
+        void WaypointReached(uint32 waypointId) override
+        {
+            if (waypointId == 15)
+            {
+                Talk(SAY_MERYL_HURRY);
+            }
+        }
+    };  
 };
 
 void AddSC_zone_orderhall_mage()
 {
+    new npc_meryl_felstorm_102700();
 }
