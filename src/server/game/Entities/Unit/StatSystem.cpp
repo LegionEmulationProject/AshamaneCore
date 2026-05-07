@@ -738,7 +738,7 @@ void Player::UpdateSpellCritChance()
 void Player::UpdateArmorPenetration(int32 amount)
 {
     // Store Rating Value
-    SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_ARMOR_PENETRATION, amount);
+    SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + AsUnderlyingType(CR_ARMOR_PENETRATION), amount);
 }
 
 void Player::UpdateMeleeHitChances()

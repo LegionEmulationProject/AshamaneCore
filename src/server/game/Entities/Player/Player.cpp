@@ -5592,7 +5592,7 @@ void Player::ModifySkillBonus(uint32 skillid, int32 val, bool talent)
     if (itr == mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
         return;
 
-    uint16 field = itr->second.pos / 2 + (talent ? PLAYER_SKILL_LINEID + SKILL_PERM_BONUS_OFFSET : PLAYER_SKILL_LINEID + SKILL_TEMP_BONUS_OFFSET);
+    uint16 field = itr->second.pos / 2 + (talent ? PLAYER_SKILL_LINEID +  AsUnderlyingType(SKILL_PERM_BONUS_OFFSET) : PLAYER_SKILL_LINEID + AsUnderlyingType(SKILL_TEMP_BONUS_OFFSET));
     uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
 
     uint16 bonus = GetUInt16Value(field, offset);
@@ -5837,7 +5837,7 @@ uint16 Player::GetSkillStep(uint16 skill) const
     if (itr == mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
         return 0;
 
-    return GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_STEP_OFFSET + itr->second.pos / 2, itr->second.pos & 1);
+    return GetUInt16Value(PLAYER_SKILL_LINEID + AsUnderlyingType(SKILL_STEP_OFFSET) + itr->second.pos / 2, itr->second.pos & 1);
 }
 
 uint16 Player::GetSkillValue(uint32 skill) const
@@ -20799,7 +20799,7 @@ void Player::SaveToDB(bool create /*=false*/)
             stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i));
         stmt->setUInt8(index++, GetInventorySlotCount());
         stmt->setUInt8(index++, GetBankBagSlotCount());
-        stmt->setUInt8(index++, uint8(GetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP)));
+        stmt->setUInt8(index++, uint8(GetUInt32Value(PLAYER_FIELD_REST_INFO + AsUnderlyingType(REST_STATE_XP))));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FLAGS));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FLAGS_EX));
         stmt->setUInt16(index++, (uint16)GetMapId());
@@ -20927,7 +20927,7 @@ void Player::SaveToDB(bool create /*=false*/)
             stmt->setUInt8(index++, GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i));
         stmt->setUInt8(index++, GetInventorySlotCount());
         stmt->setUInt8(index++, GetBankBagSlotCount());
-        stmt->setUInt8(index++, uint8(GetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP)));
+        stmt->setUInt8(index++, uint8(GetUInt32Value(PLAYER_FIELD_REST_INFO + AsUnderlyingType(REST_STATE_XP))));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FLAGS));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FLAGS_EX));
 
@@ -21055,7 +21055,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_HONOR));
         stmt->setUInt32(index++, GetHonorLevel());
         stmt->setUInt32(index++, GetPrestigeLevel());
-        stmt->setUInt8(index++, uint8(GetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_HONOR)));
+        stmt->setUInt8(index++, uint8(GetUInt32Value(PLAYER_FIELD_REST_INFO + AsUnderlyingType(REST_STATE_HONOR))));
         stmt->setFloat(index++, finiteAlways(_restMgr->GetRestBonus(REST_TYPE_HONOR)));
         stmt->setUInt32(index++, realm.Build);
 

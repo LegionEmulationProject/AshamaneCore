@@ -5111,13 +5111,13 @@ void Unit::InitStatBuffMods()
 
 void Unit::ApplyStatBuffMod(Stats stat, float val, bool apply)
 {
-    ApplyModSignedFloatValue((val > 0 ? UNIT_FIELD_POSSTAT+stat : UNIT_FIELD_NEGSTAT+stat), val, apply);
+    ApplyModSignedFloatValue((val > 0 ? UNIT_FIELD_POSSTAT + AsUnderlyingType(stat) : UNIT_FIELD_NEGSTAT + AsUnderlyingType(stat)), val, apply);
 }
 
 void Unit::ApplyStatPercentBuffMod(Stats stat, float val, bool apply)
 {
-    ApplyPercentModFloatValue(UNIT_FIELD_POSSTAT+stat, val, apply);
-    ApplyPercentModFloatValue(UNIT_FIELD_NEGSTAT+stat, val, apply);
+    ApplyPercentModFloatValue(UNIT_FIELD_POSSTAT + AsUnderlyingType(stat), val, apply);
+    ApplyPercentModFloatValue(UNIT_FIELD_NEGSTAT + AsUnderlyingType(stat), val, apply);
 }
 
 void Unit::_RegisterDynObject(DynamicObject* dynObj)
