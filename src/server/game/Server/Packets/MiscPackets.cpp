@@ -753,3 +753,9 @@ WorldPacket const* WorldPackets::Misc::OpenAlliedRaceDetailsGiver::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Misc::ConversationLineStarted::Read()
+{
+    _worldPacket >> ConversationGUID;
+    _worldPacket >> LineID;
+}
