@@ -16,6 +16,7 @@
  */
 
 #include "Creature.h"
+#include "Conversation.h"
 #include "GameObject.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -26,27 +27,33 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
-enum eQuests
+enum MardumQuestData
 {
-    QUEST_INVASION_BEGIN        = 40077,
-    QUEST_ASHTONGUE_FORCES      = 40378,
-    QUEST_COILSKAR_FORCES       = 40379,
-    QUEST_MEETING_WITH_QUEEN    = 39050,
-    QUEST_SHIVARRA_FORCES       = 38765,
-    QUEST_BEFORE_OVERRUN        = 38766,
-    QUEST_HIDDEN_NO_MORE        = 39495,
-    QUEST_ON_FELBAT_WINGS       = 39663,
-    QUEST_THE_KEYSTONE          = 38728,
+    QUEST_INVASION_BEGIN                         = 40077,
+    QUEST_ASHTONGUE_FORCES                       = 40378,
+    QUEST_COILSKAR_FORCES                        = 40379,
+    QUEST_MEETING_WITH_QUEEN                     = 39050,
+    QUEST_SHIVARRA_FORCES                        = 38765,
+    QUEST_BEFORE_OVERRUN                         = 38766,
+    QUEST_HIDDEN_NO_MORE                         = 39495,
+    QUEST_ON_FELBAT_WINGS                        = 39663,
+    QUEST_THE_KEYSTONE                           = 38728,
 };
 
-enum eScenes
+enum MardumSceneData
 {
-    SPELL_SCENE_MARDUM_WELCOME          = 193525,
-    SPELL_SCENE_MARDUM_LEGION_BANNER    = 191677,
-    SPELL_SCENE_MARDUM_ASHTONGUE_FORCES = 189261,
-    SPELL_SCENE_MARDUM_COILSKAR_FORCES  = 190793,
-    SPELL_SCENE_MEETING_WITH_QUEEN      = 188539,
-    SPELL_SCENE_MARDUM_SHIVARRA_FORCES  = 190851,
+    SPELL_START_DEMON_HUNTER_PLAY_SCENE          = 193525,
+
+    SPELL_SCENE_MARDUM_LEGION_BANNER             = 191677,
+    SPELL_SCENE_MARDUM_ASHTONGUE_FORCES          = 189261,
+    SPELL_SCENE_MARDUM_COILSKAR_FORCES           = 190793,
+    SPELL_SCENE_MEETING_WITH_QUEEN               = 188539,
+    SPELL_SCENE_MARDUM_SHIVARRA_FORCES           = 190851,
+};
+
+enum MardumConversationData
+{
+    CONVO_DEMONHUNTER_INTRO_START                = 705,
 };
 
 enum ePhaseSpells
@@ -102,10 +109,10 @@ public:
         if (checkTimer <= diff)
         {
             if (player->getClass() == CLASS_DEMON_HUNTER && player->GetZoneId() == 7705 && player->GetQuestStatus(QUEST_INVASION_BEGIN) == QUEST_STATUS_NONE &&
-                player->GetPositionY() < 3280 && !player->HasAura(SPELL_SCENE_MARDUM_WELCOME) &&
+                player->GetPositionY() < 3280 && !player->HasAura(SPELL_START_DEMON_HUNTER_PLAY_SCENE) &&
                 !player->HasAura(SPELL_PHASE_MARDUM_WELCOME))
             {
-                player->CastSpell(player, SPELL_SCENE_MARDUM_WELCOME, true);
+                player->CastSpell(player, SPELL_START_DEMON_HUNTER_PLAY_SCENE, true);
             }
 
             checkTimer = 1000;
@@ -118,6 +125,11 @@ class scene_mardum_welcome : public SceneScript
 {
 public:
     scene_mardum_welcome() : SceneScript("scene_mardum_welcome") { }
+
+    void OnSceneStart(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        Conversation::CreateConversation(CONVO_DEMONHUNTER_INTRO_START, player, player->GetPosition(), { player->GetGUID() }, nullptr);
+    }
 
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
