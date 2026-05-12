@@ -21,6 +21,10 @@
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "WaypointMovementGenerator.h"
+#include "TemporarySummon.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "ObjectAccessor.h"
 
 enum eAgitatedEarthSpirit
 {
@@ -115,8 +119,8 @@ struct npc_kyle_the_frenzied : public ScriptedAI
         if (type == POINT_MOTION_TYPE && pointId == 1)
         {
             // Wait 15 seconds then resume path
-            if (WaypointMovementGenerator<Creature>* move = dynamic_cast<WaypointMovementGenerator<Creature>*>(me->GetMotionMaster()->top()))
-                move->GetTrackerTimer().Reset(15000);
+            /*if (WaypointMovementGenerator<Creature>* move = dynamic_cast<WaypointMovementGenerator<Creature>*>(me->GetMotionMaster()->top()))
+                move->GetTrackerTimer().Reset(15000);*/
             Talk(0);
             me->GetScheduler().Schedule(4s, [this](TaskContext /*context*/)
             {

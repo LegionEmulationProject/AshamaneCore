@@ -23,6 +23,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
+#include "MotionMaster.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -32,6 +33,8 @@
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "SpellInfo.h"
+#include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "WorldSession.h"
 
@@ -746,6 +749,8 @@ struct npc_warchief_revenge_cyclone : public npc_escortAI
                 break;
         }
     }
+        // REQUIRED to satisfy npc_escortAI
+    void WaypointReached(uint32 /*pointId*/) override {}
 };
 
 enum UpUpAndAway

@@ -20,6 +20,9 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "WaypointMovementGenerator.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 /*
  *  Aradne, Agatha, Arthura, Daschla
@@ -204,14 +207,14 @@ public:
                                         target->SetControlled(
                                             false, UNIT_STATE_ROOT);
 
-                                        if (!target->GetMotionMaster()->empty())
+                                        /*if (!target->GetMotionMaster()->empty())
                                             if (auto move =
                                                 dynamic_cast<
                                                     WaypointMovementGenerator<
                                                         Creature>*>(target->
                                                     GetMotionMaster()->top()))
                                                 move->GetTrackerTimer().
-                                                    Reset(1);
+                                                    Reset(1); */
                                     }
                                 });
         }

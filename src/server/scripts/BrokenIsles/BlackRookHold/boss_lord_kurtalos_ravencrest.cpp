@@ -20,6 +20,17 @@
 #include "ScriptMgr.h"
 #include "black_rook_hold.h"
 #include "WaypointDefines.h"
+#include "MotionMaster.h"
+#include "UnitDefines.h"
+#include "Unit.h"
+#include "UnitAI.h"
+#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "ObjectAccessor.h"
+#include "TemporarySummon.h"
+#include "Player.h"
 
 enum Spells
 {
@@ -70,7 +81,7 @@ struct boss_kurtalos_ravencrest : public BossAI
 {
     boss_kurtalos_ravencrest(Creature* creature) : BossAI(creature, DATA_LORD_RAVENCREST) { }
 
-    void Reset() override
+    void Reset()
     {
         BossAI::Reset();
 
@@ -161,7 +172,7 @@ struct boss_kurtalos_ravencrest : public BossAI
         }
     }
 
-    void JustDied(Unit* attacker) override
+    void JustDied(Unit* attacker)
     {
         BossAI::JustDied(attacker);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNERRING_SHEAR);
@@ -195,11 +206,19 @@ struct npc_kurtalos_whirling_blade : public ScriptedAI
         }
 
         me->GetMotionMaster()->Clear();
-        path.nodes.clear();
+        // Build simplified Position path
+        std::vector<Position> points;
+        points.reserve(2);
+        points.emplace_back(me->GetPosition());
+        points.emplace_back(target->GetPosition());
 
-        path.nodes.push_back(WaypointNode(1, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()));
-        path.nodes.push_back(WaypointNode(2, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation()));
-        me->GetMotionMaster()->MovePath(path, true);
+        // Move along this 2-point path
+        me->GetMotionMaster()->MoveSmoothPath(
+            1,                   // pointId (any id)
+            points.data(),       // pointer to Position array
+            points.size(),       // count
+            true                 // walk = true
+        );
     }
 private:
     WaypointPath path;
@@ -231,7 +250,7 @@ struct npc_latosius : public ScriptedAI
 {
     npc_latosius(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset() override
+    void Reset()
     {
         SetCombatMovement(false);
         me->SetDisableGravity(false);
