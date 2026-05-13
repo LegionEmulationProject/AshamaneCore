@@ -7333,7 +7333,12 @@ void Player::UpdateArea(uint32 newAreaId)
 
     AreaTableEntry const* areaEntry = m_area ? m_area->GetEntry(): nullptr;
     pvpInfo.IsInFFAPvPArea = areaEntry && (areaEntry->Flags[0] & AREA_FLAG_ARENA);
+    bool oldFFAPvPArea = pvpInfo.IsInFFAPvPArea;
     UpdatePvPState(true);
+
+    // check if we were in ffa arena and we left
+    if (oldFFAPvPArea && !pvpInfo.IsInFFAPvPArea)
+        ValidateAttackersAndOwnTarget();
 
     PhasingHandler::OnAreaChange(this);
     UpdateAreaDependentAuras();
