@@ -3482,5 +3482,11 @@ struct WorldSafeLocsEntry
     uint16 MapID;
 };
 
+struct WorldStateExpressionEntry
+{
+    uint32 ID;
+    char const* Expression;
+};
+
 #pragma pack(pop)
 #endif
