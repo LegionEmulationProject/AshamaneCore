@@ -5755,7 +5755,7 @@ struct SpellVisualKitMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ifihh";
+        static char const* types = "ibihh";
         static uint8 const arraySizes[5] = { 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 5, 0xDC04F488, types, arraySizes, -1);
         return &instance;
