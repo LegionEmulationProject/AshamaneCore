@@ -607,7 +607,7 @@ enum SMART_ACTION
     
     // 131 - 135 : 3.3.5 reserved
     SMART_ACTION_PLAY_CINEMATIC                     = 135,    // reserved for future uses
-    SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 137,    // spellVisualKitId
+    SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 137,    // spellVisualKitId, kitType (unknown values, copypaste from packet dumps), duration
 
     // Ashamane' specific actions
     SMART_ACTION_PLAY_SPELL_VISUAL                  = 201,    // id, travelSpeed, target type variation.
