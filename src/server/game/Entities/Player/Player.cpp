@@ -11881,8 +11881,8 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
 
     // not specific slot or have space for partly store only in specific slot
 
-    uint8 slotItemStart = reagentBank ? REAGENT_SLOT_START : BANK_SLOT_ITEM_START;
-    uint8 slotItemEnd   = reagentBank ? REAGENT_SLOT_END   : BANK_SLOT_ITEM_END;
+    uint8 slotItemStart = reagentBank ? uint8(REAGENT_SLOT_START) : uint8(BANK_SLOT_ITEM_START);
+    uint8 slotItemEnd   = reagentBank ? uint8(REAGENT_SLOT_END)   : uint8(BANK_SLOT_ITEM_END);
 
     // in specific bag
     if (bag != NULL_BAG)
@@ -21806,8 +21806,8 @@ void Player::_SaveSkills(CharacterDatabaseTransaction& trans)
         uint16 field = itr->second.pos / 2;
         uint8 offset = itr->second.pos & 1;
 
-        uint16 value = GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_RANK_OFFSET + field, offset);
-        uint16 max = GetUInt16Value(PLAYER_SKILL_LINEID + SKILL_MAX_RANK_OFFSET + field, offset);
+        uint16 value = GetUInt16Value(PLAYER_SKILL_LINEID + AsUnderlyingType(SKILL_RANK_OFFSET) + field, offset);
+        uint16 max = GetUInt16Value(PLAYER_SKILL_LINEID + AsUnderlyingType(SKILL_MAX_RANK_OFFSET) + field, offset);
 
         switch (itr->second.uState)
         {
@@ -21912,7 +21912,7 @@ void Player::_SaveStats(CharacterDatabaseTransaction& trans) const
     stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_ATTACK_POWER));
     stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER));
     stmt->setUInt32(index++, GetBaseSpellPowerBonus());
-    stmt->setUInt32(index, GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_RESILIENCE_PLAYER_DAMAGE));
+    stmt->setUInt32(index, GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + AsUnderlyingType(CR_RESILIENCE_PLAYER_DAMAGE)));
 
     trans->Append(stmt);
 }
