@@ -293,6 +293,11 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     data->AddUpdateBlock(buf);
 }
 
+void Object::BuildDestroyUpdateBlock(UpdateData* data) const
+{
+    data->AddDestroyObject(GetGUID());
+}
+
 void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
 {
     data->AddOutOfRangeGUID(GetGUID());
@@ -303,7 +308,7 @@ void Object::DestroyForPlayer(Player* target) const
     ASSERT(target);
 
     UpdateData updateData(target->GetMapId());
-    BuildOutOfRangeUpdateBlock(&updateData);
+    BuildDestroyUpdateBlock(&updateData);
     WorldPacket packet;
     updateData.BuildPacket(&packet);
     target->SendDirectMessage(&packet);
