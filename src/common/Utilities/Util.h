@@ -68,7 +68,9 @@ TC_COMMON_API void stripLineInvisibleChars(std::string &src);
 
 TC_COMMON_API int64 MoneyStringToMoney(const std::string& moneyString);
 
-TC_COMMON_API struct tm* localtime_r(const time_t* time, struct tm *result);
+#ifdef _WIN32
+TC_COMMON_API struct tm* localtime_r(const time_t* time, struct tm* result);
+#endif
 
 TC_COMMON_API std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
 TC_COMMON_API uint32 TimeStringToSecs(const std::string& timestring);
