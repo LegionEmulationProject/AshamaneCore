@@ -17,7 +17,7 @@ Legion Returns
 
 ## Build Status
 
-[![Windows x64](https://github.com/LegionEmulationProject/AshamaneCore/actions/workflows/win-x64-build.yml/badge.svg)](https://github.com/LegionEmulationProject/AshamaneCore/actions/workflows/win-x64-build.yml) | [![GCC](https://github.com/LegionEmulationProject/AshamaneCore/actions/workflows/gcc-build.yml/badge.svg)](https://github.com/LegionEmulationProject/AshamaneCore/actions/workflows/gcc-build.yml)
+[![Windows x64](https://github.com/LegionEmulationProject/AshamaneCore/actions/workflows/win-x64-build.yml/badge.svg)](https://github.com/LegionEmulationProject/AshamaneCore/actions/workflows/win-x64-build.yml) | [![GCC](https://github.com/LegionEmulationProject/AshamaneCore/actions/workflows/gcc-build.yml/badge.svg)](https://github.com/LegionEmulationProject/AshamaneCore/actions/workflows/gcc_build.yml)]
 
 ## Introduction
 
