@@ -1,5 +1,5 @@
 # AshamaneCore
-
+Legion Returns
 --------------
 
 
@@ -17,8 +17,7 @@
 
 ## Build Status
 
-[![master Build Status](https://travis-ci.org/TheGhostGroup/AshamaneCoreLegacy.svg?branch=legion)](https://travis-ci.org/TheGhostGroup/AshamaneCoreLegacy)
-[![Build status](https://ci.appveyor.com/api/projects/status/kb0wjxh3va9c3e0k/branch/master?svg=true)](https://ci.appveyor.com/project/Traesh/ashamanecore/branch/master)
+[![Windows x64](https://github.com/LegionEmulationProject/AshamaneCore/actions/workflows/win-x64-build.yml/badge.svg)](https://github.com/LegionEmulationProject/AshamaneCore/actions/workflows/win-x64-build.yml) | [![GCC](https://github.com/LegionEmulationProject/AshamaneCore/actions/workflows/gcc-build.yml/badge.svg)](https://github.com/LegionEmulationProject/AshamaneCore/actions/workflows/gcc-build.yml)
 
 ## Introduction
 
@@ -60,7 +59,7 @@ with Ashamane Database (ADB) :
 It is completely open source; community involvement is highly encouraged.
 
 If you wish to contribute ideas or code please visit our site linked below or
-make pull requests to our [Github repository](https://github.com/AshamaneProject/AshamaneCore/pulls).
+make pull requests to our [Github repository](https://github.com/LegionEmulationProject/AshamaneCore/pulls).
 
 ## Requirements
 
@@ -72,13 +71,9 @@ Windows, Linux and macOS.
 Detailed installation guides are available in the [wiki](https://www.trinitycore.info/display/tc/Installation+Guide) for
 Windows, Linux and macOS.
 
-## Contribute
-
-You can help Ashamane using our [Patreon Page](https://www.patreon.com/ashamane). All the collected money will be used to pay developers for their work using bountysource
-
 ## Reporting issues
 
-Issues can be reported via our [Mantis issue tracker](https://bt.ashamane.com).
+Issues can be reported via [Github Issues](https://github.com/LegionEmulationProject/AshamaneCore/issues).
 
 Please take the time to review existing issues before submitting your own to
 prevent duplicates.
