@@ -383,22 +383,97 @@ public:
     }
 };
 
-uint32 const pathSize2 = 2;
+enum QuestItsNeverOver
+{
+    EVENT_KEESHAN_SAY_LINE,
+    EVENT_MESSNER_SAY_LINE,
+    EVENT_WAYPOINTS,
+    EVENT_AT_LAST_WAYPOINT,
+
+    NPC_KEESHAN         		  = 43458,
+    NPC_MESSNER         		  = 43432,
+
+    SAY_KEESHAN_FIRST_LINE        = 0,
+	SAY_KEESHAN_SECOND_LINE       = 1,
+	SAY_MESSENER_FIRST_LINE       = 0,
+
+    SPELL_MESSNER_BOAT_ENGINE     = 81260,
+    SPELL_EJECT_PASSENGER_6       = 64634,
+
+    WAYPOINT_LAST_POINT  = 5,
+};
+
+uint32 const pathSize2 = 6;
 Position const BoatPath[pathSize2] =
 {
-    { -9356.31f, -2414.29f, 69.6370f },
-    { -9425.49f, -2836.49f, 69.9875f },
+    { -9334.30f, -2390.35f, 55.7f }, // 0
+    { -9381.73f, -2435.41f, 55.7f }, // 1
+    { -9389.94f, -2583.57f, 55.7f }, // 2
+    { -9426.63f, -2732.40f, 55.7f }, // 3
+    { -9383.77f, -2816.56f, 55.7f }, // 4
+    { -9420.81f, -2838.46f, 55.7f }, // 5
 };
 
 struct npc_keeshan_riverboat : public VehicleAI
 {
     npc_keeshan_riverboat(Creature* creature) : VehicleAI(creature) { }
 
-    void Reset() override
+    void IsSummonedBy(Unit* summoner)
     {
-        me->GetMotionMaster()->MoveSmoothPath(pathSize2, BoatPath, pathSize2, false, true);
-        me->DespawnOrUnsummon(Seconds(22), Seconds(60));
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
     }
+
+    void PassengerBoarded(Unit* passenger, int8 seatId, bool apply)
+    {
+        if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
+        {
+            if (auto player = passenger->ToPlayer())
+            {
+                me->SetSpeed(MOVE_SWIM, 1.7f);
+                events.ScheduleEvent(EVENT_KEESHAN_SAY_LINE, 1s);
+            }
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 point) override
+    {
+        if (type != SPLINE_CHAIN_MOTION_TYPE)
+            return;
+        switch (point)
+        {
+            case WAYPOINT_LAST_POINT:
+                me->DespawnOrUnsummon();
+                // events.ScheduleEvent(EVENT_AT_LAST_WAYPOINT, 3s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 const diff)
+    {
+        events.Update(diff);
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_KEESHAN_SAY_LINE:
+                    break;
+                case EVENT_MESSNER_SAY_LINE:
+                    break;
+                case EVENT_WAYPOINTS:
+                    me->GetMotionMaster()->MoveSmoothPath(pathSize2, BoatPath, pathSize2, false, true);
+                    break;
+                case EVENT_AT_LAST_WAYPOINT:
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    private:
+        EventMap events;
+        uint64 playerGUID = 0;
 };
 
 enum BlackrockTower
