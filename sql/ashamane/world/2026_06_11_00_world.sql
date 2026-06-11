@@ -1,0 +1,14 @@
+DELETE FROM `game_event_gameobject` WHERE `guid` NOT IN (SELECT `guid` FROM `gameobject`);
+DELETE FROM `gameobject_addon` WHERE `guid` NOT IN (SELECT `guid` FROM `gameobject`);
+DELETE FROM `creature_addon` WHERE `guid` NOT IN (SELECT `guid` FROM `creature`);
+UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=50039;
+UPDATE `creature` SET `wander_distance`=0 WHERE `guid` IN (121108, 121092, 121100, 121101, 121103, 121110, 121111, 122544, 122546, 121107);
+UPDATE `creature_addon` SET `SheathState`=0 WHERE `guid` IN (32643, 46406, 46417, 321738);
+DELETE FROM `creature_loot_template` WHERE `entry`=22947 AND `item`=34076;
+DELETE FROM `creature_loot_template` WHERE `entry`=22871 AND `item`=34073;
+DELETE FROM `creature_loot_template` WHERE `entry`=22898 AND `item`=34071;
+DELETE FROM `creature_loot_template` WHERE `entry`=22887 AND `item`=34070;
+DELETE FROM `creature_loot_template` WHERE `entry`=22948 AND `item`=34074;
+DELETE FROM `creature_loot_template` WHERE `entry`=23420 AND `item`=34075;
+DELETE FROM `creature_loot_template` WHERE `entry`=22917 AND `item`=34077;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (1568, 25462);
