@@ -1,0 +1,4 @@
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(42309, 0, 0, 'It\'s a bloodbath, lieutenant. They\'ve been murdered.', 12, 7, 100, 1, 0, 0, 0, 0, 'Stormwind Investigator to Player'),
+(42309, 1, 0, 'Given the body temperature, I\'d say they\'ve been dead no more than 6 hours.', 12, 7, 100, 0, 0, 0, 0, 0, 'Stormwind Investigator to Player'),
+(42745, 0, 0, 'Damn shame what they did to Old Blanchy...', 12, 7, 100, 0, 0, 0, 0, 0, 'Stormwind Investigator to Player');

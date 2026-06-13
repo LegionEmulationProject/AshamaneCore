@@ -277,6 +277,10 @@ enum eHoratio
     SAY_HORATIO_SECOND_LINE     = 1,
     SAY_HORATIO_THIRD_LINE      = 2,
 
+    SAY_INVESTIGATOR1_FIRST_LINE    = 0,
+    SAY_INVESTIGATOR1_SECOND_LINE   = 1,
+    SAY_INVESTIGATOR2_FIRST_LINE    = 0,
+
     NPC_HORATIO                 = 42308,
     NPC_INVESTIGATOR1           = 42309,
     NPC_INVESTIGATOR2           = 42745
@@ -364,7 +368,7 @@ public:
                                 {
                                 case 0:
                                     {
-                                        Investigator01->Say("It's a bloodbath, lieutenant. They've been murdered.", LANG_UNIVERSAL);
+                                        Investigator01->AI()->Talk(SAY_INVESTIGATOR1_FIRST_LINE);
                                         me->SetStandState(UNIT_STAND_STATE_KNEEL);
                                         TextTimer = 6000;
                                         Phase++;
@@ -372,7 +376,7 @@ public:
                                     }
                                 case 1:
                                     {
-                                        Investigator01->Say("Given the body temperature. I'd say they've been dead no more than 6 hours.", LANG_UNIVERSAL);
+                                        Investigator01->AI()->Talk(SAY_INVESTIGATOR1_SECOND_LINE);
                                         Investigator01->SetStandState(UNIT_STAND_STATE_KNEEL);
                                         TextTimer = 6000;
                                         Phase++;
@@ -380,7 +384,7 @@ public:
                                     }
                                 case 2:
                                     {
-                                        Investigator02->Say("Damn shame what they did to Old Blanchy...", LANG_UNIVERSAL);
+                                        Investigator02->AI()->Talk(SAY_INVESTIGATOR2_FIRST_LINE);
                                         TextTimer = 6000;
                                         Phase++;
                                         break;
