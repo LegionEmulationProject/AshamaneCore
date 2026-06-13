@@ -43,6 +43,11 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellInfo.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "TemporarySummon.h"
 
 enum eThug
 {
@@ -265,12 +270,16 @@ public:
 
 enum eHoratio
 {
-    QUEST_HERO_WESTFALL1 = 28562,
-    QUEST_HERO_WESTFALL2 = 26378,
+    QUEST_HERO_WESTFALL1        = 28562,
+    QUEST_HERO_WESTFALL2        = 26378,
 
-    NPC_HORATIO = 42308,
-    NPC_INVESTIGATOR1 = 42309,
-    NPC_INVESTIGATOR2 = 42745
+    SAY_HORATIO_FIRST_LINE      = 0,
+    SAY_HORATIO_SECOND_LINE     = 1,
+    SAY_HORATIO_THIRD_LINE      = 2,
+
+    NPC_HORATIO                 = 42308,
+    NPC_INVESTIGATOR1           = 42309,
+    NPC_INVESTIGATOR2           = 42745
 };
 
 class npc_horatio : public CreatureScript
@@ -324,7 +333,7 @@ public:
         {
             if (!bSummoned)
             {
-                if (Creature* Investigator01 = me->SummonCreature(NPC_INVESTIGATOR2,-9854.414f, 916.481f, 30.100f, 5.3867f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 66000))
+                if (Creature* Investigator01 = me->SummonCreature(NPC_INVESTIGATOR1,-9854.414f, 916.481f, 30.100f, 5.3867f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 66000))
                 {
                     Investigator01GUID = Investigator01->GetGUID();
                     bSummoned1 = true;
@@ -378,7 +387,7 @@ public:
                                     }
                                 case 3:
                                     {
-                                        me->Say("No kidding, rookie.", LANG_UNIVERSAL);
+                                        me->AI()->Talk(SAY_HORATIO_FIRST_LINE);
                                         me->SetWalk(true);
                                         me->GetMotionMaster()->MovePoint(0, -9852.267f, 911.928f, 30.028f);
                                         me->GetMotionMaster()->MovePoint(1, -9851.928f, 909.8602f, 29.931f);
@@ -389,14 +398,14 @@ public:
                                     }
                                 case 4:
                                     {
-                                        me->Say("Looks like they really put the cart.", LANG_UNIVERSAL);
+                                        me->AI()->Talk(SAY_HORATIO_SECOND_LINE);
                                         TextTimer = 5000;
                                         Phase++;
                                         break;
                                     }
                                 case 5:
                                     {
-                                        me->Say("...before the horse.", LANG_UNIVERSAL);
+                                        me->AI()->Talk(SAY_HORATIO_THIRD_LINE);
                                         TextTimer = 4000;
                                         Phase++;
                                         break;
