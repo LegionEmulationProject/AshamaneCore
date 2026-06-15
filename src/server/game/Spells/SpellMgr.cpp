@@ -3750,8 +3750,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         160855, // Summon Maraad
         160857, // Summon Yrel
         160859, // Summon Khadgar
-    // Dreadlords Prize
-        223059, // Meryl Felstorm
+    // Into the Fray
+        184775, // Summon Khadgar Raven
     }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);

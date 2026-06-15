@@ -16,10 +16,98 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "EventMap.h"
+#include "MotionMaster.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "Player.h"
-#include "ObjectMgr.h"
+#include "ScriptedEscortAI.h"
+
+
+enum IntoTheFray
+{
+	EVENT_SAY_HURRY,
+    EVENT_MOVE_CAMP,
+    EVENT_KAYN_SAY_LINE,
+		
+	NPC_KAYN_SUNFURY                            = 89362,
+	
+	SAY_KHADGAR_HURRY							= 0,
+	SAY_KAYN_UNEXPECTED_SURPRISE            	= 0,
+	
+	SPELL_INTO_THE_FRAY_SUMMON_ARCHMAGE_KHADGAR = 184775,
+};
+
+// 44137 & 38834
+struct quest_into_the_fray : public QuestScript
+{
+public:
+	quest_into_the_fray() : QuestScript("quest_into_the_fray") { }
+	
+	void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+	{
+		if (newStatus == QUEST_STATUS_INCOMPLETE)
+		{
+			player->CastSpell(nullptr, SPELL_INTO_THE_FRAY_SUMMON_ARCHMAGE_KHADGAR, true);
+		}
+	}
+};
+
+// 93337
+class npc_archmage_khadgar_93337 : public CreatureScript
+{
+public:
+    npc_archmage_khadgar_93337() : CreatureScript("npc_archmage_khadgar_93337") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_archmage_khadgar_93337AI(creature);
+    }
+
+    struct npc_archmage_khadgar_93337AI : public npc_escortAI
+    {
+        npc_archmage_khadgar_93337AI(Creature* creature) : npc_escortAI(creature) {}
+		
+        void Reset()
+        {
+            me->SetHomePosition(me->GetPosition());
+            events.ScheduleEvent(EVENT_SAY_HURRY, 300);
+        }
+
+        void WaypointReached(uint32 waypointId) override
+        {
+            if (waypointId == 7)
+            {
+                me->DespawnOrUnsummon();
+            }
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_SAY_HURRY:
+                        Talk(SAY_KHADGAR_HURRY);
+                        events.ScheduleEvent(EVENT_MOVE_CAMP, 1300);
+                        break;
+                    case EVENT_MOVE_CAMP:
+						Start(false, true);
+                        break;
+					default:
+						break;
+                }
+            }
+        }
+
+    private:
+        EventMap events;
+    };
+};
 
 class scene_azsuna_runes : public SceneScript
 {
@@ -162,6 +250,8 @@ struct questnpc_mana_drained_whelpling : public ScriptedAI
 
 void AddSC_azsuna()
 {
+    new quest_into_the_fray();
+    new npc_archmage_khadgar_93337();
     new scene_azsuna_runes();
     RegisterCreatureAI(questnpc_soul_gem);
     RegisterCreatureAI(questnpc_mana_drained_whelpling);
