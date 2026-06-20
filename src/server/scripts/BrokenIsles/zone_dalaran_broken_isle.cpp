@@ -16,8 +16,10 @@
  */
 
 #include "Conversation.h"
+#include "CombatAI.h"
 #include "GameObject.h"
 #include "MapManager.h"
+#include "MotionMaster.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
@@ -549,6 +551,94 @@ public:
     }
 };
 
+enum TheTranquilForest
+{
+	SPELL_AURA_RIDE_VEHICLE        			= 59199,
+	SPELL_KILL_CREDIT_PORTAL_TO_VALSHARAH 	= 197756,
+	SPELL_REVERSE_CAST_RIDE_SEAT_1          = 88885,
+    SPELL_RIDE_VEHICLE_HARDCODED            = 46598,
+	SPELL_GEN_EJECT_ALL_PASSENGERS          = 65785,
+	
+	QUEST_TYING_UP_LOOSE_ENDS               = 39861,
+
+    WAYPOINT_END                            = 9,
+};
+
+uint32 const pathSize2 = 10;
+Position const valsharahPath[pathSize2] =
+{
+    { -843.811f, 4262.04f, 759.37f },
+    { -840.685f, 4230.44f, 762.83f },
+    { -831.496f, 4211.34f, 747.96f },
+    { -182.152f, 4171.88f, 621.09f },
+    { 467.315f, 4754.77f, 426.057f },
+    { 1394.67f, 5938.79f, 284.364f },
+    { 2044.85f, 6222.65f, 251.669f },
+    { 2119.94f, 6390.72f, 166.695f },
+    { 2110.01f, 6533.96f, 149.441f },
+    { 2227.59f, 6575.64f, 141.633f }
+};
+
+class npc_hippogryph_100483: public CreatureScript
+{
+public:
+    npc_hippogryph_100483() : CreatureScript("npc_hippogryph_100483") { }
+
+    struct npc_hippogryph_100483AI : public VehicleAI
+    {
+        npc_hippogryph_100483AI(Creature* creature) : VehicleAI(creature) {}
+            
+        void MoveInLineOfSight(Unit* who) override
+        {
+            VehicleAI::MoveInLineOfSight(who);
+
+            if (!who || !who->IsPlayer())
+                return;
+
+            if (Player* player = who->ToPlayer())
+            {
+                if (me->IsWithinDistInMap(player, 10.0f))
+                {
+                    player->EnterVehicle(me, 0);
+                    me->CastSpell(player, SPELL_AURA_RIDE_VEHICLE, true);
+                }
+            }
+        }
+        
+        void PassengerBoarded(Unit* passenger, int8 seatId, bool apply)
+        {          
+    		if (!apply)
+    			return;
+
+    		Player* player = passenger->ToPlayer();
+    		if (!player)
+    			return;
+        
+    		me->CastSpell(player, SPELL_KILL_CREDIT_PORTAL_TO_VALSHARAH, true);
+    		player->CastSpell(player, SPELL_AURA_RIDE_VEHICLE, true);
+            me->SetWalk(false);
+            me->SetSpeedRate(MOVE_FLIGHT, 45.0f);
+            me->GetMotionMaster()->MoveSmoothPath(WAYPOINT_END, valsharahPath, pathSize2, false, true);
+        }
+
+        void MovementInform(uint32 type, uint32 point) override
+        {
+            switch (point)
+            {
+                case WAYPOINT_END:
+                    me->DespawnOrUnsummon();
+                    break;
+                default:
+                    break;
+            }
+        };
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_hippogryph_100483AI(creature);
+    }
+};
 
 void AddSC_zone_dalaran_broken_isle()
 {
@@ -562,6 +652,8 @@ void AddSC_zone_dalaran_broken_isle()
 	new npc_archmage_khadgar_86563();
     new quest_down_to_azsuna();
     new npc_archmage_khadgar_103660();
+
+    new npc_hippogryph_100483();
 
     // Spellscripts
     new spell_dalaran_order_campaign_intro_aura();
