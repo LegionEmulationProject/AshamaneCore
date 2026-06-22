@@ -571,6 +571,35 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, si
     //MovePoint(EVENT_CHARGE_PREPATH, pos, false);
 }
 
+void MotionMaster::MoveSmoothFlyPath(uint32 pointId, G3D::Vector3 const* path, size_t size)
+{
+    Movement::MoveSplineInit init(_owner);
+    init.SetSmooth();
+    init.SetFly();
+    init.SetUncompressed();
+
+    for (uint32 count = 0; count < uint32(size); ++count)
+        init.Path().push_back(*path++);
+
+    init.Launch();
+
+    Mutate(new EffectMovementGenerator(pointId), MovementSlot::MOTION_SLOT_ACTIVE);
+}
+
+void MotionMaster::MoveSmoothFlyPath(uint32 pointId, Position const position, float flightSpeed/* = 0.0f*/)
+{
+    Movement::MoveSplineInit init(_owner);
+    init.SetSmooth();
+    init.SetFly();
+    init.SetUncompressed();
+    init.MoveTo(position.m_positionX, position.m_positionY, position.m_positionZ, false, false);
+    if (flightSpeed > 0.0f)
+        init.SetVelocity(flightSpeed);
+    init.Launch();
+
+    Mutate(new EffectMovementGenerator(pointId), MovementSlot::MOTION_SLOT_ACTIVE);
+}
+
 void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk)
 {
     Creature* owner = _owner->ToCreature();
