@@ -1,5 +1,6 @@
 /*
 * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
+* Copyright (C) 2025-2026 LegionEmulationProject <https://github.com/LegionEmulationProject>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -33,6 +34,9 @@
 #include "TemporarySummon.h"
 #include "WodGarrison.h"
 
+#include "Chat.h"
+#include "WorldSession.h"
+
 enum PreGarrisonQuests
 {
     QUEST_FINDING_A_FOOTHOLD                = 34582,
@@ -43,6 +47,11 @@ enum PreGarrisonQuests
 
 enum PreGarrisonNPCs
 {
+    NPC_PROPHET_VELEN 		                = 79635,
+    NPC_YREL 		  		                = 79656,
+    NPC_ARCHMAGE_KHADGAR 	                = 79657,
+    NPC_VINDICATOR_MARAAD                   = 79655,
+
     NPC_FINDING_A_FOOTHOLD_KILL_CREDIT      = 79697,
     NPC_FOR_THE_ALLIANCE_PORTAL_KILL_CREDIT = 79433,
     NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT = 79757,
@@ -51,6 +60,14 @@ enum PreGarrisonNPCs
 enum ShadowmoonPreGarrisonSpells
 {	
 	SPELL_TRIGGER_MULTI_SPELL_GARRISON_INTRO = 160856,
+};
+
+enum PreGarrisonEtc
+{
+    ACTION_FINDING_A_FOOTHOLD,
+    MOUNT_ELEKK = 59341,
+
+    WP_POSITION_END = 13,
 };
 
 class quest_finding_a_foothold : public QuestScript
@@ -63,8 +80,346 @@ public:
 		if (newStatus == QUEST_STATUS_INCOMPLETE && oldStatus == QUEST_STATUS_NONE)
 		{
             PhasingHandler::OnConditionChange(player);
+            player->KilledMonsterCredit(NPC_FINDING_A_FOOTHOLD_KILL_CREDIT);
 			player->CastSpell(nullptr, SPELL_TRIGGER_MULTI_SPELL_GARRISON_INTRO, false);
+			
+			if (Creature* velen = player->FindNearestCreature(NPC_PROPHET_VELEN, 40.0f))
+			{
+				if (Creature* yrel = player->FindNearestCreature(NPC_YREL, 40.0f))
+				{
+					if (Creature* maraad = player->FindNearestCreature(NPC_VINDICATOR_MARAAD, 40.0f))
+					{
+						if (Creature* khadgar = player->FindNearestCreature(NPC_ARCHMAGE_KHADGAR, 40.0f))
+						{
+							velen->AI()->DoAction(ACTION_FINDING_A_FOOTHOLD);
+							yrel->AI()->DoAction(ACTION_FINDING_A_FOOTHOLD);
+							maraad->AI()->DoAction(ACTION_FINDING_A_FOOTHOLD);
+							khadgar->AI()->DoAction(ACTION_FINDING_A_FOOTHOLD);
+						}
+					}
+				}
+			}
 		}
+	}
+};
+
+uint32 const velenpathSize = 14;
+Position const velenPath[velenpathSize] =
+{
+	{ 2285.47f, 498.666f, 11.179f },
+	{ 2246.74f, 511.281f, 17.436f },
+	{ 2213.81f, 485.680f, 19.235f },
+	{ 2192.85f, 494.852f, 20.282f },
+	{ 2179.35f, 475.454f, 19.370f },
+	{ 2160.54f, 425.743f, 16.468f },
+	{ 2106.98f, 430.783f, 19.602f },
+	{ 2060.30f, 433.924f, 32.206f },
+	{ 1986.57f, 447.605f, 61.786f },
+	{ 1939.39f, 434.839f, 73.518f },
+	{ 1913.16f, 398.210f, 84.907f },
+	{ 1907.27f, 372.948f, 89.555f },
+	{ 1905.44f, 338.319f, 87.961f },
+	{ 1929.18f, 334.369f, 89.061f }
+};
+
+enum VelenSummon
+{
+    SAY_PROPHET_VELEN_FIRST_LINE 	= 0,
+	SAY_PROPHET_VELEN_SECOND_LINE 	= 1,
+};
+
+/// Velen 79635
+class npc_prophet_velen_79635 : public CreatureScript
+{
+public:
+	npc_prophet_velen_79635() : CreatureScript("npc_prophet_velen_79635") { }
+
+    struct npc_prophet_velen_79635AI : public npc_escortAI
+    {
+    	npc_prophet_velen_79635AI(Creature* creature) : npc_escortAI(creature) { }
+
+        void DoAction(int32 const action) override
+    	{
+    		switch (action)
+    		{
+                case ACTION_FINDING_A_FOOTHOLD:
+    				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    AddTimedDelayedOperation(5.9 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+                        Talk(SAY_PROPHET_VELEN_FIRST_LINE);
+                    });
+                    AddTimedDelayedOperation(10.2 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+                        me->SetWalk(false);
+						me->SetSpeed(MOVE_RUN, 3.5f);
+                        me->Mount(MOUNT_ELEKK);
+                    });
+                    AddTimedDelayedOperation(15 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+                        me->GetMotionMaster()->MoveSmoothPath(WP_POSITION_END, velenPath, velenpathSize, false, false);
+                    });
+                    AddTimedDelayedOperation(21 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+                        Talk(SAY_PROPHET_VELEN_SECOND_LINE);
+                        me->DespawnOrUnsummon(20000);
+                    });
+    				break;
+    			default:
+    				break;
+    		}
+    	}
+        
+        void WaypointReached(uint32 waypointId) override
+        {
+            switch(waypointId)
+            {
+                case WP_POSITION_END:
+                    me->DespawnOrUnsummon();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_prophet_velen_79635AI(creature);
+	}
+};
+
+uint32 const yrelpathsize = 14;
+Position const yrelPath[yrelpathsize] =
+{
+	{ 2285.47f, 498.666f, 11.179f },
+	{ 2246.74f, 511.281f, 17.436f },
+	{ 2213.81f, 485.680f, 19.235f },
+	{ 2192.85f, 494.852f, 20.282f },
+	{ 2179.35f, 475.454f, 19.370f },
+	{ 2160.54f, 425.743f, 16.468f },
+	{ 2106.98f, 430.783f, 19.602f },
+	{ 2060.30f, 433.924f, 32.206f },
+	{ 1986.57f, 447.605f, 61.786f },
+	{ 1939.39f, 434.839f, 73.518f },
+	{ 1913.16f, 398.210f, 84.907f },
+	{ 1907.27f, 372.948f, 89.555f },
+	{ 1905.44f, 338.319f, 87.961f },
+	{ 1928.17f, 331.390f, 89.194f }
+};
+
+enum YrelSummon
+{
+	POINT_FIRST_POSITION     		= 0,
+	POINT_BACK_POSITION 	 		= 1,
+
+    SAY_YREL_FIRST_LINE 	 		= 0,
+};
+
+/// 79656 - Yrel
+class npc_yrel_79656 : public CreatureScript
+{
+public:
+	npc_yrel_79656() : CreatureScript("npc_yrel_79656") { }
+
+	struct npc_yrel_79656AI : public npc_escortAI
+	{
+		npc_yrel_79656AI(Creature* creature) : npc_escortAI(creature) { }
+
+		void DoAction(int32 const action) override
+		{
+			switch (action)
+			{
+				case ACTION_FINDING_A_FOOTHOLD:
+                    AddTimedDelayedOperation(1 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+						me->SetSpeed(MOVE_RUN, 1.8f);
+						me->SetWalk(true);
+						me->GetMotionMaster()->MovePoint(POINT_FIRST_POSITION, 2304.2285f, 458.3234f, 7.2519f);
+						Talk(SAY_YREL_FIRST_LINE);
+                    });
+                    AddTimedDelayedOperation(3 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+                        me->GetMotionMaster()->MoveBackward(POINT_BACK_POSITION, 2306.1201f, 457.556f, 6.81435f, 1.0f);
+                    });
+                    AddTimedDelayedOperation(10.2 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+						me->SetWalk(false);
+						me->SetSpeed(MOVE_RUN, 3.5f);
+						me->Mount(MOUNT_ELEKK);                       
+                    });
+                    AddTimedDelayedOperation(15 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+                        me->GetMotionMaster()->MoveSmoothPath(1, yrelPath, yrelpathsize, false, false);
+                        me->DespawnOrUnsummon(30000);
+                    });
+					break;
+				default:
+					break;
+			}
+		}
+
+        void WaypointReached(uint32 waypointId) override
+        {
+            switch(waypointId)
+            {
+                case WP_POSITION_END:
+                    me->DespawnOrUnsummon();
+                    break;
+                default:
+                    break;
+            }
+        }
+	};
+
+    CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_yrel_79656AI(creature);
+	}
+};
+
+uint32 const maraadpathsize = 14;
+Position const maraadPath[maraadpathsize] =
+{
+	{ 2285.47f, 498.666f, 11.179f },
+	{ 2246.74f, 511.281f, 17.436f },
+	{ 2213.81f, 485.680f, 19.235f },
+	{ 2192.85f, 494.852f, 20.282f },
+	{ 2179.35f, 475.454f, 19.370f },
+	{ 2160.54f, 425.743f, 16.468f },
+	{ 2106.98f, 430.783f, 19.602f },
+	{ 2060.30f, 433.924f, 32.206f },
+	{ 1986.57f, 447.605f, 61.786f },
+	{ 1939.39f, 434.839f, 73.518f },
+	{ 1918.38f, 408.908f, 82.147f },
+	{ 1913.16f, 398.210f, 84.907f },
+	{ 1924.10f, 370.395f, 88.561f },
+	{ 1935.21f, 339.734f, 88.965f }
+};
+
+enum MaraadSummon
+{
+    SAY_MARAAD_FIRST_LINE 			= 0
+};
+
+/// 79655 - Maraad
+class npc_vindicator_maraad_79655 : public CreatureScript
+{
+public:
+	npc_vindicator_maraad_79655() : CreatureScript("npc_vindicator_maraad_79655") { }
+
+	struct npc_vindicator_maraad_79655AI : public npc_escortAI
+	{
+		npc_vindicator_maraad_79655AI(Creature* creature) : npc_escortAI(creature) { }
+
+		void DoAction(int32 const action) override
+		{
+			switch (action)
+			{
+				case ACTION_FINDING_A_FOOTHOLD:
+                    AddTimedDelayedOperation(10.2 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+						me->SetSpeed(MOVE_RUN, 3.5f);
+						me->Mount(MOUNT_ELEKK);
+                        
+                    });
+					AddTimedDelayedOperation(11 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+                        Talk(SAY_MARAAD_FIRST_LINE);
+                        me->GetMotionMaster()->MoveSmoothPath(1, maraadPath, maraadpathsize, false, false);
+                        me->DespawnOrUnsummon(30000);
+                    });
+					break;
+				default:
+					break;
+			}
+		}
+		
+        void WaypointReached(uint32 waypointId) override
+        {
+            switch(waypointId)
+            {
+                case WP_POSITION_END:
+                    me->DespawnOrUnsummon();
+                    break;
+                default:
+                    break;
+            }
+        }
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_vindicator_maraad_79655AI(creature);
+	}
+};
+
+uint32 const khadgarpathsize = 8;
+Position const khadgarPath[khadgarpathsize] =
+{
+	{ 2294.50f, 472.349f, 49.315f  },
+	{ 2239.88f, 505.235f, 57.756f  },
+	{ 2121.82f, 454.399f, 76.726f  },
+	{ 2014.69f, 449.873f, 81.194f  },
+	{ 1923.04f, 449.579f, 120.345f },
+	{ 1911.51f, 397.002f, 115.995f },
+	{ 1955.58f, 359.063f, 105.998f },
+	{ 1943.91f, 339.194f, 88.932f  }
+};
+
+enum KhadgarFindingAFoothold
+{	
+	SPELL_TRANSFORM_RAVEN_FORM = 165291,
+	
+	PATH_KHADGAR   			   = 7965700,
+};
+
+/// 79657 - Khadgar
+class npc_archmage_khadgar_79657 : public CreatureScript
+{
+public:
+	npc_archmage_khadgar_79657() : CreatureScript("npc_archmage_khadgar_79657") { }
+
+	struct npc_archmage_khadgar_79657AI : public npc_escortAI
+	{
+		npc_archmage_khadgar_79657AI(Creature* creature) : npc_escortAI(creature) { }
+		
+		void DoAction(int32 const action) override
+		{
+			switch (action)
+			{
+				case ACTION_FINDING_A_FOOTHOLD:
+				{	
+                    AddTimedDelayedOperation(10.2 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+                        me->CastSpell(me, SPELL_TRANSFORM_RAVEN_FORM, false);
+                        me->SetSpeed(MOVE_FLIGHT, 3.0f);
+                        me->SetDisableGravity(true);
+                        me->SetCanFly(true);
+                    });
+
+                    AddTimedDelayedOperation(11 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+                        me->GetMotionMaster()->MoveSmoothPath(1, khadgarPath, khadgarpathsize, false, true);
+                    });
+                    break;
+				}
+				default:
+					break;
+			}
+		}
+
+        void WaypointReached(uint32 waypointId)
+        {
+            if (waypointId = 7)
+            {
+                me->DespawnOrUnsummon();
+            }
+        }
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_archmage_khadgar_79657AI(creature);
 	}
 };
 
@@ -1051,6 +1406,11 @@ public:
 void AddSC_shadowmoon_draenor()
 {
     new quest_finding_a_foothold();
+    new npc_prophet_velen_79635();
+    new npc_yrel_79656();
+    new npc_vindicator_maraad_79655();
+    new npc_archmage_khadgar_79657();
+    
     new npc_baros_pre_garrison();
     new npc_aqualir();
 
