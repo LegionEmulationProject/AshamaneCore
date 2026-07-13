@@ -3754,6 +3754,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         184775, // Summon Khadgar Raven
     // For The Alliance
         165242, // Summon Khadgar Lunarfall
+        160429, // Portal Effect Bunny
     }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
