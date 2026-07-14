@@ -425,7 +425,18 @@ public:
 
 /* For The Alliance Start */
 enum QuestForTheAlliance
-{	
+{
+    ACTION_KHADGAR_SUMMON_PORTAL,
+
+    NPC_VINDICATOR_MARAAD_LUNARFALL          = 79470,
+    NPC_PROPHET_VELEN_LUNARFALL              = 79241,
+
+	OBJECTIVE_PLANT_ALLIANCE_BANNER          = 272853,
+	OBJECTIVE_OPEN_THE_PORTAL                = 273766,
+
+    SAY_PROPHET_VELEN_FIRST                  = 0,
+    SAY_VINDICATOR_MARAAD_SECOND             = 1,
+
 	SPELL_SUMMON_KHADGAR_OPEN_PORTAL         = 165242, 
 	SPELL_SUMMON_ALLIANCE_GARRISON_GUARD 	 = 160404,
 	SPELL_SUMMON_PORTAL_EFFECTS_BUNNY    	 = 160429,
@@ -444,6 +455,104 @@ enum QuestForTheAlliance
 
 	SPELL_SUMMON_WOODPILE_1                  = 165281,
 	SPELL_SUMMON_WOODPILE_2                  = 165285,
+};
+
+// QuestId: 34583
+struct quest_for_the_alliance : public QuestScript
+{
+public:
+    quest_for_the_alliance() : QuestScript("quest_for_the_alliance") { }
+
+    void OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 /*oldAmount*/, int32 /*newAmount*/)
+    { 
+        switch (objective.ID)
+        {
+            case OBJECTIVE_PLANT_ALLIANCE_BANNER:
+                player->CastSpell(nullptr, SPELL_SUMMON_KHADGAR_OPEN_PORTAL, false);
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+enum ArchmageKhadgarLunarFall
+{
+	SPELL_TRANSFOR_COSMETIC_VISUAL           = 135586,
+	SPELL_ARCANE_CHANNELING                  = 32783,
+		
+	SAY_ARCHMAGE_KHADGAR_FIRST_LINE 		 = 0,
+};
+
+/// 82125 - Archmage Khadgar (Lunarfall Pre Garrison)
+class npc_archmage_khadgar_82125 : public CreatureScript
+{
+public:
+	npc_archmage_khadgar_82125() : CreatureScript("npc_archmage_khadgar_82125") {}
+	
+	struct npc_archmage_khadgar_82125AI : public ScriptedAI
+	{
+		npc_archmage_khadgar_82125AI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset()
+        {
+            me->AI()->DoAction(ACTION_KHADGAR_SUMMON_PORTAL);
+        }
+
+		void DoAction(int32 const action) override
+		{
+			switch (action)
+			{
+				case ACTION_KHADGAR_SUMMON_PORTAL:
+				{	
+					AddTimedDelayedOperation(0.5 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+					{
+						me->CastSpell(me, SPELL_TRANSFOR_COSMETIC_VISUAL, false);
+					});
+	
+					AddTimedDelayedOperation(2.0 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+					{
+						me->GetMotionMaster()->MovePoint(0, 1946.86f, 334.151f, 88.9551f, false);
+						me->AI()->Talk(SAY_ARCHMAGE_KHADGAR_FIRST_LINE);
+					});
+	
+					AddTimedDelayedOperation(3 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+					{
+						me->CastSpell(me, SPELL_ARCANE_CHANNELING, false);
+					});
+
+                    AddTimedDelayedOperation(3.5 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+                        if (Player* player = me->SelectNearestPlayer(50.0f))
+                            player->CastSpell(nullptr, SPELL_SUMMON_PORTAL_EFFECTS_BUNNY, false);
+                    });
+
+                    AddTimedDelayedOperation(7 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+                        if (Player* player = me->SelectNearestPlayer(50.0f))
+                            if (Creature * velenLunar = player->FindNearestCreature(NPC_PROPHET_VELEN_LUNARFALL, 80.0f))
+                                velenLunar->AI()->Talk(SAY_PROPHET_VELEN_FIRST);
+                    });
+
+                    AddTimedDelayedOperation(12 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+                        if (Player* player = me->SelectNearestPlayer(50.0f))
+                            if (Creature * maraadLunar = player->FindNearestCreature(NPC_VINDICATOR_MARAAD_LUNARFALL, 80.0f))
+                                maraadLunar->AI()->Talk(SAY_VINDICATOR_MARAAD_SECOND);
+                    });
+
+					break;
+				}
+				default:
+					break;
+			}
+		}
+	};
+
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_archmage_khadgar_82125AI(creature);
+	}
 };
 
 class npc_baros_pre_garrison : public CreatureScript
@@ -1428,12 +1537,16 @@ public:
 
 void AddSC_shadowmoon_draenor()
 {
+    // Eventide
     new quest_finding_a_foothold();
     new npc_prophet_velen_79635();
     new npc_yrel_79656();
     new npc_vindicator_maraad_79655();
     new npc_archmage_khadgar_79657();
-    
+    // Lunarfall
+    new quest_for_the_alliance();
+    new npc_archmage_khadgar_82125();
+
     new npc_baros_pre_garrison();
     new npc_aqualir();
 
