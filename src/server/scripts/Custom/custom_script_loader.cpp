@@ -17,6 +17,7 @@
 
 // This is where scripts' loading functions should be declared:
 void AddSC_custom_npcs();
+void AddSC_module_dkskip();
 
 // ADM declaration begin
 // ADM declaration end
@@ -26,7 +27,7 @@ void AddSC_custom_npcs();
 void AddCustomScripts()
 {
     AddSC_custom_npcs();
-
+    AddSC_module_dkskip();
     // ADM call begin
     // ADM call end
 }

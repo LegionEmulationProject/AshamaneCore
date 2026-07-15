@@ -184,9 +184,6 @@ public:
             {
                 player->PrepareQuestMenu(me->GetGUID());
             }
-
-            if (sConfigMgr->GetBoolDefault("Skip.Deathknight.Optional.Enable", true))
-            {
                 char const* localizedEntry;
                 switch (player->GetSession()->GetSessionDbcLocale())
                 {
@@ -201,9 +198,7 @@ public:
                     case LOCALE_enUS: localizedEntry = LOCALE_LICHKING_0; break;
                     default: localizedEntry = LOCALE_LICHKING_0;
                 }
-                AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, localizedEntry, GOSSIP_SENDER_MAIN, YESSKIPDK, "Are you sure you want to skip the starting zone?", 0, false);
-            }
-
+            AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, localizedEntry, GOSSIP_SENDER_MAIN, YESSKIPDK, "Are you sure you want to skip the starting zone?", 0, false);
             player->TalkedToCreature(me->GetEntry(), me->GetGUID());
             SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
             return true;
