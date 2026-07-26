@@ -435,6 +435,15 @@ public:
     }
 };
 
+enum BlazeOfGlory
+{
+	NPC_KILLCREDIT_HUT      	 	     = 81760,
+	QUEST_BLADE_OF_GLORY    	 	     = 34422,
+    SCENE_BLAZE_OF_GLORY                 = 934,
+    SPELL_TRAIL_OF_FLAMES_VISUAL 	     = 165991,
+    SPELL_CANCEL_TRAIL_OF_FLAME_VISUAL   = 165993,	
+};
+
 /// 237670/237667 - Dark Portal
 class go_platform_tanaan : public GameObjectScript
 {
