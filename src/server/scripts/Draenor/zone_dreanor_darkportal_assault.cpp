@@ -435,6 +435,31 @@ public:
     }
 };
 
+enum BleedingHollow
+{
+	SPELL_BLEEDING_HOLLOW_HOLDOUT        = 164609,
+	SPELL_PUSH_ARMY                      = 165072,
+};
+
+// 770 - Bleeding Hollow: Holdout
+class scene_bleeding_hollow_holdout : public SceneScript
+{
+public:
+    scene_bleeding_hollow_holdout() : SceneScript("scene_bleeding_hollow_holdout") { }
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->RemoveAurasDueToSpell(SPELL_BLEEDING_HOLLOW_HOLDOUT);
+        PhasingHandler::OnConditionChange(player);
+    }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
+    {
+        if (triggerName == "Push")
+            player->CastSpell(player, SPELL_PUSH_ARMY, false);
+    }
+};
+
 enum BlazeOfGlory
 {
 	NPC_KILLCREDIT_HUT      	 	     = 81760,
@@ -442,6 +467,42 @@ enum BlazeOfGlory
     SCENE_BLAZE_OF_GLORY                 = 934,
     SPELL_TRAIL_OF_FLAMES_VISUAL 	     = 165991,
     SPELL_CANCEL_TRAIL_OF_FLAME_VISUAL   = 165993,	
+};
+
+// 771 - Bleeding Hollow: Trail of Flame
+class scene_bleeding_hollow_trail_of_flame : public SceneScript
+{
+    public:
+        scene_bleeding_hollow_trail_of_flame() : SceneScript("scene_bleeding_hollow_trail_of_flame") { }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& triggerName) override
+    {
+        if (triggerName == "Visual")
+            player->CastSpell(player, SPELL_TRAIL_OF_FLAMES_VISUAL, true);
+        else if (triggerName == "Clear")
+            player->CastSpell(player, SPELL_CANCEL_TRAIL_OF_FLAME_VISUAL, true);
+        else if (triggerName == "Credit")
+            player->KilledMonsterCredit(NPC_KILLCREDIT_HUT);
+    }
+};
+
+// QuestId: 34422
+class quest_blade_of_glory : public QuestScript
+{
+public:
+	quest_blade_of_glory() : QuestScript("quest_blade_of_glory") { }
+	
+	void OnQuestAccept(Player* player, const Quest* quest)
+    {
+        if (quest->GetQuestId() == QUEST_BLADE_OF_GLORY)
+            player->GetSceneMgr().PlaySceneByPackageId(SCENE_BLAZE_OF_GLORY);
+    }
+
+    void OnQuestReward(Player* player, const Quest* quest)
+    {
+        if (player && quest && quest->GetQuestId() == QUEST_BLADE_OF_GLORY)
+            player->GetSceneMgr().CancelSceneByPackageId(SCENE_BLAZE_OF_GLORY);
+    }
 };
 
 /// 237670/237667 - Dark Portal
@@ -481,5 +542,6 @@ void AddSC_assault_on_the_dark_portal()
     new quest_portals_power();
     new quest_the_cost_of_war();
     new scene_the_cost_of_war();
+    new scene_bleeding_hollow_holdout();
     new go_platform_tanaan();
 }
