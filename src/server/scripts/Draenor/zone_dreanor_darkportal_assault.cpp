@@ -487,10 +487,10 @@ class scene_bleeding_hollow_trail_of_flame : public SceneScript
 };
 
 // QuestId: 34422
-class quest_blade_of_glory : public QuestScript
+class quest_blaze_of_glory : public QuestScript
 {
 public:
-	quest_blade_of_glory() : QuestScript("quest_blade_of_glory") { }
+	quest_blaze_of_glory() : QuestScript("quest_blaze_of_glory") { }
 	
 	void OnQuestAccept(Player* player, const Quest* quest)
     {
@@ -543,5 +543,7 @@ void AddSC_assault_on_the_dark_portal()
     new quest_the_cost_of_war();
     new scene_the_cost_of_war();
     new scene_bleeding_hollow_holdout();
+    new scene_bleeding_hollow_trail_of_flame();
+    new quest_blaze_of_glory();
     new go_platform_tanaan();
 }
