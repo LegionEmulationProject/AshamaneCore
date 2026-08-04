@@ -1917,8 +1917,8 @@ class SpellPathWorker
             for (float l_Dist = 0.f; l_Dist <= l_MaxDistance; l_Dist += 2.5f)
             {
                 Position l_Pos;
-                l_Pos.m_positionX = m_Owner->GetPositionX() + (m_Owner->GetObjectSize() + l_Dist) * std::cos(l_Angle);
-                l_Pos.m_positionY = m_Owner->GetPositionY() + (m_Owner->GetObjectSize() + l_Dist) * std::sin(l_Angle);
+                l_Pos.m_positionX = m_Owner->GetPositionX() + (m_Owner->GetObjectScale() + l_Dist) * std::cos(l_Angle);
+                l_Pos.m_positionY = m_Owner->GetPositionY() + (m_Owner->GetObjectScale() + l_Dist) * std::sin(l_Angle);
                 l_Pos.m_positionZ = m_Owner->GetPositionZ();
 
                 m_PathPositions.push(l_Pos);
@@ -5391,8 +5391,8 @@ class spell_spoils_of_pandaria_spark_of_life_periodic: public SpellScriptLoader
                 const float l_Angle = frand(0.f, 2.f * M_PI);
 
                 Position l_Pos;
-                l_Pos.m_positionX = l_Owner->GetPositionX() + (l_Owner->GetObjectSize() + l_Radius) * std::cos(l_Angle);
-                l_Pos.m_positionY = l_Owner->GetPositionY() + (l_Owner->GetObjectSize() + l_Radius) * std::sin(l_Angle);
+                l_Pos.m_positionX = l_Owner->GetPositionX() + (l_Owner->GetObjectScale() + l_Radius) * std::cos(l_Angle);
+                l_Pos.m_positionY = l_Owner->GetPositionY() + (l_Owner->GetObjectScale() + l_Radius) * std::sin(l_Angle);
                 l_Pos.m_positionZ = l_Owner->GetPositionZ();
 
                 l_Owner->CastSpell(l_Pos, Spells::SPELL_SPARK_OF_LIFE_MISSILE, true);
