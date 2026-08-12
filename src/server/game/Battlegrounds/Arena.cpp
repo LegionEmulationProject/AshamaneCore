@@ -272,7 +272,7 @@ void Arena::EndBattleground(uint32 winner)
                     loserArenaGroup->MemberLost(player, winnerMatchmakerRating, loserMatchmakerChange);
 
                     // Arena lost => reset the win_rated_arena having the "no_lose" condition
-                    player->ResetCriteria(CRITERIA_TYPE_WIN_RATED_ARENA, CRITERIA_CONDITION_NO_LOSE);
+                    player->ResetCriteria(CRITERIA_CONDITION_NO_LOSE, 0);
                 }
             }
 
