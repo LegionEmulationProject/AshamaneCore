@@ -8896,7 +8896,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
 
     m_speed_rate[mtype] = rate;
 
-    propagateSpeedChange();
+    PropagateSpeedChange();
 
     // Spline packets are for creatures and move_update are for players
     static OpcodeServer const moveTypeToOpcode[MAX_MOVE_TYPE][3] =
@@ -10840,9 +10840,9 @@ void Unit::SendPetAIReaction(ObjectGuid guid)
     owner->ToPlayer()->SendDirectMessage(packet.Write());
 }
 
-void Unit::propagateSpeedChange()
+void Unit::PropagateSpeedChange()
 {
-    GetMotionMaster()->propagateSpeedChange();
+    GetMotionMaster()->PropagateSpeedChange();
 }
 
 ///----------End of Pet responses methods----------
