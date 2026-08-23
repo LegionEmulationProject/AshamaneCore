@@ -62,6 +62,7 @@
 #include "IPLocation.h"
 #include "Language.h"
 #include "LFGMgr.h"
+#include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "M2Stores.h"
 #include "MapManager.h"
@@ -2083,6 +2084,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();
+
+    TC_LOG_INFO("server.loading", "Loading Item loot...");
+    sLootItemStorage->LoadStorageFromDB();
 
     TC_LOG_INFO("server.loading", "Loading Quest task...");
     sObjectMgr->LoadQuestTasks();
