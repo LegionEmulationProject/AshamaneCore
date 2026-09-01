@@ -567,7 +567,7 @@ public:
                 damage = me->GetHealth() - 1;
                 _events.Reset();
                 me->RemoveAllAuras();
-                me->setFaction(35);
+                me->SetFaction(35);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15 | UNIT_FLAG_IMMUNE_TO_PC);
                 me->AttackStop();
                 attacker->AttackStop();

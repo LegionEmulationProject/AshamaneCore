@@ -1295,7 +1295,7 @@ public:
                             me->Say(CRACK_PROVOC, LANG_UNIVERSAL, player);
                             naga = player->SummonCreature(38448, zone->GetPositionX(), zone->GetPositionY(), zone->GetPositionZ() + 2, zone->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60 * IN_MILLISECONDS);
                             if (naga)
-                                naga->setFaction(35);
+                                naga->SetFaction(35);
                         }
                         zone->DespawnOrUnsummon();
                         start = true;
@@ -1346,7 +1346,7 @@ public:
                 if (mui_event <= diff)
                 {
                     combats = false;
-                    naga->setFaction(14);
+                    naga->SetFaction(14);
                     mui_event  = 4000;
                     me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
                 }
@@ -2020,7 +2020,7 @@ public:
             if (who->GetEntry() == 39592)
             {
                 isEventInProgress = true;
-                me->setFaction(14);
+                me->SetFaction(14);
                 //Talk(-1039585, me);
             }
         }
@@ -2035,7 +2035,7 @@ public:
             if (damage >= me->GetHealth())
             {
                 damage = 0;
-                me->setFaction(35);
+                me->SetFaction(35);
                 //Talk(-1039588, me);
                 end = true;
                 if (Creature *c = me->FindNearestCreature(39592, 30))

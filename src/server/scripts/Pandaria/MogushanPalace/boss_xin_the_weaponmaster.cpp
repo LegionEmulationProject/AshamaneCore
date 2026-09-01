@@ -203,7 +203,7 @@ class mob_animated_staff : public CreatureScript
             {
                 if (summoned->GetEntry() == CREATURE_RING_OF_FIRE)
                 {
-                    summoned->setFaction(14);
+                    summoned->SetFaction(14);
                     summoned->SetReactState(REACT_PASSIVE);
                     summoned->AddAura(SPELL_RING_OF_FIRE_0, summoned);
                 }

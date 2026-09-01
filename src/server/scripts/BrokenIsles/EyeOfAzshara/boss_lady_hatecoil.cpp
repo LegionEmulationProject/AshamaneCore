@@ -298,7 +298,7 @@ struct npc_lady_hatecoil_monsoon : public ScriptedAI
     void Reset() override
     {
         DoCastSelf(SPELL_MONSOON_VISUAL, true);
-        me->setFaction(16); // Same faction as Lady Hatecoil
+        me->SetFaction(16); // Same faction as Lady Hatecoil
 
         me->SetSpeed(MOVE_RUN, 2.0f);
         if (Unit* victim = me->SelectNearestPlayer(100.0f))

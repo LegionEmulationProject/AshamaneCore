@@ -278,7 +278,7 @@ public:
 
                if (creature)
                {
-                   creature->setFaction(35);
+                   creature->SetFaction(35);
                    creature->SetReactState(ReactStates::REACT_PASSIVE);
                    creature->GetMotionMaster()->MoveRandom(15.0f);
 
@@ -500,7 +500,7 @@ public:
             me->RemoveAllAuras();
 
             me->Respawn();
-            me->setFaction(35);
+            me->SetFaction(35);
             me->SetReactState(ReactStates::REACT_PASSIVE);
 
             me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
@@ -554,7 +554,7 @@ public:
 
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-            me->setFaction(16);
+            me->SetFaction(16);
 
             me->CastSpell(me, eNhalishSpells::SpellShadowChannel);
         }
@@ -598,7 +598,7 @@ public:
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            me->setFaction(35);
+            me->SetFaction(35);
             me->SetDisplayId(11686);
 
             m_Timer = 500;

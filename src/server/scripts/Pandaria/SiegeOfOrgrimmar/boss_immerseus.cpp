@@ -295,7 +295,7 @@ class boss_immerseus : public CreatureScript
                 {
                     me->SetDisplayId(DisplayIds::DISPLAY_PURGED);
                     me->SetReactState(REACT_PASSIVE);
-                    me->setFaction(35);
+                    me->SetFaction(35);
                     return;
                 }
 
@@ -659,7 +659,7 @@ class boss_immerseus : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->RemoveAllAuras();
                 me->AttackStop();
-                me->setFaction(35);
+                me->SetFaction(35);
                 me->DeleteThreatList();
                 me->CombatStop(true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);

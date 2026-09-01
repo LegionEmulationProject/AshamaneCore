@@ -174,7 +174,7 @@ struct boss_nithogg : public WorldBossAI
                     //What I do here is make the cast happen from higher up, making the missiles travel more than they do at the moment.
                     if (Creature* tempSumm = me->SummonCreature(WORLD_TRIGGER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 14, 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
                     {
-                        tempSumm->setFaction(me->getFaction());
+                        tempSumm->SetFaction(me->GetFaction());
                         tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, me->GetGUID());
                         PhasingHandler::InheritPhaseShift(tempSumm, me);
                         tempSumm->SetLevel(me->getLevel());

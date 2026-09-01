@@ -1762,7 +1762,7 @@ public:
             Item* item = caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
             if (item && item->GetTemplate()->GetInventoryType() == INVTYPE_SHIELD)
                 caster->CastSpell(caster, 146120, true);
-            else if (caster->getFaction() == 1732) // Alliance
+            else if (caster->GetFaction() == 1732) // Alliance
                 caster->CastSpell(caster, 147923, true);
             else // Horde
                 caster->CastSpell(caster, 146122, true);

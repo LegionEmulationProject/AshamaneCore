@@ -821,7 +821,7 @@ public:
 
         void JustSummoned(Creature* summon) override
         {
-            summon->setFaction(me->getFaction());
+            summon->SetFaction(me->GetFaction());
             if(summon->GetEntry() != MOB_POISON_BOMB)
             summon->SetInCombatWithZone();
 

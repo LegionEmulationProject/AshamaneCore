@@ -277,7 +277,7 @@ struct npc_bane_sphere : public ScriptedAI
 
     void Reset() override
     {
-        me->setFaction(84);
+        me->SetFaction(84);
         me->SetSpeed(MOVE_RUN, 15.0f);
 
         if(Creature* boss = instance->GetCreature(NPC_YMIRON_MAW))

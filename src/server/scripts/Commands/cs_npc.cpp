@@ -610,7 +610,7 @@ public:
             return false;
         }
 
-        creature->setFaction(factionId);
+        creature->SetFaction(factionId);
 
         // Faction is set in creature_template - not inside creature
 
@@ -726,7 +726,7 @@ public:
 
         CreatureTemplate const* cInfo = target->GetCreatureTemplate();
 
-        uint32 faction = target->getFaction();
+        uint32 faction = target->GetFaction();
         uint64 npcflags = target->GetUInt64Value(UNIT_NPC_FLAGS);
         uint32 mechanicImmuneMask = cInfo->MechanicImmuneMask;
         uint32 displayid = target->GetDisplayId();

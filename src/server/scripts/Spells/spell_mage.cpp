@@ -2332,7 +2332,7 @@ public:
 
             if (TempSummon* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 5 * IN_MILLISECONDS))
             {
-                tempSumm->setFaction(caster->getFaction());
+                tempSumm->SetFaction(caster->GetFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
                 PhasingHandler::InheritPhaseShift(tempSumm, caster);
                 caster->CastSpell(tempSumm, SPELL_MAGE_METEOR_VISUAL, true);
@@ -2348,7 +2348,7 @@ public:
 
             if (TempSummon* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 5 * IN_MILLISECONDS))
             {
-                tempSumm->setFaction(caster->getFaction());
+                tempSumm->SetFaction(caster->GetFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
                 PhasingHandler::InheritPhaseShift(tempSumm, caster);
                 caster->CastSpell(tempSumm, SPELL_MAGE_METEOR_DAMAGE, true);
@@ -2445,7 +2445,7 @@ public:
 
             if (Creature* tempSumm = caster->SummonCreature(WORLD_TRIGGER, at->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 200))
             {
-                tempSumm->setFaction(caster->getFaction());
+                tempSumm->SetFaction(caster->GetFaction());
                 tempSumm->SetGuidValue(UNIT_FIELD_SUMMONEDBY, caster->GetGUID());
                 PhasingHandler::InheritPhaseShift(tempSumm, caster);
                 caster->CastSpell(tempSumm, SPELL_MAGE_BLIZZARD_DAMAGE, true);

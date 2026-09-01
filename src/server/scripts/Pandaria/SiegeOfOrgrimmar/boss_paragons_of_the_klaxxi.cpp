@@ -1194,7 +1194,7 @@ private:
         me->RemoveAllAuras();
         me->SetReactState(REACT_PASSIVE);
         me->InterruptNonMeleeSpells(true);
-        me->setFaction(35);
+        me->SetFaction(35);
         me->AttackStop();
         me->DeleteThreatList();
         me->getThreatManager().clearReferences();

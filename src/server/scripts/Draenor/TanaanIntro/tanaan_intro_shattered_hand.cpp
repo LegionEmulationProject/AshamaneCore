@@ -470,7 +470,7 @@ public:
 
             creatureList.remove_if([](Creature* creature) -> bool
             {
-                if (creature->getFaction() != 2580)
+                if (creature->GetFaction() != 2580)
                     return true;
 
                 if (creature->GetPositionX() > 4450.0f ||
@@ -534,7 +534,7 @@ public:
                 if (kargath->AI())
                     kargath->AI()->DoAction(1);
 
-            // Si il s'est tué lui-même car il ne trouvait pas de pnjs, on ne donne pas de crédit au joueur
+            // Si il s'est tuï¿½ lui-mï¿½me car il ne trouvait pas de pnjs, on ne donne pas de crï¿½dit au joueur
             if (killer == me)
                 return;
 
@@ -567,7 +567,7 @@ public:
         {
             kargathGuid = summoner->GetGUID();
 
-            // Si il est déjà au sol, on ne le fait pas sauter, il passe directement à l'attaque sur un PNJ
+            // Si il est dï¿½jï¿½ au sol, on ne le fait pas sauter, il passe directement ï¿½ l'attaque sur un PNJ
             if (me->GetPositionZ() < 10.0f)
             {
                 MovementInform(EFFECT_MOTION_TYPE, 1);
@@ -595,7 +595,7 @@ public:
                 }
                 else
                 {
-                    // Pas de mob à attaquer, on le fait bouger un peu
+                    // Pas de mob ï¿½ attaquer, on le fait bouger un peu
                     // pour un visuel plus joli avant de le supprimer
                     me->GetMotionMaster()->MovePoint(2, frand(4376.39f, 4428.70f), frand(-2846.56f, -2804.52f), 5.0f);
                 }
@@ -610,7 +610,7 @@ public:
     };
 };
 
-// Est aussi utilisé par les PNJS après l'arène
+// Est aussi utilisï¿½ par les PNJS aprï¿½s l'arï¿½ne
 class npc_tanaan_arena_helper : public CreatureScript
 {
 public:

@@ -99,7 +99,7 @@ class boss_archaedas : public CreatureScript
                 Initialize();
 
                 instance->SetData(0, 5);    // respawn any dead minions
-                me->setFaction(35);
+                me->SetFaction(35);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->AddAura(SPELL_FREEZE_ANIM, me);
@@ -115,14 +115,14 @@ class boss_archaedas : public CreatureScript
                     minion->CastSpell(minion, SPELL_ARCHAEDAS_AWAKEN, true);
                     minion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     minion->SetControlled(false, UNIT_STATE_ROOT);
-                    minion->setFaction(14);
+                    minion->SetFaction(14);
                     minion->RemoveAura(SPELL_MINION_FREEZE_ANIM);
                 }
             }
 
             void EnterCombat(Unit* /*who*/) override
             {
-                me->setFaction(14);
+                me->SetFaction(14);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetControlled(false, UNIT_STATE_ROOT);
             }
@@ -262,7 +262,7 @@ class npc_archaedas_minions : public CreatureScript
             {
                 Initialize();
 
-                me->setFaction(35);
+                me->SetFaction(35);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->RemoveAllAuras();
@@ -271,7 +271,7 @@ class npc_archaedas_minions : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override
             {
-                me->setFaction (14);
+                me->SetFaction(14);
                 me->RemoveAllAuras();
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetControlled(false, UNIT_STATE_ROOT);
@@ -351,7 +351,7 @@ class npc_stonekeepers : public CreatureScript
 
             void Reset() override
             {
-                me->setFaction(35);
+                me->SetFaction(35);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->RemoveAllAuras();
@@ -360,7 +360,7 @@ class npc_stonekeepers : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override
             {
-                me->setFaction(14);
+                me->SetFaction(14);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetControlled(false, UNIT_STATE_ROOT);
             }

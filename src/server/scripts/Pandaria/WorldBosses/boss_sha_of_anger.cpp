@@ -389,7 +389,7 @@ class spell_sha_of_anger_aggressive_behaviour: public SpellScriptLoader
                         return;
 
                     target->SetPvP(true);
-                    target->setFaction(16);
+                    target->SetFaction(16);
                     target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
                 }
 

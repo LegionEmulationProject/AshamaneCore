@@ -108,7 +108,7 @@ struct boss_hymdall : public BossAI
 
         if (summon->GetEntry() == NPC_DANCING_BLADE)
         {
-            summon->setFaction(me->getFaction());
+            summon->SetFaction(me->GetFaction());
             summon->SetReactState(REACT_PASSIVE);
         }
     }
@@ -120,7 +120,7 @@ struct boss_hymdall : public BossAI
             _JustDied();
 
             me->SetHealth(me->GetMaxHealth());
-            me->setFaction(35);
+            me->SetFaction(35);
             me->GetMotionMaster()->MoveTargetedHome();
 
             if (GameObject* go = instance->GetGameObject(GOB_HYMDALLS_CACHE))

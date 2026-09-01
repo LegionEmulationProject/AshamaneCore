@@ -178,7 +178,7 @@ struct npc_king_deepbeard_quake : public ScriptedAI
 
     void Reset() override
     {
-        me->setFaction(16);
+        me->SetFaction(16);
         DoCastSelf(SPELL_AFTERSHOCK, false);
     }
 };

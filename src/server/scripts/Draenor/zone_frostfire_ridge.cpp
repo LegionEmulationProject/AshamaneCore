@@ -98,7 +98,7 @@ public:
     }
 };
 
-// 76411 - Drek'Thar - Début Givrefeu
+// 76411 - Drek'Thar - Dï¿½but Givrefeu
 class npc_drekthar_frostridge_begin : public CreatureScript
 {
 public:
@@ -155,7 +155,7 @@ public:
     };
 };
 
-// 78272 - Durotan - Début Givrefeu
+// 78272 - Durotan - Dï¿½but Givrefeu
 class npc_durotan_frostridge_begin : public CreatureScript
 {
 public:
@@ -207,7 +207,7 @@ public:
     }
 };
 
-// 233664 - Niveau de Geomètre
+// 233664 - Niveau de Geomï¿½tre
 class go_frostridge_master_surveyor : public GameObjectScript
 {
 public:
@@ -286,7 +286,7 @@ class npc_groog : public CreatureScript
 
             void Reset() override
             {
-                me->setFaction(14);
+                me->SetFaction(14);
             }
 
             void EnterCombat(Unit* /*p_Victim*/) override

@@ -240,7 +240,7 @@ class spell_wrath_of_azshara_mystic_tornado : public SpellScript
             target->GetNearPoint(target, x, y, z, 1, 10.0f, frand(0.f, 2.f * float(M_PI)));
             if (Creature* tornado = caster->SummonCreature(NPC_MYSTIC_TORNADO, x, y, z, 1.0f, TEMPSUMMON_MANUAL_DESPAWN))
             {
-                tornado->setFaction(caster->getFaction());
+                tornado->SetFaction(caster->GetFaction());
                 tornado->SetLevel(caster->getLevel());
                 tornado->SetReactState(REACT_PASSIVE);
                 tornado->CastSpell(tornado, SPELL_MYSTIC_TORNADO_AT, false);

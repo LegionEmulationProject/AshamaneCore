@@ -80,7 +80,7 @@ public:
             if (npc_maghar_captiveAI* EscortAI = dynamic_cast<npc_maghar_captiveAI*>(creature->AI()))
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
-                creature->setFaction(232);
+                creature->SetFaction(232);
                 EscortAI->Start(true, false, player->GetGUID(), quest);
                 creature->AI()->Talk(SAY_MAG_START);
 
@@ -434,7 +434,7 @@ public:
             if (npc_kurenai_captiveAI* EscortAI = dynamic_cast<npc_kurenai_captiveAI*>(creature->AI()))
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
-                creature->setFaction(231);
+                creature->SetFaction(231);
                 EscortAI->Start(true, false, player->GetGUID(), quest);
                 creature->AI()->Talk(SAY_KUR_START);
 

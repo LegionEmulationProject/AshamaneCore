@@ -113,7 +113,7 @@ struct npc_professor_phizzlethorpe : public npc_escortAI
         {
             Talk(SAY_PROGRESS_1, player);
             npc_escortAI::Start(false, false, player->GetGUID(), quest);
-            me->setFaction(FACTION_SUNKEN_TREASURE);
+            me->SetFaction(FACTION_SUNKEN_TREASURE);
         }
     }
 
@@ -163,7 +163,7 @@ class spell_summon_myzrael : public SpellScript
         if (Creature* myzrael = GetCaster()->SummonCreature(NPC_MYZRAEL, -948.493f, -3113.98f, 50.4207f, 3.14159f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 90000))
         {
             myzrael->SetReactState(REACT_AGGRESSIVE);
-            myzrael->setFaction(14);
+            myzrael->SetFaction(14);
             myzrael->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
         }
     }
