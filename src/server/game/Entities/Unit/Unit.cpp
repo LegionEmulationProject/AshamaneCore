@@ -7140,6 +7140,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, Spell* spell, AuraEffect co
                     return 0.0f;
             }
         // Do not add a break here, case fallthrough is intentional! Adding a break will make above spells unable to crit.
+            /* fallthrough */
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
             if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)

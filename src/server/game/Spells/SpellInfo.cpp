@@ -2673,6 +2673,7 @@ void SpellInfo::_LoadSpellSpecific()
                         /// @workaround For non-stacking tracking spells (We need generic solution)
                         if (Id == 30645) // Gas Cloud Tracking
                             return SPELL_SPECIFIC_NORMAL;
+                        /* fallthrough */
                     case SPELL_AURA_TRACK_RESOURCES:
                     case SPELL_AURA_TRACK_STEALTHED:
                         return SPELL_SPECIFIC_TRACKER;
@@ -3206,7 +3207,7 @@ void SpellInfo::_LoadImmunityInfo()
                                 immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR);
                                 immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_FEAR_2);
                                 immuneInfo.AuraTypeImmune.insert(SPELL_AURA_MOD_ROOT_2);
-                                // no break intended
+                                /* fallthrough */
                             case 61869: // Overload
                             case 63481:
                             case 61887: // Lightning Tendrils

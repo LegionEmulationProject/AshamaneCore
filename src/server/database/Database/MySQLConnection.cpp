@@ -549,7 +549,6 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/)
         case CR_SERVER_GONE_ERROR:
         case CR_SERVER_LOST:
         case CR_SERVER_LOST_EXTENDED:
-        {
             if (m_Mysql)
             {
                 TC_LOG_ERROR("sql.sql", "Lost the connection to the MySQL server!");
@@ -557,8 +556,7 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/)
                 mysql_close(m_Mysql);
                 m_Mysql = nullptr;
             }
-            [[fallthrough]];
-        }
+            /* fallthrough */
         case CR_CONN_HOST_ERROR:
         {
             TC_LOG_INFO("sql.sql", "Attempting to reconnect to the MySQL server...");

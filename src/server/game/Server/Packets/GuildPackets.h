@@ -989,7 +989,7 @@ namespace WorldPackets
             uint32 CompletedDate = 0;
             int32 Type = 0;
             int32 Flags = 0;
-            int32 Data[2];
+            std::array<int32, 2> Data = { };
             ObjectGuid MemberGuid;
             GuidList MemberList;
             Optional<Item::ItemInstance> Item;
