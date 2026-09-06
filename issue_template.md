@@ -17,12 +17,8 @@
 
 **Description:**
 
-CHANGEME Description of the problem or issue here. Wowhead link will be appreciated.
-
-**Current behaviour:**
-
-CHANGEME Tell us what happens.
-If this is a crash, post the crashlog (upload to https://gist.github.com/). Do not post entire log here.
+CHANGEME Description of the problem or issue here.
+If this is a crash, post the crashlog (upload to https://gist.github.com/).
 
 **Expected behaviour:**
 
