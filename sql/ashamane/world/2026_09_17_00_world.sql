@@ -1,0 +1,1 @@
+DELETE FROM `creature` WHERE `guid`=20536131;
