@@ -1,0 +1,1 @@
+UPDATE `creature` SET `id`=100210 WHERE `guid`=20535554;
