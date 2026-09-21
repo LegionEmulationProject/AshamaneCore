@@ -1,0 +1,2 @@
+-- Clean up
+UPDATE `creature` SET `wander_distance`=0 WHERE `guid` IN (121108, 121092, 121100, 121101, 121103, 121110, 121111, 122544, 122546, 121107);
