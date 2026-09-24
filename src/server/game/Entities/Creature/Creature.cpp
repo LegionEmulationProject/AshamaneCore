@@ -2417,6 +2417,8 @@ bool Creature::LoadCreaturesAddon()
     if (creatureAddon->emote != 0)
         SetUInt32Value(UNIT_NPC_EMOTESTATE, creatureAddon->emote);
 
+    SetAIAnimKitId(creatureAddon->aiAnimKit);
+
     // Check if visibility distance different
     if (creatureAddon->visibilityDistanceType != VisibilityDistanceType::Normal)
         SetVisibilityDistanceOverride(creatureAddon->visibilityDistanceType);

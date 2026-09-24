@@ -577,6 +577,7 @@ struct CreatureAddon
     uint8 pvpFlags;
 	uint8 visFlags;
     uint32 emote;
+    uint16 aiAnimKit;
     std::vector<uint32> auras;
     VisibilityDistanceType visibilityDistanceType;
 };

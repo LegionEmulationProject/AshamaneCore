@@ -577,8 +577,8 @@ void ObjectMgr::LoadCreatureTemplateAddons()
     uint32 oldMSTime = getMSTime();
     _creatureTemplateAddonStore.clear(); // needed for reload
 
-    //                                                 0       1       2      3           4       5        6             7           8                  9           10                      
-    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote,  visibilityDistanceType, auras FROM creature_template_addon");
+    //                                                 0       1       2      3           4       5        6             7           8          9           10                  11    
+    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit,  visibilityDistanceType, auras FROM creature_template_addon");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 creature template addon definitions. DB table `creature_template_addon` is empty.");
@@ -608,9 +608,10 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         creatureAddon.sheathState               = fields[6].GetUInt8();
         creatureAddon.pvpFlags                  = fields[7].GetUInt8();
         creatureAddon.emote                     = fields[8].GetUInt32();
-        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[9].GetUInt8());
+        creatureAddon.aiAnimKit                 = fields[9].GetUInt16();
+        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[10].GetUInt8());
 
-        Tokenizer tokens(fields[10].GetString(), ' ');
+        Tokenizer tokens(fields[11].GetString(), ' ');
         uint8 i = 0;
         creatureAddon.auras.resize(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
@@ -1243,8 +1244,8 @@ void ObjectMgr::LoadCreatureAddons()
     uint32 oldMSTime = getMSTime();
 
     _creatureAddonStore.clear(); // needed for reload
-        //                                                0       1       2      3       4       5        6             7              8                  9              10
-    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, visibilityDistanceType, auras FROM creature_addon");
+        //                                                0       1       2      3       4       5        6             7         8      9          10                      11
+    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, visibilityDistanceType, auras FROM creature_addon");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 creature addon definitions. DB table `creature_addon` is empty.");
@@ -1282,9 +1283,10 @@ void ObjectMgr::LoadCreatureAddons()
         creatureAddon.sheathState               = fields[6].GetUInt8();
         creatureAddon.pvpFlags                  = fields[7].GetUInt8();
         creatureAddon.emote                     = fields[8].GetUInt32();
-        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[9].GetUInt8());
+        creatureAddon.aiAnimKit                 = fields[9].GetUInt16();
+        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[10].GetUInt8());
 
-        Tokenizer tokens(fields[10].GetString(), ' ');
+        Tokenizer tokens(fields[11].GetString(), ' ');
         uint8 i = 0;
         creatureAddon.auras.resize(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
