@@ -81,10 +81,10 @@ enum Events
 enum Etc
 {
     PASSENGER_MALFURION = 1,
-    WP_POSITION_END = 19,
+    WP_POSITION_END = 20,
     WP_POSITION_CENARIUS,
 };
-uint32 const malfurionpathSize = 18;
+uint32 const malfurionpathSize = 20;
 Position const malfurionPathToGrove[malfurionpathSize] =
 {
     { 2291.473f, 6597.754f, 138.3059f },
@@ -105,24 +105,8 @@ Position const malfurionPathToGrove[malfurionpathSize] =
     { 2601.973f, 6634.504f, 119.8059f },
     { 2614.723f, 6656.754f, 113.0559f },
     { 2614.723f, 6679.254f, 108.0559f },
-};
-uint32 const malfurionpathSize1 = 14;
-Position const malfurionPathtoNyandra[malfurionpathSize1] =
-{
-    { 2610.267f, 6700.865f, 104.83893f },
-    { 2610.017f, 6701.865f, 105.08893f },
-    { 2609.767f, 6703.365f, 104.83893f },
-    { 2610.017f, 6704.865f, 104.83893f },
-    { 2610.017f, 6706.365f, 105.08893f },
-    { 2610.017f, 6709.115f, 104.83893f },
-    { 2609.767f, 6710.615f, 105.08893f },
-    { 2610.017f, 6715.115f, 104.83893f },
-    { 2610.017f, 6715.615f, 104.58893f },
-    { 2610.017f, 6716.615f, 104.58893f },
-    { 2609.267f, 6717.615f, 104.83893f },
-    { 2608.767f, 6718.865f, 104.83893f },
-    { 2608.517f, 6720.865f, 104.83893f },
-    { 2606.8586f, 6724.6426f, 104.887665f },
+    { 2610.267f, 6700.865f, 104.8389f },
+    { 2610.017f, 6701.865f, 105.0889f },
 };
 
 class npc_malfurion_stormrage_91465 : public CreatureScript
