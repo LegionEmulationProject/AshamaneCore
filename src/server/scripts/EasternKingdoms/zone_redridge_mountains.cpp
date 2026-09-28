@@ -429,6 +429,7 @@ struct npc_keeshan_riverboat : public VehicleAI
         {
             if (auto player = passenger->ToPlayer())
             {
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 me->SetSpeed(MOVE_SWIM, 1.7f);
                 events.ScheduleEvent(EVENT_KEESHAN_SAY_LINE, 1s);
                 events.ScheduleEvent(EVENT_WAYPOINTS, 1s);
