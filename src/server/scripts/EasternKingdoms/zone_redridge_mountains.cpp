@@ -390,7 +390,7 @@ enum QuestItsNeverOver
     EVENT_WAYPOINTS,
     EVENT_AT_LAST_WAYPOINT,
 
-    NPC_KEESHAN         		  = 43458,
+    NPC_KEESHAN         		  = 43457,
     NPC_MESSNER         		  = 43432,
 
     SAY_KEESHAN_FIRST_LINE        = 0,
@@ -399,6 +399,12 @@ enum QuestItsNeverOver
 
     SPELL_MESSNER_BOAT_ENGINE     = 81260,
     SPELL_EJECT_PASSENGER_6       = 64634,
+    SPELL_RIDE_VEHICLE_HARDCODED  = 46598,
+    SPELL_RIVER_BOAT_TRIGGER_01   = 81257,
+    SPELL_RIVER_BOAT_TRIGGER_01   = 81258,
+
+    SAY_KEESAN_TAKE_US_OUT        = 0,
+    SAY_MESSNER_YOU_GOT_IT        = 0,
 
     WAYPOINT_LAST_POINT  = 5,
 };
