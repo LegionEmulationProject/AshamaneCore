@@ -1,0 +1,5 @@
+-- Hero's Call: Redridge Mountains!
+DELETE FROM `quest_offer_reward` WHERE `ID` IN (26365, 28563);
+INSERT INTO `quest_offer_reward` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `RewardText`, `VerifiedBuild`) VALUES
+(26365, 0, 0, 0, 0, 0, 0, 0, 0, 'Heard Westfall was in some deep doody.\n\n<Parker doesn\'t even turn to face you.>\n\nWell, we got our own set of problems here. See them gnolls out there? Looks like they\'re actin\' up again. I don\'t like it. Don\'t like it one bit.', 0),
+(28563, 0, 0, 0, 0, 0, 0, 0, 0, 'Heard Westfall was in some deep doody.\n\n<Parker doesn\'t even turn to face you.>\n\nWell, we got our own set of problems here. See them gnolls out there? Looks like they\'re actin\' up again. I don\'t like it. Don\'t like it one bit.', 0);
