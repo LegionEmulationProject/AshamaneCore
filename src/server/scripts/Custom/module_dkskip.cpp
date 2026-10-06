@@ -37,94 +37,7 @@
 #include "World.h"
 #include "WorldSession.h"
 
-constexpr auto YESSKIPDK = 1;
-
-void Trinitycore_skip_deathknight_HandleSkip(Player* player)
-{
-    //Not sure where DKs were supposed to pick this up from, leaving as the one manual add
-    player->AddItem(6948, true); //Hearthstone
-
-    // these are all the starter quests that award talent points, quest items, or spells
-    int STARTER_QUESTS[33] = { 12593, 12619, 12842, 12848, 12636, 12641, 12657, 12678, 12679, 12680, 12687, 12698, 12701, 12706, 12716, 12719, 12720, 12722, 12724, 12725, 12727, 12733, -1, 12751, 12754, 12755, 12756, 12757, 12779, 12801, 13165, 13166 };
-
-    int specialSurpriseQuestId = -1;
-    switch (player->getRace())
-    {
-        case RACE_TAUREN:
-            specialSurpriseQuestId = 12739;
-            break;
-        case RACE_HUMAN:
-            specialSurpriseQuestId = 12742;
-            break;
-        case RACE_NIGHTELF:
-            specialSurpriseQuestId = 12743;
-            break;
-        case RACE_DWARF:
-            specialSurpriseQuestId = 12744;
-            break;
-        case RACE_GNOME:
-            specialSurpriseQuestId = 12745;
-            break;
-        case RACE_DRAENEI:
-            specialSurpriseQuestId = 12746;
-            break;
-        case RACE_BLOODELF:
-            specialSurpriseQuestId = 12747;
-            break;
-        case RACE_ORC:
-            specialSurpriseQuestId = 12748;
-            break;
-        case RACE_TROLL:
-            specialSurpriseQuestId = 12749;
-            break;
-        case RACE_UNDEAD_PLAYER:
-            specialSurpriseQuestId = 12750;
-            break;
-    }
-
-    STARTER_QUESTS[22] = specialSurpriseQuestId;
-    STARTER_QUESTS[32] = player->GetTeam() == ALLIANCE ? 13188 : 13189;
-
-    for (int questId : STARTER_QUESTS)
-    {
-        if (player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
-        {
-            player->AddQuest(sObjectMgr->GetQuestTemplate(questId), nullptr);
-            player->RewardQuest(sObjectMgr->GetQuestTemplate(questId), 0, player, false);
-        }
-    }
-
-    //these are alternate reward items from quest 12679, item 39320 is chosen by default as the reward
-    player->AddItem(38664, true);//Sky Darkener's Shroud of the Unholy
-    player->AddItem(39322, true);//Shroud of the North Wind
-
-    //these are alternate reward items from quest 12801, item 38633 is chosen by default as the reward
-    player->AddItem(38632, true);//Greatsword of the Ebon Blade
-
-    int DKL = sConfigMgr->GetFloatDefault("Skip.Deathknight.Start.Level", 58);
-    if (player->getLevel() <= DKL)
-    {
-        //GiveLevel updates character properties more thoroughly than SetLevel
-        player->GiveLevel(DKL);
-    }
-
-    //Don't need to save all players, just current
-    player->SaveToDB();
-
-    WorldLocation Aloc = WorldLocation(0, -8866.55f, 671.39f, 97.90f, 5.27f);// Stormwind
-    WorldLocation Hloc = WorldLocation(1, 1637.62f, -4440.22f, 15.78f, 2.42f);// Orgrimmar
-
-    if (player->GetTeam() == ALLIANCE)
-    {
-        player->TeleportTo(0, -8833.37f, 628.62f, 94.00f, 1.06f);//Stormwind
-        player->SetHomebind(Aloc, 1637);// Stormwind Homebind location
-    }
-    else
-    {
-        player->TeleportTo(1, 1569.59f, -4397.63f, 7.70f, 0.54f);//Orgrimmar
-        player->SetHomebind(Hloc, 1653);// Orgrimmar Homebind location
-    }
-}
+#define GOSSIP_MENU_OPTION "I wish to skip the Death Knight starter questline."
 
 class Trinitycore_skip_deathknight_announce : public PlayerScript
 {
@@ -140,95 +53,134 @@ public:
     }
 };
 
-class Trinitycore_skip_deathknight : public PlayerScript
+class npc_tc_skip_lich : public CreatureScript
 {
 public:
-    Trinitycore_skip_deathknight() : PlayerScript("Trinitycore_skip_deathknight") { }
+    npc_tc_skip_lich() : CreatureScript("npc_tc_skip_lich") { }
 
-    void OnLogin(Player* player, bool firstLogin) override
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
-        if (firstLogin && player->GetAreaId() == 4342)
-        {
-            //These changes make it so user mistakes in the configuration file don't cause this to run 2x
-            if ((sConfigMgr->GetBoolDefault("Skip.Deathknight.Starter.Enable", true) && player->GetSession()->GetSecurity() == SEC_PLAYER)
-                || (sConfigMgr->GetBoolDefault("GM.Skip.Deathknight.Starter.Enable", true) && player->GetSession()->GetSecurity() >= SEC_MODERATOR))
-            {
-                Trinitycore_skip_deathknight_HandleSkip(player);
-            }
-        }
+        if (creature->IsQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_MENU_OPTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 0, "Are you sure you want to skip the starting zone?", 0, false);
+        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+        return true;
     }
-};
 
-#define LOCALE_LICHKING_0 "I wish to skip the Death Knight starter questline."
-#define LOCALE_LICHKING_1 "죽음의 기사 스타터 퀘스트 라인을 건너뛰고 싶습니다."
-#define LOCALE_LICHKING_2 "Je souhaite sauter la série de quêtes de démarrage du Chevalier de la mort."
-#define LOCALE_LICHKING_3 "Ich möchte die Todesritter-Starter-Questreihe überspringen."
-#define LOCALE_LICHKING_4 "我想跳過死亡騎士新手任務線。"
-#define LOCALE_LICHKING_5 "我想跳過死亡騎士新手任務線。"
-#define LOCALE_LICHKING_6 "Deseo saltarme la línea de misiones de inicio del Caballero de la Muerte."
-#define LOCALE_LICHKING_7 "Deseo saltarme la línea de misiones de inicio del Caballero de la Muerte."
-#define LOCALE_LICHKING_8 "Я хочу пропустить начальную цепочку заданий Рыцаря Смерти."
-
-class Trinitycore_optional_deathknight_skip : public CreatureScript
-{
-public:
-    Trinitycore_optional_deathknight_skip() : CreatureScript("npc_tc_skip_lich") { }
-
-    struct npc_SkipLichAI : public ScriptedAI
+    struct npc_tc_skip_lichAI : public ScriptedAI
     {
-        npc_SkipLichAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool OnGossipHello(Player* player)
+        npc_tc_skip_lichAI(Creature* creature) : ScriptedAI(creature) { }
+        
+        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
-            if (me->IsQuestGiver())
+            ClearGossipMenuFor(player);
+
+            switch (gossipListId)
             {
-                player->PrepareQuestMenu(me->GetGUID());
-            }
-                char const* localizedEntry;
-                switch (player->GetSession()->GetSessionDbcLocale())
+                case 0:
                 {
-                    case LOCALE_koKR: localizedEntry = LOCALE_LICHKING_1; break;
-                    case LOCALE_frFR: localizedEntry = LOCALE_LICHKING_2; break;
-                    case LOCALE_deDE: localizedEntry = LOCALE_LICHKING_3; break;
-                    case LOCALE_zhCN: localizedEntry = LOCALE_LICHKING_4; break;
-                    case LOCALE_zhTW: localizedEntry = LOCALE_LICHKING_5; break;
-                    case LOCALE_esES: localizedEntry = LOCALE_LICHKING_6; break;
-                    case LOCALE_esMX: localizedEntry = LOCALE_LICHKING_7; break;
-                    case LOCALE_ruRU: localizedEntry = LOCALE_LICHKING_8; break;
-                    case LOCALE_enUS: localizedEntry = LOCALE_LICHKING_0; break;
-                    default: localizedEntry = LOCALE_LICHKING_0;
-                }
-            AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, localizedEntry, GOSSIP_SENDER_MAIN, YESSKIPDK, "Are you sure you want to skip the starting zone?", 0, false);
-            player->TalkedToCreature(me->GetEntry(), me->GetGUID());
-            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId)
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-
-            switch (action)
-            {
-                case YESSKIPDK:
                     Trinitycore_skip_deathknight_HandleSkip(player);
                     CloseGossipMenuFor(player);
+                }
+            }
+        }
+
+        void Trinitycore_skip_deathknight_HandleSkip(Player* player)
+        {
+            //Not sure where DKs were supposed to pick this up from, leaving as the one manual add
+            player->AddItem(6948, true); //Hearthstone
+        
+            // these are all the starter quests that award talent points, quest items, or spells
+            int STARTER_QUESTS[33] = { 12593, 12619, 12842, 12848, 12636, 12641, 12657, 12678, 12679, 12680, 12687, 12698, 12701, 12706, 12716, 12719, 12720, 12722, 12724, 12725, 12727, 12733, -1, 12751, 12754, 12755, 12756, 12757, 12779, 12801, 13165, 13166 };
+        
+            int specialSurpriseQuestId = -1;
+            switch (player->getRace())
+            {
+                case RACE_TAUREN:
+                    specialSurpriseQuestId = 12739;
+                    break;
+                case RACE_HUMAN:
+                    specialSurpriseQuestId = 12742;
+                    break;
+                case RACE_NIGHTELF:
+                    specialSurpriseQuestId = 12743;
+                    break;
+                case RACE_DWARF:
+                    specialSurpriseQuestId = 12744;
+                    break;
+                case RACE_GNOME:
+                    specialSurpriseQuestId = 12745;
+                    break;
+                case RACE_DRAENEI:
+                    specialSurpriseQuestId = 12746;
+                    break;
+                case RACE_BLOODELF:
+                    specialSurpriseQuestId = 12747;
+                    break;
+                case RACE_ORC:
+                    specialSurpriseQuestId = 12748;
+                    break;
+                case RACE_TROLL:
+                    specialSurpriseQuestId = 12749;
+                    break;
+                case RACE_UNDEAD_PLAYER:
+                    specialSurpriseQuestId = 12750;
                     break;
             }
-
-            return true;
+        
+            STARTER_QUESTS[22] = specialSurpriseQuestId;
+            STARTER_QUESTS[32] = player->GetTeam() == ALLIANCE ? 13188 : 13189;
+        
+            for (int questId : STARTER_QUESTS)
+            {
+                if (player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
+                {
+                    player->AddQuest(sObjectMgr->GetQuestTemplate(questId), nullptr);
+                    player->RewardQuest(sObjectMgr->GetQuestTemplate(questId), 0, player, false);
+                }
+            }
+        
+            //these are alternate reward items from quest 12679, item 39320 is chosen by default as the reward
+            player->AddItem(38664, true);//Sky Darkener's Shroud of the Unholy
+            player->AddItem(39322, true);//Shroud of the North Wind
+        
+            //these are alternate reward items from quest 12801, item 38633 is chosen by default as the reward
+            player->AddItem(38632, true);//Greatsword of the Ebon Blade
+        
+            int DKL = sConfigMgr->GetFloatDefault("Skip.Deathknight.Start.Level", 58);
+            if (player->getLevel() <= DKL)
+            {
+                //GiveLevel updates character properties more thoroughly than SetLevel
+                player->GiveLevel(DKL);
+            }
+        
+            //Don't need to save all players, just current
+            player->SaveToDB();
+        
+            WorldLocation Aloc = WorldLocation(0, -8866.55f, 671.39f, 97.90f, 5.27f);// Stormwind
+            WorldLocation Hloc = WorldLocation(1, 1637.62f, -4440.22f, 15.78f, 2.42f);// Orgrimmar
+        
+            if (player->GetTeam() == ALLIANCE)
+            {
+                player->TeleportTo(0, -8833.37f, 628.62f, 94.00f, 1.06f);//Stormwind
+                player->SetHomebind(Aloc, 1637);// Stormwind Homebind location
+            }
+            else
+            {
+                player->TeleportTo(1, 1637.62f, -4440.22f, 15.78f, 2.42f);//Orgrimmar
+                player->SetHomebind(Hloc, 1653);// Orgrimmar Homebind location
+            }
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_SkipLichAI(creature);
-    }
+        return new npc_tc_skip_lichAI(creature);
+    };
 };
 
 void AddSC_module_dkskip()
 {
     new Trinitycore_skip_deathknight_announce;
-    new Trinitycore_skip_deathknight;
-    new Trinitycore_optional_deathknight_skip;
+    new npc_tc_skip_lich();
 }
