@@ -260,7 +260,7 @@ public:
 
         sDB2Manager.Map2ZoneCoordinates(zoneId, zoneX, zoneY);
 
-        Map* map = object->GetMap();
+        Map const* map = object->GetMap();
         float groundZ = map->GetHeight(object->GetPhaseShift(), object->GetPositionX(), object->GetPositionY(), MAX_HEIGHT);
         float floorZ = map->GetHeight(object->GetPhaseShift(), object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
 
