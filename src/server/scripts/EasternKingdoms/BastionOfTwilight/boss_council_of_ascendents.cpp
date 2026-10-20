@@ -369,8 +369,8 @@ public:
                             ascendant[1]->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             ascendant[2]->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             ascendant[3]->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                            ascendant[2]->SetPosition(wayPos[0]);
-                            ascendant[3]->SetPosition(wayPos[1]);
+                            ascendant[2]->UpdatePosition(wayPos[0]);
+                            ascendant[3]->UpdatePosition(wayPos[1]);
                             ascendant[3]->Yell(SAY_AGGRO4, LANG_UNIVERSAL);
                             DoPlaySoundToSet(ascendant[3], SOU_AGGRO4);
 
