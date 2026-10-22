@@ -8968,7 +8968,6 @@ void Unit::setDeathState(DeathState s)
     if (s == JUST_DIED)
     {
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
-        ModifyAuraState(AURA_STATE_HEALTHLESS_25_PERCENT, false);
         ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
         // remove aurastates allowing special moves
         ClearAllReactives();
