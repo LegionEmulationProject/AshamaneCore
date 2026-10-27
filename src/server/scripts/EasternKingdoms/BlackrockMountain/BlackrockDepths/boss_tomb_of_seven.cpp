@@ -171,7 +171,7 @@ class boss_doomrel : public CreatureScript
             {
                 Initialize();
 
-                me->SetFaction(FACTION_FRIEND);
+                me->SetFaction(FACTION_FRIENDLY);
 
                 // was set before event start, so set again
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);

@@ -103,8 +103,7 @@ enum Gilthares
     SAY_GIL_FREED               = 7,
 
     QUEST_FREE_FROM_HOLD        = 898,
-    AREA_MERCHANT_COAST         = 391,
-    FACTION_ESCORTEE            = 232                       //guessed, possible not needed for this quest
+    AREA_MERCHANT_COAST         = 391
 };
 
 class npc_gilthares : public CreatureScript
@@ -116,7 +115,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_FREE_FROM_HOLD)
         {
-            creature->SetFaction(FACTION_ESCORTEE);
+            creature->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
             creature->SetStandState(UNIT_STAND_STATE_STAND);
 
             creature->AI()->Talk(SAY_GIL_START, player);

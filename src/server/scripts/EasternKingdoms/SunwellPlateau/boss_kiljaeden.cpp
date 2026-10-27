@@ -293,7 +293,7 @@ public:
             me->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
             for (uint8 i = 0; i < 4; ++i)
                 if (GameObject* pOrb = GetOrb(i))
-                    pOrb->SetUInt32Value(GAMEOBJECT_FACTION, 0);
+                    pOrb->SetFaction(FACTION_NONE);
         }
 
         void EmpowerOrb(bool all)
@@ -310,7 +310,7 @@ public:
                     if (GameObject* pOrb = GetOrb(i))
                     {
                         pOrb->CastSpell(me, SPELL_RING_OF_BLUE_FLAMES);
-                        pOrb->SetUInt32Value(GAMEOBJECT_FACTION, 35);
+                        pOrb->SetFaction(FACTION_FRIENDLY);
                         pOrb->setActive(true);
                         pOrb->Refresh();
                     }
@@ -322,7 +322,7 @@ public:
                 if (GameObject* pOrb = GetOrb(urand(0, 3)))
                 {
                     pOrb->CastSpell(me, SPELL_RING_OF_BLUE_FLAMES);
-                    pOrb->SetUInt32Value(GAMEOBJECT_FACTION, 35);
+                    pOrb->SetFaction(FACTION_FRIENDLY);
                     pOrb->setActive(true);
                     pOrb->Refresh();
 

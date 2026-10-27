@@ -61,8 +61,7 @@ enum ProfessorPhizzlethorpe
     QUEST_SUNKEN_TREASURE   = 665,
     QUEST_GOGGLE_BOGGLE     = 26050,
     // Creatures
-    NPC_VENGEFUL_SURGE      = 2776,
-    FACTION_SUNKEN_TREASURE = 113
+    NPC_VENGEFUL_SURGE      = 2776
 };
 
 struct npc_professor_phizzlethorpe : public npc_escortAI
@@ -113,7 +112,7 @@ struct npc_professor_phizzlethorpe : public npc_escortAI
         {
             Talk(SAY_PROGRESS_1, player);
             npc_escortAI::Start(false, false, player->GetGUID(), quest);
-            me->SetFaction(FACTION_SUNKEN_TREASURE);
+            me->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
         }
     }
 

@@ -54,9 +54,6 @@ enum EternalBoard
 {
     QUEST_A_PAWN_ON_THE_ETERNAL_BOARD = 8519,
 
-    FACTION_HOSTILE                   = 14,
-    FACTION_FRIENDLY                  = 35,
-
     EVENT_AREA_RADIUS                 = 65,     // 65yds
     EVENT_COOLDOWN                    = 500000, // in ms. appears after event completed or failed (should be = Adds despawn time)
 

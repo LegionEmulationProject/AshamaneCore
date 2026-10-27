@@ -47,8 +47,6 @@ enum Aeranas
 {
     SAY_SUMMON                  = 0,
     SAY_FREE                    = 1,
-    FACTION_HOSTILE             = 16,
-    FACTION_FRIENDLY            = 35,
     SPELL_ENVELOPING_WINDS      = 15535,
     SPELL_SHOCK                 = 12553
 };
@@ -88,7 +86,7 @@ public:
             {
                 if (faction_Timer <= diff)
                 {
-                    me->SetFaction(FACTION_HOSTILE);
+                    me->SetFaction(FACTION_MONSTER_2);
                     faction_Timer = 0;
                 } else faction_Timer -= diff;
             }
@@ -253,7 +251,7 @@ enum WoundedBloodElf
     QUEST_ROAD_TO_FALCON_WATCH  = 9375,
     NPC_HAALESHI_WINDWALKER     = 16966,
     NPC_HAALESHI_TALONGUARD     = 16967,
-    FACTION_FALCON_WATCH_QUEST  = 775
+  
 };
 
 class npc_wounded_blood_elf : public CreatureScript
@@ -282,7 +280,7 @@ public:
         {
             if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
             {
-                me->SetFaction(FACTION_FALCON_WATCH_QUEST);
+                me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
                 npc_escortAI::Start(true, false, player->GetGUID());
             }
         }
@@ -1005,7 +1003,7 @@ public:
                     break;
                 case EVENT_ATTACK:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                    me->SetFaction(FACTION_HOSTILE);
+                    me->SetFaction(FACTION_MONSTER_2);
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                         me->CombatStart(player);
                     _events.ScheduleEvent(EVENT_FIREBALL, 1);

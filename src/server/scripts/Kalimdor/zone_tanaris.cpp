@@ -91,7 +91,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetFaction(35);
+            me->SetFaction(FACTION_FRIENDLY);
         }
 
         void SendItem(Unit* receiver)
@@ -121,7 +121,7 @@ public:
             {
                 if (SwitchFactionTimer <= diff)
                 {
-                    me->SetFaction(91);
+                    me->SetFaction(FACTION_ELEMENTAL);
                     isFriendly = false;
                 } else SwitchFactionTimer -= diff;
             }
