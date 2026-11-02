@@ -82,7 +82,7 @@ jobs:
 
     - name: Copy Dependencies
       run: |
-        cd ${{ steps.strings.outputs.build-output-dir }}/bin/${{ env.CMAKE_BUILD_TYPE }}
+        cd ${{ steps.strings.outputs.build-output-dir }}/bin/
         $mysqlRootPath = (Get-Item (Get-Content ${{ steps.strings.outputs.build-output-dir }}/CMakeCache.txt | Select-String '^MySQL_LIBRARY:FILEPATH=').ToString().Split('=')[1]).Directory.Parent.FullName
         copy "$mysqlRootPath/lib/libmysql.dll" libmysql.dll
         # mysql may depend on a different version of openssl so copy its dlls first (override later with openssl's own if same version)
