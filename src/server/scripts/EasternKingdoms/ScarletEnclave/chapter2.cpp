@@ -15,14 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "CreatureTextMgr.h"
 #include "GameObject.h"
-#include "MotionMaster.h"
-#include "ObjectAccessor.h"
-#include "Player.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "Player.h"
 #include "SpellInfo.h"
+#include "CreatureTextMgr.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
 
 //How to win friends and influence enemies
 // texts signed for creature 28939 but used for 28939, 28940, 28610
@@ -201,18 +202,6 @@ class npc_koltira_deathweaver : public CreatureScript
 public:
     npc_koltira_deathweaver() : CreatureScript("npc_koltira_deathweaver") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_BREAKOUT)
-        {
-            creature->SetStandState(UNIT_STAND_STATE_STAND);
-
-            if (npc_escortAI* escortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI, creature->AI()))
-                escortAI->Start(false, false, player->GetGUID());
-        }
-        return true;
-    }
-
     struct npc_koltira_deathweaverAI : public npc_escortAI
     {
         npc_koltira_deathweaverAI(Creature* creature) : npc_escortAI(creature)
@@ -353,6 +342,15 @@ public:
                 }
                 else
                     waveTimer -= uiDiff;
+            }
+        }
+
+        void QuestAccept(Player* player, Quest const* quest)
+        {
+            if (quest->GetQuestId() == QUEST_BREAKOUT)
+            {
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                Start(false, false, player->GetGUID());
             }
         }
 
@@ -701,12 +699,6 @@ public:
                 case 29070:                                     // Valok the Righteous
                     if (player->GetQuestStatus(12746) == QUEST_STATUS_INCOMPLETE)
                         return true;
-                case 49355:                                     // Lord Harford
-                    if (player->GetQuestStatus(28649) == QUEST_STATUS_INCOMPLETE)
-                        return true;
-                case 49356:                                     // Gally Lumpstain
-                    if (player->GetQuestStatus(28650) == QUEST_STATUS_INCOMPLETE)
-                        return true;
                     break;
             }
 
@@ -1036,66 +1028,6 @@ public:
                                     break;
                                 case 11:
                                     Talk(EMOTE_DIES);
-                                    me->setDeathState(JUST_DIED);
-                                    me->SetHealth(0);
-                                    return;
-                            }
-                            break;
-                        case RACE_GOBLIN:
-                            switch (ExecuteSpeech_Counter)
-                            {
-                                case 0: Talk(SAY_EXEC_START_1, player); break;
-                                case 1: me->SetStandState(UNIT_STAND_STATE_STAND); break;
-                                case 2: Talk(SAY_EXEC_PROG_5, player); break;
-                                case 3: Talk(SAY_EXEC_NAME_1, player); break;
-                                case 4: Talk(SAY_EXEC_RECOG_1, player); break;
-                                case 5: Talk(SAY_EXEC_NOREM_5, player); break;
-                                case 6: Talk(SAY_EXEC_THINK_7, player); break;
-                                case 7: Talk(SAY_EXEC_LISTEN_1, player); break;
-                                case 8:
-                                    if (Creature* Plaguefist = GetClosestCreatureWithEntry(me, NPC_PLAGUEFIST, 85.0f))
-                                        Plaguefist->AI()->Talk(SAY_PLAGUEFIST, player);
-                                    break;
-                                case 9:
-                                    Talk(SAY_EXEC_TIME_6, player);
-                                    me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                                    break;
-                                case 10:
-                                    Talk(SAY_EXEC_WAITING, player);
-                                    break;
-                                case 11:
-                                    Talk(EMOTE_DIES, me);
-                                    me->setDeathState(JUST_DIED);
-                                    me->SetHealth(0);
-                                    return;
-                            }
-                            break;
-                        case RACE_WORGEN:
-                            switch (ExecuteSpeech_Counter)
-                            {
-                                case 0: Talk(SAY_EXEC_START_1, player); break;
-                                case 1: me->SetStandState(UNIT_STAND_STATE_STAND); break;
-                                case 2: Talk(SAY_EXEC_PROG_5, player); break;
-                                case 3: Talk(SAY_EXEC_NAME_1, player); break;
-                                case 4: Talk(SAY_EXEC_RECOG_1, player); break;
-                                case 5: Talk(SAY_EXEC_NOREM_5, player); break;
-                                case 6: Talk(SAY_EXEC_THINK_7, player); break;
-                                case 7: Talk(SAY_EXEC_LISTEN_1, player); break;
-                                case 8:
-                                    if (Creature* Plaguefist = GetClosestCreatureWithEntry(me, NPC_PLAGUEFIST, 85.0f))
-                                        Plaguefist->AI()->Talk(SAY_PLAGUEFIST, player);
-                                    break;
-                                case 9:
-                                    Talk(SAY_EXEC_TIME_6, player);
-                                    me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                                    break;
-                                case 10:
-                                    Talk(SAY_EXEC_WAITING, player);
-                                    break;
-                                case 11:
-                                    Talk(EMOTE_DIES, me);
                                     me->setDeathState(JUST_DIED);
                                     me->SetHealth(0);
                                     return;
