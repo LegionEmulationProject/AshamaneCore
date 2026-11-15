@@ -326,7 +326,7 @@ class TC_GAME_API ConditionMgr
         ConditionEntriesByCreatureIdMap SpellClickEventConditionStore;
         ConditionEntriesByCreatureIdMap NpcVendorConditionContainerStore;
         SmartEventConditionContainer    SmartEventConditionStore;
-        std::unordered_map<std::pair</*object type*/, /*object id*/>, ConditionContainer> ObjectVisibilityConditionStore;
+        std::unordered_map<std::pair<uint32 /*object type*/, uint32 /*object id*/>, ConditionContainer> ObjectVisibilityConditionStore;
 };
 
 #define sConditionMgr ConditionMgr::instance()
