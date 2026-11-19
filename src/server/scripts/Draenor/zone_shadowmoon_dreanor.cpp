@@ -484,6 +484,10 @@ enum ArchmageKhadgarLunarFall
 	SPELL_ARCANE_CHANNELING                  = 32783,
 		
 	SAY_ARCHMAGE_KHADGAR_FIRST_LINE 		 = 0,
+
+    NPC_STORMWIND_PORTAL                     = 79429,
+
+    POSITION_START_KHADGAR                   = 1,
 };
 
 /// 82125 - Archmage Khadgar (Lunarfall Pre Garrison)
@@ -523,12 +527,6 @@ public:
 						me->CastSpell(me, SPELL_ARCANE_CHANNELING, false);
 					});
 
-                    AddTimedDelayedOperation(3.5 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
-                    {
-                        if (Player* player = me->SelectNearestPlayer(50.0f))
-                            player->CastSpell(nullptr, SPELL_SUMMON_PORTAL_EFFECTS_BUNNY, false);
-                    });
-
                     AddTimedDelayedOperation(7 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
                     {
                         if (Player* player = me->SelectNearestPlayer(50.0f))
@@ -543,12 +541,38 @@ public:
                                 maraadLunar->AI()->Talk(SAY_VINDICATOR_MARAAD_SECOND);
                     });
 
+                    AddTimedDelayedOperation(20 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+                        me->RemoveAura(SPELL_ARCANE_CHANNELING);
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_STUN);
+                        if (Creature* portal = me->FindNearestCreature(NPC_STORMWIND_PORTAL, 20.0f))
+                            portal->DespawnOrUnsummon();
+
+                    });
+
+                    AddTimedDelayedOperation(22.2 * AsUnderlyingType(IN_MILLISECONDS), [this]() -> void
+                    {
+                        me->HandleEmoteCommand(EMOTE_STATE_STAND);
+                        me->GetMotionMaster()->MovePoint(POSITION_START_KHADGAR, 1943.910f, 339.194f, 89.015f, false);
+                    });
+
 					break;
 				}
 				default:
 					break;
 			}
 		}
+
+        void MovementInform(uint32 type, uint32 point) override
+        {
+            switch (point)
+            {
+                case POSITION_START_KHADGAR:
+                    me->SetFacingTo(4.303131f);
+                default:
+                    break;
+            }
+        }
 	};
 
 	CreatureAI* GetAI(Creature* creature) const
