@@ -3879,6 +3879,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         160416, // Lunarfall Guard 2
         165278, // Starfall Sentinel
         165275, // Assistant Brightstone
+        165274, // Garrison Laborer 001
+        165277, // Garrison Laborer 004
+        160801, // Jarrod Hamby
+        160800, // Shelly Hamby
+        165273, // Pippers
+        165276, // Garrison Laborer 003
+        160417, // Zipfizzle
+        160418, // Packmule
+        160419, // Baros Alexston
     }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
