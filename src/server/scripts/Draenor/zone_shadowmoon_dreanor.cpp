@@ -37,11 +37,24 @@
 #include "Chat.h"
 #include "WorldSession.h"
 
+enum PreGarrisonCreatureText
+{
+	// Looking for lumber
+	SAY_MARK_THOSE_TREES                                = 0,
+	SAY_EXCELLENT_LUMBER                                = 2,
+	// Ravenous Ravens
+	SAY_GIANT_KILLER_RAVENS                             = 1,
+	SAY_IMPRESSIVE_WORK                                 = 3,
+	// Establish your garrison
+	SAY_START_CONSTRUCTION                  			= 4,
+};
+
 enum PreGarrisonQuests
 {
     QUEST_FINDING_A_FOOTHOLD                = 34582,
     QUEST_FOR_THE_ALLIANCE                  = 34583,
-
+    QUEST_LOOKING_FOR_LUMBER                = 34584,
+	QUEST_RAVENOUS_RAVENS                   = 34616,
     QUEST_ESTABLISH_YOUR_GARRISON           = 34586,
 };
 
@@ -586,31 +599,62 @@ class npc_baros_pre_garrison : public CreatureScript
 public:
     npc_baros_pre_garrison() : CreatureScript("npc_baros_pre_garrison") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+	    {
+            if (quest->GetQuestId() == QUEST_LOOKING_FOR_LUMBER)
+            {
+                creature->AI()->Talk(SAY_MARK_THOSE_TREES);
+            }
+            if (quest->GetQuestId() == QUEST_RAVENOUS_RAVENS)
+            {
+                creature->AI()->Talk(SAY_GIANT_KILLER_RAVENS);
+            }
+            return true;
+	    }
 
-        if (player->GetQuestStatus(QUEST_ESTABLISH_YOUR_GARRISON) == QUEST_STATUS_INCOMPLETE)
-            AddGossipItemFor(player, 60002, 1, 0, 0);
+        bool OnQuestCompleted(Player* player, Creature* creature, Quest const* quest) 
+	    {
+            if (quest->GetQuestId() == QUEST_LOOKING_FOR_LUMBER)
+            {
+                creature->AI()->Talk(SAY_EXCELLENT_LUMBER);
+            }
+            if (quest->GetQuestId() == QUEST_RAVENOUS_RAVENS)
+            {
+                creature->AI()->Talk(SAY_IMPRESSIVE_WORK);
+            }
+            return true;	    		
+	    }
 
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
+    	struct npc_baros_pre_garrisonAI : public ScriptedAI
+	    {
+		    npc_baros_pre_garrisonAI(Creature* creature) : ScriptedAI(creature) { }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) override
-    {
-        Garrison* garrison = player->GetGarrison(GARRISON_TYPE_GARRISON);
-        if (!garrison)
+        bool OnGossipHello(Player* player, Creature* creature)
         {
-            CloseGossipMenuFor(player);
-            player->CreateGarrison(player->IsInAlliance() ? GARRISON_SITE_WOD_ALLIANCE : GARRISON_SITE_WOD_HORDE);
-            player->GetGarrison(GARRISON_TYPE_GARRISON)->ToWodGarrison()->TeleportOwnerAndPlayMovie();
-            player->KilledMonsterCredit(NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT);
+            if (creature->IsQuestGiver())
+                player->PrepareQuestMenu(creature->GetGUID());
+
+            if (player->GetQuestStatus(QUEST_ESTABLISH_YOUR_GARRISON) == QUEST_STATUS_INCOMPLETE)
+                AddGossipItemFor(player, 60002, 1, 0, 0);
+
+            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+            return true;
         }
 
-        return true;
-    }
+        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/)
+        {
+            Garrison* garrison = player->GetGarrison(GARRISON_TYPE_GARRISON);
+            if (!garrison)
+            {
+                CloseGossipMenuFor(player);
+                player->CreateGarrison(player->IsInAlliance() ? GARRISON_SITE_WOD_ALLIANCE : GARRISON_SITE_WOD_HORDE);
+                player->GetGarrison(GARRISON_TYPE_GARRISON)->ToWodGarrison()->TeleportOwnerAndPlayMovie();
+                player->KilledMonsterCredit(NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT);
+            }
+
+            return true;
+        }
+    };
 };
 
 // Revendication 169455
