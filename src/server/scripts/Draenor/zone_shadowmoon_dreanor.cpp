@@ -73,6 +73,8 @@ enum PreGarrisonNPCs
 enum ShadowmoonPreGarrisonSpells
 {	
 	SPELL_TRIGGER_MULTI_SPELL_GARRISON_INTRO = 160856,
+    SPELL_KILLCREDIT_SMV_ESTABLISH_YOUR_GARR = 161033,
+    SPELL_DESPAWN_ALL_SUMMONS_GARRISON_INTRO = 160938,
 };
 
 enum PreGarrisonEtc
@@ -609,6 +611,10 @@ public:
             {
                 creature->AI()->Talk(SAY_GIANT_KILLER_RAVENS);
             }
+            if (quest->GetQuestId() == QUEST_ESTABLISH_YOUR_GARRISON)
+            {
+                creature->AI()->Talk(SAY_START_CONSTRUCTION);
+            }
             return true;
 	    }
 
@@ -625,9 +631,9 @@ public:
             return true;	    		
 	    }
 
-    	struct npc_baros_pre_garrisonAI : public ScriptedAI
-	    {
-		    npc_baros_pre_garrisonAI(Creature* creature) : ScriptedAI(creature) { }
+    struct npc_baros_pre_garrisonAI : public ScriptedAI
+	{
+		npc_baros_pre_garrisonAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -647,9 +653,11 @@ public:
             if (!garrison)
             {
                 CloseGossipMenuFor(player);
-                player->CreateGarrison(player->IsInAlliance() ? GARRISON_SITE_WOD_ALLIANCE : GARRISON_SITE_WOD_HORDE);
+                player->CreateGarrison(GARRISON_SITE_WOD_ALLIANCE);
                 player->GetGarrison(GARRISON_TYPE_GARRISON)->ToWodGarrison()->TeleportOwnerAndPlayMovie();
-                player->KilledMonsterCredit(NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT);
+                player->CastSpell(player, SPELL_KILLCREDIT_SMV_ESTABLISH_YOUR_GARR, true);
+                player->CastSpell(player, SPELL_DESPAWN_ALL_SUMMONS_GARRISON_INTRO, true);
+                PhasingHandler::OnConditionChange(player);
             }
 
             return true;
